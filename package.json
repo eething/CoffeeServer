@@ -1,0 +1,24 @@
+{
+  "name": "coffee-server",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "start": "node app"
+  },
+  "description": "CoffeeServer",
+  "author": {
+    "name": "OhHyunSeok"
+  },
+  "dependencies": {
+    "body-parser": "^1.18.3",
+    "cookie-parser": "^1.4.3",
+    "debug": "^3.1.0",
+    "express": "^4.16.3",
+    "morgan": "^1.9.0",
+    "pug": "^2.0.3",
+    "serve-favicon": "^2.5.0"
+  },
+  "engines": {
+    "node": "~6.10.x"
+  }
+}
