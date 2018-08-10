@@ -1,5 +1,6 @@
 ﻿'use strict';
-var debug = require('debug');
+var fs = require( 'fs' );
+var debug = require('debug')('CoffeeServer');
 var express = require('express');
 var path = require('path');
 var favicon = require('serve-favicon');
@@ -10,6 +11,14 @@ var bodyParser = require('body-parser');
 var routes = require( './routes/index' );
 var users = require( './routes/users' );
 var beverages = require( './routes/beverages' );
+
+fs.mkdir( 'data', ()=>{
+  fs.mkdir( 'data/beverages', ()=>{
+    fs.mkdir( 'data/orders', ()=>{
+      fs.mkdir( 'data/users', ()=>{} );
+    });
+  });
+});
 
 var app = express();
 
