@@ -8,17 +8,31 @@ var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 
-var routes = require( './routes/index' );
-var users = require( './routes/users' );
-var beverages = require( './routes/beverages' );
+var user		= require( './route/user' );
+var beverage	= require( './route/beverage' );
+var order		= require( './route/order' );
 
-fs.mkdir( 'data', ()=>{
-  fs.mkdir( 'data/beverages', ()=>{
-    fs.mkdir( 'data/orders', ()=>{
-      fs.mkdir( 'data/users', ()=>{} );
-    });
-  });
-});
+
+var routes		= require( './routes/index' );
+var users		= require( './routes/users' );
+var beverages	= require( './routes/beverages' );
+var orders		= require( './routes/orders' );
+
+fs.mkdir( 'data', () => {
+
+	fs.mkdir( 'data/users', () => {
+		user.loadUsers();
+	} );
+
+	fs.mkdir( 'data/beverages', () => {
+		beverage.loadBeverage();
+	} );
+
+	fs.mkdir( 'data/orders', () => {
+		order.loadOrder();
+	} );
+
+} );
 
 var app = express();
 
@@ -36,9 +50,10 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use( '/', routes );
-app.use( '/users', users );
-app.use( '/beverage', beverages );
+app.use( '/',			routes );
+app.use( '/users',		users );
+app.use( '/beverage',	beverages );
+app.use( '/order',		orders );
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

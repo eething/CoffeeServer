@@ -40,41 +40,38 @@ router.post( '/add', function ( req, res ) {
 } );
 
 function deleteFiles( files, callback ) {
-  var i = files.length;
-  files.forEach( ( filepath ) => {
-      fs.unlink( filepath, ( err ) => {
-      i--;
-      if( err ) {
-        console.log( 'err' );
-        callback( err );
-        return;
-      }
-      else if( i <= 0 ) {
-        console.log( 'end' );
-        callback( null );
-      }
-      else {
-        console.log( 'deleted : ' + filepath );
-      }
-    } );
-  });
+	var i = files.length;
+	files.forEach( ( filepath ) => {
+		fs.unlink( filepath, ( err ) => {
+			i--;
+			if( err ) {
+				callback( err );
+			}
+			if( i <= 0 ) {
+				callback( null );
+			}
+		} );
+	} );
 }
 
 router.post( '/del', function ( req, res ) {
 
-	console.log( req.body );
-
-  var deletePath = [];
+	var deletePath = [];
 	for( var key in req.body ) {
-		deletePath.push( 'data/beverages/'+key );
+		deletePath.push( 'data/beverages/' + key );
 	}
 
-  deleteFiles( deletePath, ( err ) => {
-    if( err )
-      res.send( 'error<br><br>' + err + '<br><br>' + JSON.stringify( req.body ) );
-    else
-      res.send( 'this is del manager<br><br>' + JSON.stringify( req.body ) );
-  } );
+	var errmsg = '<br><br>';
+	deleteFiles( deletePath, ( err ) => {
+		if( err ) {
+			errmsg += err + '<br>';
+		}
+		else {
+			var msg = 'this is del manager<br><br>' + JSON.stringify( req.body );
+			msg += errmsg;
+			res.send( msg );
+		}
+	} );
 
 } );
 
