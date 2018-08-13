@@ -126,7 +126,7 @@ module.exports = {
 			let len = files.length;
 
 			files.forEach( ( file ) => {
-				fs.readFile( files, ( err, data ) => {
+				fs.readFile( `data/orders/${file}`, ( err, data ) => {
 					--len;
 
 					const value = JSON.parse( data );

@@ -10,7 +10,7 @@ module.exports = {
 	loadBeverages() {
 		fs.readdir( 'data/beverages', ( err, files ) => {
 			files.forEach( ( file ) => {
-				fs.readFile( files, ( err, data ) => {
+				fs.readFile( `data/beverages/${file}`, ( err, data ) => {
 					const value = JSON.parse( data );
 					const key = value.name;
 					this.allBeverages[key] = value;

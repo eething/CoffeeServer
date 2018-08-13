@@ -15,7 +15,7 @@ module.exports = {
 			let len = files.length;
 
 			files.forEach( ( file ) => {
-				fs.readFile( files, ( err, data ) => {
+				fs.readFile( `data/users/${file}`, ( err, data ) => {
 					--len;
 
 					const value = JSON.parse( data );
@@ -47,7 +47,7 @@ module.exports = {
 			let value = body[key];
 			/* TODO - 암호화하기
 			if( key == 'password' ) {
-				
+
 			}
 			*/
 			user[key] = value;

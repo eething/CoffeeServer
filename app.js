@@ -15,9 +15,9 @@ var order			= require( './codes/order' );
 
 // Routers
 var routeAuth		= require( './routes/route-auth' );
-var routeBeverages	= require( './routes/route-beverage' );
+var routeBeverage	= require( './routes/route-beverage' );
 var routeIndex		= require( './routes/route-index' );
-var routeOrders		= require( './routes/route-order' );
+var routeOrder		= require( './routes/route-order' );
 var routeUser		= require( './routes/route-user' );
 
 fs.mkdir( 'data', () => {
@@ -27,11 +27,11 @@ fs.mkdir( 'data', () => {
 	} );
 
 	fs.mkdir( 'data/beverages', () => {
-		beverage.loadBeverage();
+		beverage.loadBeverages();
 	} );
 
 	fs.mkdir( 'data/orders', () => {
-		order.loadOrder();
+		order.loadOrders();
 	} );
 
 } );
@@ -55,8 +55,8 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use( '/',			routeIndex );
 app.use( '/auth',		routeAuth );
-app.use( '/beverage',	routBeverages );
-app.use( '/order',		routOrders );
+app.use( '/beverage',	routeBeverage );
+app.use( '/order',		routeOrder );
 app.use( '/user',		routeUser );
 
 
@@ -91,8 +91,8 @@ app.use(function (err, req, res, next) {
     });
 });
 
-app.set('port', process.env.PORT || 3000);
+app.set( 'port', process.env.PORT || 3000 );
 
-var server = app.listen(app.get('port'), function () {
-    debug('Express server listening on port ' + server.address().port);
-});
+var server = app.listen( app.get( 'port' ), function () {
+    debug( 'Express server listening on port ' + server.address().port );
+} );
