@@ -6,8 +6,6 @@
     <Name>CoffeeServer</Name>
     <RootNamespace>CoffeeServer</RootNamespace>
     <NameOfLastUsedPublishProfile>L2Coffee - Web Deploy</NameOfLastUsedPublishProfile>
-    <Environment>
-    </Environment>
   </PropertyGroup>
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
@@ -33,20 +31,14 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="app.js" />
-    <Compile Include="routes\beverage.js">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="routes\beverages.js">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="routes\index.js" />
-    <Compile Include="routes\order.js">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="routes\user.js">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="routes\users.js" />
+    <Compile Include="codes\beverage.js" />
+    <Compile Include="codes\order.js" />
+    <Compile Include="codes\user.js" />
+    <Compile Include="routes\route-auth.js" />
+    <Compile Include="routes\route-beverage.js" />
+    <Compile Include="routes\route-index.js" />
+    <Compile Include="routes\route-order.js" />
+    <Compile Include="routes\route-user.js" />
     <None Include="L2Coffee - Web Deploy.pubxml" />
     <Content Include="package.json" />
     <Content Include="public\stylesheets\main.css" />
