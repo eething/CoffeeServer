@@ -1,4 +1,4 @@
-﻿'use strict';
+'use strict';
 const fs = require( 'fs' );
 
 module.exports = {
@@ -31,7 +31,7 @@ module.exports = {
 
 		for( const key in allOrders ) {
 			if( key !== this.todayString ) {
-				delete allOrders[key];
+				delete allOrders[ key ];
 			}
 		}
 	},
@@ -53,23 +53,24 @@ module.exports = {
 
 	_loadTodayOrder( _callback ) {
 
-		if( allOrders[this.todayString] ) {
+		if( allOrders[ this.todayString ] ) {
 			_callback();
 			return;
 		}
 
-		const data = fs.readFile( `data/orders/${this.todayString}`, ( err, data ) => {
+		const filePath = `data/orders/${this.todayString}`;
+		const data = fs.readFile( filePath, ( err, data ) => {
 			if( err ) {
 				const value = JSON.parse( data );
 				const key = this.todayString;
-				allOrders[key] = {
+				allOrders[ key ] = {
 					date: this.todayString,
 					orderList: []
 				};
 			} else {
 				const value = JSON.parse( data );
 				const key = value.date;
-				allOrders[key] = value;
+				allOrders[ key ] = value;
 
 				this._addCurrentOrderList( value );
 			}
@@ -85,7 +86,7 @@ module.exports = {
 			// 그냥 때려박으면 별로 의미가 없나-_-
 			let order = {};
 			for( let key in body ) {
-				order[key] = value;
+				order[ key ] = value;
 			}
 
 			let isNewOrder = true;
@@ -100,19 +101,18 @@ module.exports = {
 			}
 
 
-			allOrders[this.todayString].orderList.push( order );
+			allOrders[ this.todayString ].orderList.push( order );
 			let orderString = JSON.stringify( order );
 			fw.writeFile( `/data/orders/${this.todayString}`, orderString, ( err ) => {
 				if( err ) {
 					callback( {
 						err: "WriteFileFailed",
-						msg: [`addOrder Failed - ${err}`]
+						msg: [ `addOrder Failed - ${err}` ]
 					} );
-				}
-				else {
+				} else {
 					callback( {
 						err: "Success",
-						msg: [`addOrder Success - ${orderString}`]
+						msg: [ `addOrder Success - ${orderString}` ]
 					} );
 				}
 			} );
@@ -126,12 +126,16 @@ module.exports = {
 			let len = files.length;
 
 			files.forEach( ( file ) => {
-				fs.readFile( `data/orders/${file}`, ( err, data ) => {
+				const filePath = `data/orders/${file}`;
+				fs.readFile( filePath, ( err, data ) => {
+					if( err && err.code === 'EISDIR' ) {
+						return;
+					}
 					--len;
 
 					const value = JSON.parse( data );
 					const key = value.date;
-					allOrders[key] = value;
+					allOrders[ key ] = value;
 
 					/*
 					if( len === 0 ) {

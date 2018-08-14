@@ -1,4 +1,4 @@
-﻿'use strict';
+'use strict';
 const fs = require( 'fs' );
 
 module.exports = {
@@ -10,10 +10,14 @@ module.exports = {
 	loadBeverages() {
 		fs.readdir( 'data/beverages', ( err, files ) => {
 			files.forEach( ( file ) => {
-				fs.readFile( `data/beverages/${file}`, ( err, data ) => {
+				const filePath = `data/beverages/${file}`;
+				fs.readFile( filePath, ( err, data ) => {
+					if( err && err.code === 'EISDIR' ) {
+						return;
+					}
 					const value = JSON.parse( data );
 					const key = value.name;
-					this.allBeverages[key] = value;
+					this.allBeverages[ key ] = value;
 				} );
 			} );
 		} );
@@ -22,26 +26,26 @@ module.exports = {
 	addBeverage( body, callback ) {
 		let beverage = {}
 		for( let key in body ) {
-			let value = body[key];
+			let value = body[ key ];
 			if( key.substr( -4 ) == "able" && value == "on" ) {
 				value = true;
 			}
-			beverage[key] = value;
+			beverage[ key ] = value;
 		}
-		this.allBeverages[beverage.name] = beverage;
+		this.allBeverages[ beverage.name ] = beverage;
 
 		let beverageString = JSON.stringify( beverage );
-		fs.writeFile( `data/beverages/${beverage.name}`, beverageString, ( err ) => {
+		let filePath = `data/beverages/${beverage.name}`;
+		fs.writeFile( filePath, beverageString, ( err ) => {
 			if( err ) {
 				callback( {
 					err: "WriteFileFailed",
-					msg: [`addBeverage Failed - ${err}`]
+					msg: [ `addBeverage Failed - ${err}` ]
 				} );
-			}
-			else {
+			} else {
 				callback( {
 					err: "Success",
-					msg: [`addBeverage Success - ${beverageString}`]
+					msg: [ `addBeverage Success - ${beverageString}` ]
 				} );
 			}
 		} );
@@ -53,22 +57,22 @@ module.exports = {
 		if( len === 0 ) {
 			callback( {
 				err: "InputNotExist",
-				msg: ['deleteBeverage Failed - Input is NOT Exist']
+				msg: [ 'deleteBeverage Failed - Input is NOT Exist' ]
 			} );
 			return;
 		}
 
-		let msg = ['deleteBeverage'];
+		let msg = [ 'deleteBeverage' ];
 		for( let key in body ) {
-			delete this.allBeverages[key];
+			delete this.allBeverages[ key ];
 
-			let filepath = `data/beverages/${key}`;
-			fs.unlink( filepath, ( err ) => {
+			const filePath = `data/beverages/${key}`;
+			fs.unlink( filePath, ( err ) => {
 				--len;
 				if( err ) {
-					msg.push( `* ${err}` );
+					msg.push( `${err}` );
 				} else {
-					msg.push( `* Success - ${filepath}` );
+					msg.push( `Success - ${filepath}` );
 				}
 
 				if( len === 0 ) {
@@ -79,7 +83,7 @@ module.exports = {
 	},
 
 	getIceHotType: function ( name ) {
-		const beverage = this.allBeverages[name];
+		const beverage = this.allBeverages[ name ];
 
 		if( beverage.icoable ) {
 			if( beverage.hotable ) {

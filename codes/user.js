@@ -1,4 +1,4 @@
-﻿'use strict';
+'use strict';
 const fs = require( 'fs' );
 
 module.exports = {
@@ -15,12 +15,16 @@ module.exports = {
 			let len = files.length;
 
 			files.forEach( ( file ) => {
-				fs.readFile( `data/users/${file}`, ( err, data ) => {
-					--len;
+				const filePath = `data/users/${file}`;
+				fs.readFile( filePath, ( err, data ) => {
+					if( err && err.code === 'EISDIR' ) {
+						return;
+					}
 
+					--len;
 					const value = JSON.parse( data );
 					const key = value.id;
-					allUsers[key] = value;
+					allUsers[ key ] = value;
 
 					if( id > uniqueID ) {
 						uniqueID = id;
@@ -38,34 +42,33 @@ module.exports = {
 		if( !this.isLoaded )
 			return null;
 
-		return allUsers[id];
+		return allUsers[ id ];
 	},
 
 	addUser( body, callback ) {
 		let user = { id: ++uniqueID };
 		for( let key in body ) {
-			let value = body[key];
+			let value = body[ key ];
 			/* TODO - 암호화하기
 			if( key == 'password' ) {
 
 			}
 			*/
-			user[key] = value;
+			user[ key ] = value;
 		}
-		this.allUsers[user.id] = user;
+		this.allUsers[ user.id ] = user;
 
 		let userString = JSON.stringify( user );
 		fs.writeFile( `data/users/${user.id}`, userString, ( err ) => {
 			if( err ) {
 				callback( {
 					err: "WriteFileFailed",
-					msg: [`addUser Failed - ${err}`]
+					msg: [ `addUser Failed - ${err}` ]
 				} );
-			}
-			else {
+			} else {
 				callback( {
 					err: "Success",
-					msg: [`addUser Success - ${userString}`]
+					msg: [ `addUser Success - ${userString}` ]
 				} );
 			}
 		} );
@@ -78,12 +81,12 @@ module.exports = {
 		if( len === 0 ) {
 			callback( {
 				err: "InputNotExist",
-				msg: [`${command} Failed - Input is NOT Exist`]
+				msg: [ `${command} Failed - Input is NOT Exist` ]
 			} );
 			return;
 		}
 
-		let msg = [command]
+		let msg = [ command ]
 		for( let key in body ) {
 			let user = this._getUser( key );
 			if( !user ) {
