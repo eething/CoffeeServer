@@ -1,87 +1,182 @@
 ﻿doctype html
 html
 	head
-		title Beverage Edit Page
-		script.
-			function init()
-			{
+		meta(name="viewport" content="user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, width=device-width, height=device-height")		title Beverage Edit Page
+		style.
+			
+			div {
+				margin-top:10px;
+			}
+			div.dimmer {
+				visibility: hidden;
+				position: fixed;
+				top: 0;
+				left: 0;
+				width: 100%;
+				height: 100%;
+				background-color:#000;
+				opacity:0.8;
+				z-index: 10;
+			}
+			div.autoselector {
+				visibility: hidden;
+				position: absolute;
+				top: 20px;
+				left: 20px;
+				width: 250px;
+				height: 300px;
+				z-index: 20;
+				background-color: #D66;
+				border: 3px outset #F99;				
+				text-align: center;
+			}
+			div.autoselector p {
+				line-height: 30px;
 			}
 
+			input {
+				background-color:#09f;
 			}
-			function add(self)
-			{
-				if( self.name.value == "" )
-				{
-					alert('음료명을 입력해주세요');
+			input::-webkit-calendar-picker-indicator {
+				background-color: inherit;
+				//color:red;
+				//display: none;
+			}
+
+		script.
+			let l2data = {
+				allBeverages: {},
+
+			};
+			function removeChildAll( node ) {
+				while( node.lastChild ) {
+					node.removeChild( node.lastChild );
+				}
+			}
+			function init() {
+				fetch( 'beverage/list' ).then( function( res ) {
+					if( res.ok ) {
+						res.json().then( ( data ) => {
+							l2data.allBeverages = data;
+							let list = document.querySelector( '#beverageList' );
+							removeChildAll( list );
+							for( const bKey in l2data.allBeverages ) {
+								let beverage = l2data.allBeverages[bKey];
+								let option = document.createElement( 'option' );
+								option.text = `${beverage.name}Text`;
+								option.value= `${beverage.name}`;
+								list.appendChild( option );
+							}
+						} );
+					}
+
+				} );
+			}
+			function order( self ) {
+				if( self.beverage.value == "" ) {
+					alert( '음료명을 입력해주세요' );
+					return false;
+				}
+				if( !l2data.allBeverages[self.beverage.value] ) {
+					alert( '없는 음료입니다.' );
 					return false;
 				}
 				return true;
 			}
-			function del(self)
-			{
-				var chkon = false;
-				var delchks = document.querySelectorAll('input.delchk');
-				for( var delchk of delchks )
-				{
-					if( delchk.checked )
-					{
-						return true;
+			function showBeverageOptions( beverage ){
+
+				let divIce = document.querySelector( 'div.ice' );
+				let divHot = document.querySelector( 'div.hot' );
+				let divSyrup = document.querySelector( 'div.syrup' );
+				let radioIce = document.querySelector( '#ice' );
+				let radioHot = document.querySelector( '#hot' );
+					
+				radioIce.checked = false;
+				radioHot.checked = false;
+				if( beverage.iceable ) {
+					divIce.style.display = '';
+					if( !beverage.hotable ) {
+						radioIce.checked = true;
 					}
+				} else {
+					divIce.style.display = 'none';
 				}
-				alert('삭제할 음료를 선택해주세요');
-				return false;
+				if( beverage.hotable ) {
+					divHot.style.display = '';
+					if( !beverage.iceable ) {
+						radioHot.checked = true;
+					}
+				} else {
+					divHot.style.display = 'none';
+				}
+
+				if( beverage.syrupable ) {
+					divSyrup.style.display = '';
+				} else {
+					divSyrup.style.display = 'none';
+				}
 			}
+			function popupCandidateList( start ) {
+				let visMode = 'hidden'
+				if( start ) {
+					visMode = 'visible';
+				}
+				document.querySelector( 'div.dimmer' ).style.visibility = visMode;
+				document.querySelector( 'div.autoselector' ).style.visibility = visMode;
+			}
+			function onChangeBeverage( self ){
+				console.log( 'onChangeBeverage' );
+
+				let beverage = l2data.allBeverages[self.value];
+				if( beverage ) {
+					showBeverageOptions( beverage );
+				} else {
+					let oldList = document.querySelectorAll( 'p.stxt' );
+					for( let o of oldList ) {
+						document.querySelector( 'div.autoselector' ).removeChild( o );
+					}
+					for( const k in l2data.allBeverages ) {
+						const b = l2data.allBeverages[k];
+						if( b.name.indexOf( self.value ) !== -1 ) {
+							let p = document.createElement( 'p' );
+							p.className = 'stxt';
+							p.addEventListener( 'click', function( event ) { selectBeverage( b.name ); } );
+							p.innerHTML = b.name;
+							document.querySelector( 'div.autoselector' ).appendChild( p );
+						}
+					}
+					popupCandidateList( true );
+				}
+			}
+			function selectBeverage( name ) {
+				document.querySelector( 'input#beverage' ).value = name;
+				popupCandidateList( false );
+			}
+
 	body(onLoad="init();")
 
-		input(type="text" id="beverage" list="beverageList">
-		datalist(id="beverageList")
-			option(value="valueAAA") ssas
-			option(value="valueAAB") xzxcv
-			option(value="fuck") whatthehell
+		form(action="order" method="post" onsubmit="return order(this);")
+			input(type="text" id="beverage" name="beverage" list="beverageList" autocomplete="off"
+				onchange="onChangeBeverage(this);"
+				onkeydown="if( event.keyCode == 13 ){ return false; }" )
 
-		form(action="add" method="post" onsubmit="return add(this);")
-			p
-				input(type="text" id="name" name="name" placeholder="호로록")
-				input(type="submit" value="추가")
-			p
-				input(type="checkbox" name="iceable" checked)
-				span 아이스
-				br
+			datalist(id="beverageList" onclick="console.log('datalist.onselect');" )
 
-				input(type="checkbox" name="hotable"  checked)
-				span 따뜻
-				br
+			div(style="border:3px solid #CCCC33;width:300px;height:400px;position:relative;")
+				div(class="dimmer")
+				div(class="autoselector")
+					p(class="ctxt") 음료를 선택해주세요
 
-				input(type="checkbox" name="syrupable")
-				span 시럽
+				div(class="ice")
+					input(type="radio" id="ice" name="icehot" value="ice")
+					label(for="ice") 아이스
+				div(class="hot")
+					input(type="radio" id="hot" name="icehot" value="hot")
+					label(for="hot") 따뜻
+				div(class="syrup")
+					input(type="checkbox" id="syrup" name="syrup")
+					label(for="syrup") 시럽빼고
 
-
-
-			br
-			br
-			br
-			br
-			br
-
-
-		form(action="del" method="post" onsubmit="return del(this);")
-			p
-				select
-					option 커피
-					option 차
-					option 주스
-					option 에이드
-
-				input(type="submit" value="삭제")
-			p
-				input(type="checkbox" class="delchk" id="아메리카노" name="아메리카노")
-				label(for="아메리카노") 아메리카노
-				br
-
-				input(type="checkbox" class="delchk" id="카페라떼" name="카페라떼")
-				label(for="카페라떼") 카페라떼
-				br
-
-				input(type="checkbox" class="delchk" id="토마토주스" name="토마토주스")
-				label(for="토마토주스") 토마토주스
-				br
+			div(class="nyam")
+				input(type="submit" value="냠냠"
+					style="font-size:13pt;background-color:lightgreen;border-color:green;width:200px;")

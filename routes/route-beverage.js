@@ -1,4 +1,4 @@
-'use strict';
+﻿'use strict';
 var fs = require( 'fs' );
 var beverage = require( '../codes/beverage' );
 var express = require( 'express' );
@@ -29,7 +29,7 @@ router.post( '/add', function ( req, res ) {
 } );
 
 router.post( '/del', function ( req, res ) {
-
+	a = [1, 2, 3]; console.log( a[0] );
 	beverage.deleteBeverage( req.body, ( { err, msg } ) => {
 		var sendMsg = `<h1>${err}</h1>`;
 		for( var m of msg ) {

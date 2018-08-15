@@ -43,11 +43,14 @@
     <Content Include="package.json" />
     <Content Include="public\stylesheets\main.css" />
     <Content Include="README.md" />
+    <Content Include="views\beverage_edit.pug" />
+    <Content Include="views\error.pug" />
     <Content Include="views\index.pug" />
     <Content Include="views\layout.pug" />
-    <Content Include="views\error.pug" />
+    <Content Include="views\order.pug" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="codes\" />
     <Folder Include="public\" />
     <Folder Include="public\images\" />
     <Folder Include="public\javascripts\" />
@@ -56,9 +59,6 @@
     <Folder Include="views\" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="views\beverage_edit.pug">
-      <SubType>Code</SubType>
-    </Content>
     <Content Include="Web.config" />
     <Content Include="Web.Debug.config" />
   </ItemGroup>
