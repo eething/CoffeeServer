@@ -1,7 +1,6 @@
 ﻿'use strict';
 var beverage = require( '../codes/beverage' );
 var express = require( 'express' );
-
 var router = express.Router();
 
 
@@ -38,7 +37,7 @@ router.post( '/del', function ( req, res ) {
 	} );
 } );
 
-router.get( '/list', ( req, res ) => {
+router.get( '/list', function ( req, res ) {
 	res.send( JSON.stringify( beverage.allBeverages ) );
 } );
 

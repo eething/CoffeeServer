@@ -21,17 +21,19 @@ module.exports = {
 
 	todayString: '',
 
-	_initOrderSetting() {
+	_initOrderSetting( preserveOther = false ) {
 
 		const newTodayString = new Date().toISOString().substr( 0, 10 );
-		if( todayString !== newTodayString ) {
+		if( this.todayString !== newTodayString ) {
 			this.currentOrderList = [];
-			todayString = newTodayString;
+			this.todayString = newTodayString;
 		}
 
-		for( const key in allOrders ) {
-			if( key !== this.todayString ) {
-				delete allOrders[ key ];
+		if( !preserveOther ) {
+			for( const key in this.allOrders ) {
+				if( key !== this.todayString ) {
+					delete this.allOrders[key];
+				}
 			}
 		}
 	},
@@ -39,21 +41,22 @@ module.exports = {
 	_addCurrentOrderList( order ) {
 		let isNewOrder = true;
 
-		for( let currentOrder of this.currentOrderList ) {
-			if( currentOrder.orderBy === order.orderBy ) {
+		for( let co of this.currentOrderList ) {
+			// orderBy 가 undefined 이면 true 가 되는 문제가 있지만, 일단 넘어가자
+			if( co.orderBy === order.orderBy ) {
 				isNewOrder = false;
-				currentOrder = order;
+				co = order;
 			}
 		}
 
 		if( isNewOrder ) {
-			currentOrderList.push( order );
+			this.currentOrderList.push( order );
 		}
 	},
 
 	_loadTodayOrder( _callback ) {
 
-		if( allOrders[ this.todayString ] ) {
+		if( this.allOrders[ this.todayString ] ) {
 			_callback();
 			return;
 		}
@@ -61,18 +64,19 @@ module.exports = {
 		const filePath = `data/orders/${this.todayString}`;
 		const data = fs.readFile( filePath, ( err, data ) => {
 			if( err ) {
-				const value = JSON.parse( data );
 				const key = this.todayString;
-				allOrders[ key ] = {
+				this.allOrders[ key ] = {
 					date: this.todayString,
 					orderList: []
 				};
 			} else {
-				const value = JSON.parse( data );
+				const value = JSON.parse( data ); // { date:'2018-08-01', orderList: [ { }, { }, ... ] }
 				const key = value.date;
-				allOrders[ key ] = value;
+				this.allOrders[ key ] = value;
 
-				this._addCurrentOrderList( value );
+				for( const order of value.orderList ) {
+					this._addCurrentOrderList( order );
+				}
 			}
 
 			_callback();
@@ -80,51 +84,67 @@ module.exports = {
 	},
 
 	addOrder( body, callback ) {
-		this._initOrderSetting();
-		this._loadTodayOrder( function () {
+		this._initOrderSetting( false );
+		this._loadTodayOrder( () => {
 
 			// 그냥 때려박으면 별로 의미가 없나-_-
 			let order = {};
-			for( let key in body ) {
-				order[ key ] = value;
+			for( let k in body ) {
+				order[ k ] = body[ k ];
 			}
 
-			let isNewOrder = true;
-			for( let currentOrder of this.currentOrderList ) {
-				if( currentOrder.orderBy === order.orderBy ) {
-					isNewOrder = false;
-					currentOrder = order;
-				}
-			}
-			if( isNewOrder ) {
-				currentOrderList.push( order );
-			}
+			this._addCurrentOrderList( order );
 
-
-			allOrders[ this.todayString ].orderList.push( order );
-			let orderString = JSON.stringify( order );
-			fw.writeFile( `/data/orders/${this.todayString}`, orderString, ( err ) => {
+			let todayOrder = this.allOrders[this.todayString];
+			todayOrder.orderList.push( order );
+			let orderString = JSON.stringify( todayOrder );
+			fs.writeFile( `data/orders/${this.todayString}`, orderString, ( err ) => {
 				if( err ) {
 					callback( {
 						err: "WriteFileFailed",
 						msg: [ `addOrder Failed - ${err}` ]
 					} );
 				} else {
+					let msg = [`addOrder Success - ${todayOrder.date}`];
+					for( const o of todayOrder.orderList ) {
+						msg.push( JSON.stringify( o ) );
+					}
 					callback( {
 						err: "Success",
-						msg: [ `addOrder Success - ${orderString}` ]
+						msg
 					} );
 				}
 			} );
 		} );
 	},
 
-	// 당분간 쓸 일은 없겠지만 구색맞추기-_-
+	getCurrentOrder( callback ) {
+		this._initOrderSetting( false );
+		this._loadTodayOrder( () => {
+			callback( this.currentOrderList );
+		} );
+	},
+
+	getTodayOrder( callback ) {
+		this._initOrderSetting( false );
+		this._loadTodayOrder( () => {
+			callback( this.allOrders[this.todayString] );
+		} );
+	},
+
+	getAllOrder( callback ) {
+		this._initOrderSetting( true );
+		this._loadTodayOrder( () => {
+			callback( this.allOrders );
+		} );
+	},
+	
 	loadOrders() {
+		// 당분간 쓸 일은 없겠지만 구색맞추기-_-
+		return;
 
 		fs.readdir( 'data/orders', ( err, files ) => {
 			let len = files.length;
-
 			files.forEach( ( file ) => {
 				const filePath = `data/orders/${file}`;
 				fs.readFile( filePath, ( err, data ) => {
@@ -135,7 +155,7 @@ module.exports = {
 
 					const value = JSON.parse( data );
 					const key = value.date;
-					allOrders[ key ] = value;
+					this.allOrders[ key ] = value;
 
 					/*
 					if( len === 0 ) {

@@ -1,5 +1,5 @@
 ﻿'use strict';
-var beverage = require( '../codes/order' );
+var order = require( '../codes/order' );
 var express = require( 'express' );
 var router = express.Router();
 
@@ -8,12 +8,35 @@ router.get( '/', function ( req, res ) {
 } );
 
 router.post( '/', function ( req, res ) {
-
-	let msg = '<h1>Order Requested</h1>';
-	for( const b in req.body ) {
-		msg += `<li>${b} : ${req.body[b]}</li>`
-	}
-	res.send( msg );
+	order.addOrder( req.body, ( { err, msg } ) => {
+		let sendMsg = `<h1>${err}</h1>`;
+		for( const m of msg ) {
+			sendMsg += `<li>${m}</li>`;
+		}
+		res.send( sendMsg );
+	} );
 } );
+
+
+
+router.get( '/list', function ( req, res ) {
+	order.getCurrentOrder( ( obj ) => {
+		res.send( JSON.stringify( obj ) );
+	} );
+} );
+
+router.get( '/list/today', function ( req, res ) {
+	order.getTodayOrder( ( obj ) => {
+		res.send( JSON.stringify( obj ) );
+	} );
+} );
+
+router.get( '/list/all', function ( req, res ) {
+	order.getAllOrder( ( obj ) => {
+		res.send( JSON.stringify( obj ) );
+	} );
+} );
+
+
 
 module.exports = router;
