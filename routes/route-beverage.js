@@ -1,5 +1,4 @@
 ﻿'use strict';
-var fs = require( 'fs' );
 var beverage = require( '../codes/beverage' );
 var express = require( 'express' );
 
