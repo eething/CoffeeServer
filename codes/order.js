@@ -41,13 +41,13 @@ module.exports = {
 	_addCurrentOrderList( order ) {
 		let isNewOrder = true;
 
-		for( let co of this.currentOrderList ) {
+		this.currentOrderList.forEach( ( co, i ) => {
 			// orderBy 가 undefined 이면 true 가 되는 문제가 있지만, 일단 넘어가자
 			if( co.orderBy === order.orderBy ) {
 				isNewOrder = false;
-				co = order;
+				this.currentOrderList[i] = order;
 			}
-		}
+		} );
 
 		if( isNewOrder ) {
 			this.currentOrderList.push( order );
@@ -134,14 +134,16 @@ module.exports = {
 
 	getAllOrder( callback ) {
 		this._initOrderSetting( true );
-		this._loadTodayOrder( () => {
+		this.loadOrders( true, () => {
 			callback( this.allOrders );
 		} );
 	},
 	
-	loadOrders() {
+	loadOrders( bForce = false, _callback ) {
 		// 당분간 쓸 일은 없겠지만 구색맞추기-_-
-		return;
+		if( !bForce ) {
+			return;
+		}
 
 		fs.readdir( 'data/orders', ( err, files ) => {
 			let len = files.length;
@@ -157,11 +159,16 @@ module.exports = {
 					const key = value.date;
 					this.allOrders[ key ] = value;
 
-					/*
-					if( len === 0 ) {
-						this.isLoaded = true;
+					if( key === this.todayString ) {
+						for( const order of value.orderList ) {
+							this._addCurrentOrderList( order );
+						}
 					}
-					*/
+
+					if( len === 0 ) {
+						//this.isLoaded = true;
+						_callback();
+					}					
 				} );
 			} );
 		} );

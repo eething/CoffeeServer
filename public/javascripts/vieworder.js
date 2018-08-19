@@ -58,8 +58,8 @@ function showBeverageOptions( beverage ) {
 	let divIce = document.querySelector( 'div.cIce' );
 	let divHot = document.querySelector( 'div.cHot' );
 	let divSyrup = document.querySelector( 'div.cSyrup' );
-	let radioIce = document.querySelector( '#ice' );
-	let radioHot = document.querySelector( '#hot' );
+	let radioIce = document.querySelector( 'input#ice' );
+	let radioHot = document.querySelector( 'input#hot' );
 
 	radioIce.checked = false;
 	radioHot.checked = false;
@@ -91,8 +91,8 @@ function popupCandidateList( start ) {
 	if( start ) {
 		visMode = 'visible';
 	}
-	document.querySelector( 'div.dimmer' ).style.visibility = visMode;
-	document.querySelector( 'div.autoselector' ).style.visibility = visMode;
+	document.querySelector( 'div.cDimmer' ).style.visibility = visMode;
+	document.querySelector( 'div.cSelect' ).style.visibility = visMode;
 }
 function onChangeBeverage( self ) {
 	console.log( 'onChangeBeverage' );
@@ -103,7 +103,7 @@ function onChangeBeverage( self ) {
 	} else if( self.value !== "" ) {
 		let oldList = document.querySelectorAll( 'p.stxt' );
 		for( let o of oldList ) {
-			document.querySelector( 'div.autoselector' ).removeChild( o );
+			document.querySelector( 'div.cSelect' ).removeChild( o );
 		}
 		let bFound = false;
 		for( const k in l2data.allBeverages ) {
@@ -114,7 +114,7 @@ function onChangeBeverage( self ) {
 				p.className = 'stxt';
 				p.addEventListener( 'click', function ( event ) { selectBeverage( b.name ); } );
 				p.innerHTML = b.name;
-				document.querySelector( 'div.autoselector' ).appendChild( p );
+				document.querySelector( 'div.cSelect' ).appendChild( p );
 			}
 		}
 		if( bFound ) {

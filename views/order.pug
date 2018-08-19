@@ -4,6 +4,7 @@ html
 		meta(name="viewport" content="	user-scalable=no, initial-scale=1.0,\
 										maximum-scale=1.0, minimum-scale=1.0,\
 										width=device-width, height=device-height")
+
 		title Beverage Edit Page
 
 		link(rel="stylesheet" type="text/css" href="/stylesheets/vieworder.css")
@@ -11,28 +12,34 @@ html
 
 	body(onLoad="init();")
 
-		form(action="order" method="post" onsubmit="return order(this);")
-			input(type="text" id="beverage" name="beverage" list="beverageList" autocomplete="off"
-				onchange="onChangeBeverage(this);"
-				onkeydown="if( event.keyCode == 13 ){ return false; }" )
+		div(class="cOuter")
+			form(action="/order" method="post" onsubmit="return order(this);")
+				div(class="cMain")
+					p(style="margin-left:10px;") 누구
+						select(name="orderBy")
+							option ithing
+							option eething
+							option bluegoori
+							option y2jinc					p(style="margin-left:10px;") 무엇						input(type="text" id="beverage" name="beverage" list="beverageList" autocomplete="off"
+							onchange="onChangeBeverage(this);"
+							onkeydown="if( event.keyCode == 13 ){ return false; }" )
+						datalist(id="beverageList" onclick="console.log('datalist.onselect');" )
 
-			datalist(id="beverageList" onclick="console.log('datalist.onselect');" )
+				div(class="cOption")
+					div(class="cDimmer")
+					div(class="cSelect")
+						p(class="ctxt") 음료를 선택해주세요
 
-			div(style="border:3px solid #CCCC33;width:300px;height:400px;position:relative;")
-				div(class="dimmer")
-				div(class="autoselector")
-					p(class="ctxt") 음료를 선택해주세요
+					div(class="cIce")
+						input(type="radio" id="ice" name="icehot" value="ice")
+						label(for="ice") 아이스
+					div(class="cHot")
+						input(type="radio" id="hot" name="icehot" value="hot")
+						label(for="hot") 따뜻
+					div(class="cSyrup")
+						input(type="checkbox" id="syrup" name="syrup")
+						label(for="syrup") 시럽빼고
 
-				div(class="cIce")
-					input(type="radio" id="ice" name="icehot" value="ice")
-					label(for="ice") 아이스
-				div(class="cHot")
-					input(type="radio" id="hot" name="icehot" value="hot")
-					label(for="hot") 따뜻
-				div(class="cSyrup")
-					input(type="checkbox" id="syrup" name="syrup")
-					label(for="syrup") 시럽빼고
-
-			div(class="cNyam")
-				input(type="submit" value="냠냠"
-					style="font-size:13pt;background-color:lightgreen;border-color:green;width:200px;")
+				div(class="cNyam")
+					input(type="submit" value="냠냠"
+						style="font-size:13pt;background-color:lightgreen;border-color:green;width:200px;")
