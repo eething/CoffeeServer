@@ -17,7 +17,7 @@ module.exports = {
 					}
 					const value = JSON.parse( data );
 					const key = value.name;
-					this.allBeverages[ key ] = value;
+					this.allBeverages[key] = value;
 				} );
 			} );
 		} );
@@ -64,6 +64,7 @@ module.exports = {
 
 		let msg = [ 'deleteBeverage' ];
 		for( let key in body ) {
+			console.log( key + ' : ' + this.allBeverages[key] );
 			delete this.allBeverages[ key ];
 
 			const filePath = `data/beverages/${key}`;
@@ -72,7 +73,7 @@ module.exports = {
 				if( err ) {
 					msg.push( `${err}` );
 				} else {
-					msg.push( `Success - ${filepath}` );
+					msg.push( `Success - ${filePath}` );
 				}
 
 				if( len === 0 ) {

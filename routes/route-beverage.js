@@ -5,13 +5,7 @@ var router = express.Router();
 
 
 router.get( '/', function ( req, res ) {
-	res.render( 'index', {
-		title: 'Express'
-	} );
-} );
-
-router.get( '/edit', function ( req, res ) {
-	res.render( 'beverage_edit' );
+	res.render( 'beverage' );
 } );
 
 router.post( '/add', function ( req, res ) {
@@ -23,11 +17,10 @@ router.post( '/add', function ( req, res ) {
 		}
 		res.send( sendMsg );
 	} );
-
 } );
 
 router.post( '/del', function ( req, res ) {
-	a = [1, 2, 3]; console.log( a[0] );
+
 	beverage.deleteBeverage( req.body, ( { err, msg } ) => {
 		var sendMsg = `<h1>${err}</h1>`;
 		for( var m of msg ) {

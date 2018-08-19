@@ -1,0 +1,149 @@
+﻿doctype html
+html
+	head
+		meta(name="viewport" content="	user-scalable=no, initial-scale=1.0,\
+										maximum-scale=1.0, minimum-scale=1.0,\
+										width=device-width, height=device-height")
+
+		title Beverage Edit Page
+
+		style.
+			div {
+				margin: 10px;
+				padding: 0px;
+				border: 3px solid;
+			}
+
+		script.
+			function add(self)
+			{
+				if( self.name.value == "" )
+				{
+					alert('음료명을 입력해주세요');
+					return false;
+				}
+				return true;
+			}
+			function del(self)
+			{
+				var chkon = false;
+				var delchks = document.querySelectorAll('input.delchk');
+				for( var delchk of delchks )
+				{
+					if( delchk.checked )
+					{
+						return true;
+					}
+				}
+				alert('삭제할 음료를 선택해주세요');
+				return false;
+			}
+
+			//공통기능임 vieworder.js 에서 다른이름의 .js 로 빼낼 것.
+			let l2data = {
+				allBeverages: {},
+			};
+			function MyError( type, message ) {
+				this.type = type;
+				this.name = "L2Error";
+				this.message = message;// || "Default Message";
+			}
+			MyError.prototype = new Error();
+			MyError.prototype.constructor = MyError;
+			function removeChildAll( node ) {
+				while( node.lastChild ) {
+					node.removeChild( node.lastChild );
+				}
+			}
+			function init() {
+				fetch( '/beverage/list' )
+					.then( res => {
+						if( res.ok ) {
+							return res.json();
+						} else {
+							throw new MyError( 404, "FAILED : Get Beverage List" );
+						}
+					} )
+					.then( data => {
+						l2data.allBeverages = data;
+						let list = document.querySelector( '#beverageList' );
+						removeChildAll( list );
+						for( const bKey in l2data.allBeverages ) {
+							let beverage = l2data.allBeverages[bKey];
+							let option = document.createElement( 'option' );
+							option.text = `${beverage.name}Text`;
+							option.value = `${beverage.name}`;
+							list.appendChild( option );
+						}
+					} )
+					.catch( err => {
+						// TODO - 에러창에 띄우기
+						alert( `${err} (${err.type})` );
+					} );
+			}
+
+
+			function addDelete( self )
+			{
+				let divDeleteList = document.querySelector( 'div.cDeleteList' );			
+				let value = document.querySelector( 'input#beverage ').value;
+				
+				if( !l2data.allBeverages[ value ]){
+					return;
+				}
+
+				let delchks = document.querySelectorAll( '.delchk' );
+				for( let d of delchks ) {
+					if( d.id === value ) {
+						return;
+					}
+				}
+
+				let p = document.createElement( 'p' );
+				divDeleteList.appendChild( p );
+
+				let input = document.createElement( 'input' );
+				input.type = 'checkbox';
+				input.className = 'delchk'
+				input.id = input.name = value;
+				input.checked = true;
+				p.appendChild( input );
+
+				let label = document.createElement( 'label' );
+				label.innerHTML = value;
+				label.setAttribute( 'for', value );
+				p.appendChild( label );
+			}
+
+
+	body(onLoad="init();")
+
+		div(style="border:3px solid red;width:320px;")
+			form(action="/beverage/add" method="post" onsubmit="return add(this);")
+				p
+					input(type="text" id="name" name="name" placeholder="호로록")
+					input(type="submit" value="추가")
+				p
+					input(type="checkbox" name="iceable" checked)
+					span 아이스
+					br
+
+					input(type="checkbox" name="hotable"  checked)
+					span 따뜻
+					br
+
+					input(type="checkbox" name="syrupable")
+					span 시럽
+
+		div(style="border:3px solid blue;width:320px;margin:10px")
+			div(class="cSelectDelete")
+				input(type="text" id="beverage" name="beverage" list="beverageList" autocomplete="off"
+							onkeydown="if( event.keyCode == 13 ){ return false; }" )
+				datalist(id="beverageList" )
+				input(type="button" value="삭제리스트" onclick="addDelete( this );")
+
+			form(action="/beverage/del" method="post" onsubmit="return del(this);")
+				div(class="cDeleteList" style="height:300px;")
+
+				div(class="cExecDelete")
+					input(type="submit" value="삭제실행")

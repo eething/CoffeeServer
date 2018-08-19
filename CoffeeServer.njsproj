@@ -45,7 +45,7 @@
     <Content Include="public\stylesheets\main.css" />
     <Content Include="public\stylesheets\vieworder.css" />
     <Content Include="README.md" />
-    <Content Include="views\beverage_edit.pug" />
+    <Content Include="views\beverage.pug" />
     <Content Include="views\error.pug" />
     <Content Include="views\index.pug" />
     <Content Include="views\layout.pug" />
