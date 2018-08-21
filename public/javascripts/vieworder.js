@@ -10,6 +10,7 @@ function init() {
 	elem.divSyrup = document.querySelector( 'div.cSyrup' );
 	elem.radioIce = document.querySelector( 'input#ice' );
 	elem.radioHot = document.querySelector( 'input#hot' );
+	elem.chkSyrup = document.querySelector( 'input#syrup' );
 	elem.divOrderList = document.querySelector( 'div.cOrderList' );
 
 	l2data.getBeverageList( () => {
@@ -90,6 +91,8 @@ function showBeverageOptions( beverage ) {
 
 	elem.radioIce.checked = false;
 	elem.radioHot.checked = false;
+	elem.chkSyrup.checked = false;
+
 	if( beverage.iceable ) {
 		elem.divIce.style.display = 'block';
 		if( !beverage.hotable ) {
