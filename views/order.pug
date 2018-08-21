@@ -8,27 +8,33 @@ html
 		title Beverage Edit Page
 
 		link(rel="stylesheet" type="text/css" href="/stylesheets/vieworder.css")
+		script(src="/javascripts/common.js")
 		script(src="/javascripts/vieworder.js")
 
 	body(onLoad="init();")
 
 		div(class="cOuter")
 			form(action="/order" method="post" onsubmit="return order(this);")
-				div(class="cMain")
+				div(class="cInput")
 					p(style="margin-left:10px;") 누구
 						select(name="orderBy")
 							option ithing
 							option eething
 							option bluegoori
-							option y2jinc					p(style="margin-left:10px;") 무엇						input(type="text" id="beverage" name="beverage" list="beverageList" autocomplete="off"
-							onchange="onChangeBeverage(this);"
-							onkeydown="if( event.keyCode == 13 ){ return false; }" )
-						datalist(id="beverageList" onclick="console.log('datalist.onselect');" )
+							option y2jinc
+					p(style="margin-left:10px;") 무엇
+						input(type="text" id="beverage" name="beverage"
+						 	list="beverageList" autocomplete="off"
+							onchange="onChangeBeverage(value);"
+							onkeydown="if(event.keyCode==13){return false;}" )
+						datalist(id="beverageList")
 
-				div(class="cOption")
+				div(class="cMain")
 					div(class="cDimmer")
 					div(class="cSelect")
 						p(class="ctxt") 음료를 선택해주세요
+
+					div(class="cOrderList" id="orderList")
 
 					div(class="cIce")
 						input(type="radio" id="ice" name="icehot" value="ice")
@@ -37,7 +43,7 @@ html
 						input(type="radio" id="hot" name="icehot" value="hot")
 						label(for="hot") 따뜻
 					div(class="cSyrup")
-						input(type="checkbox" id="syrup" name="syrup")
+						input(type="checkbox" id="syrup" name="syrup" value="minus")
 						label(for="syrup") 시럽빼고
 
 				div(class="cNyam")

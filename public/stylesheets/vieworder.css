@@ -7,6 +7,10 @@
 body {
 }
 
+table {
+	table-layout: fixed;
+}
+
 div {
 	margin: 10px;
 	padding: 0px;
@@ -18,19 +22,44 @@ div {
 		width: 320px;
 		height: 500px;
 	}
-
-	div.cMain {
+	div.cInput {
 		border-color:#33F;
 		height:100px;
 	}
-	div.cOption {
+	div.cMain {
 		border-color: #3F3;
 		position: relative;
 		height: 300px;
 	}
-		div.cOption > div.cIce,
-		div.cOption > div.cHot,
-		div.cOption > div.cSyrup {
+		div.cMain > div.cOrderList {
+			margin:0px;
+			border-color:#F0F;
+			height:270px;
+			overflow-y:auto;
+		}
+		div.cOrderList > table {
+			width:90%;
+			margin:auto;
+			border-spacing: 0px;
+		}
+		div.cOrderList td {
+			border-bottom: 1px solid #DDD;
+			padding: 5px;
+			font-size: 15px;
+		}
+		div.cOrderList td.cBeverage {
+			width: 80px;
+			white-space: nowrap;
+			overflow: hidden;
+			text-overflow: ellipsis;
+		}
+		div.cOrderList td.cOption {
+			width: 150px;
+		}
+
+		div.cMain > div.cIce,
+		div.cMain > div.cHot,
+		div.cMain > div.cSyrup {
 			border:1px dotted;
 			display: none;
 		}
@@ -79,5 +108,3 @@ input {
         //color:red;
         //display: none;
     }
-
-

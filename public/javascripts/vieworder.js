@@ -1,47 +1,80 @@
-﻿let l2data = {
-	allBeverages: {},
+﻿// vieworder.js
 
-};
-function removeChildAll( node ) {
-	while( node.lastChild ) {
-		node.removeChild( node.lastChild );
-	}
+let elem = {
 }
-
-function MyError( type, message ) {
-	this.type = type;
-	this.name = "L2Error";
-	this.message = message;// || "Default Message";
-}
-MyError.prototype = new Error();
-MyError.prototype.constructor = MyError;
 
 function init() {
-	fetch( '/beverage/list' )
-		.then( res => {
-			if( res.ok ) {
-				return res.json();
-			} else {
-				throw new MyError( 404, "FAILED : Get Beverage List" );
+
+	elem.divIce = document.querySelector( 'div.cIce' );
+	elem.divHot = document.querySelector( 'div.cHot' );
+	elem.divSyrup = document.querySelector( 'div.cSyrup' );
+	elem.radioIce = document.querySelector( 'input#ice' );
+	elem.radioHot = document.querySelector( 'input#hot' );
+	elem.divOrderList = document.querySelector( 'div.cOrderList' );
+
+	l2data.getBeverageList( () => {
+		let list = document.querySelector( '#beverageList' );
+		removeChildAll( list );
+
+		for( const bKey in l2data.allBeverages ) {
+			let beverage = l2data.allBeverages[bKey];
+			let option = document.createElement( 'option' );
+			option.text = `${beverage.name}Text`;
+			option.value = `${beverage.name}`;
+			list.appendChild( option );
+		}
+	} );
+
+	l2data.getCurrentOrderList( () => {
+		removeChildAll( elem.divOrderList );
+		let table = document.createElement( 'table' );
+		for( const k of l2data.buyKeysSorted ) {
+
+			for( const v of l2data.currentBuy[k] ) {
+				let tr = document.createElement( 'tr' );
+				tr.className = 'cOrderItem';
+
+				let tdBeverage = document.createElement( 'td' );
+				tdBeverage.className = 'cBeverage';
+				tdBeverage.innerHTML = k;
+				let size = Math.min( 23 - k.length * 2, 15 );
+				size = Math.max( size, 11 );
+				tdBeverage.style.fontSize = size + 'px';
+				tr.appendChild( tdBeverage );
+
+				const option = JSON.parse( v.options );
+				let optionStr = '';
+				for( const k in option ) {
+					if( k === 'icehot' ) {
+						const icehot = ((option[k] === 'ice') ? '아이스' :
+										(option[k] === 'hot') ? '따뜻' : '');
+						optionStr =		icehot +
+										((icehot && optionStr) ? '/' : '') +
+						 				optionStr;
+					} else if( k === 'syrup' ) {
+						optionStr +=	(optionStr ? '/' : '') +
+										(option[k] === 'minus' ? '시럽빼고' : '');
+					}
+				}
+				let tdOption = document.createElement( 'td' );
+				tdOption.className = 'cOption';
+				tdOption.innerHTML = optionStr;
+				size = Math.min( 23 - optionStr.length, 15 );
+				size = Math.max( size, 10 );
+				tdOption.style.fontSize = size + 'px';
+				tr.appendChild( tdOption );
+
+				let tdNum = document.createElement( 'td' );
+				tdNum.innerHTML = v.orderBys.length;
+				tr.appendChild( tdNum );
+
+				table.appendChild( tr );
 			}
-		} )
-		.then( data => {
-			l2data.allBeverages = data;
-			let list = document.querySelector( '#beverageList' );
-			removeChildAll( list );
-			for( const bKey in l2data.allBeverages ) {
-				let beverage = l2data.allBeverages[bKey];
-				let option = document.createElement( 'option' );
-				option.text = `${beverage.name}Text`;
-				option.value = `${beverage.name}`;
-				list.appendChild( option );
-			}
-		} )
-		.catch( err => {
-			// TODO - 에러창에 띄우기
-			alert( `${err} (${err.type})` );
-		} );
+		}
+		elem.divOrderList.appendChild( table );
+	} );
 }
+
 function order( self ) {
 	if( self.beverage.value == "" ) {
 		alert( '음료명을 입력해주세요' );
@@ -55,35 +88,29 @@ function order( self ) {
 }
 function showBeverageOptions( beverage ) {
 
-	let divIce = document.querySelector( 'div.cIce' );
-	let divHot = document.querySelector( 'div.cHot' );
-	let divSyrup = document.querySelector( 'div.cSyrup' );
-	let radioIce = document.querySelector( 'input#ice' );
-	let radioHot = document.querySelector( 'input#hot' );
-
-	radioIce.checked = false;
-	radioHot.checked = false;
+	elem.radioIce.checked = false;
+	elem.radioHot.checked = false;
 	if( beverage.iceable ) {
-		divIce.style.display = 'block';
+		elem.divIce.style.display = 'block';
 		if( !beverage.hotable ) {
-			radioIce.checked = true;
+			elem.radioIce.checked = true;
 		}
 	} else {
-		divIce.style.display = 'none';
+		elem.divIce.style.display = 'none';
 	}
 	if( beverage.hotable ) {
-		divHot.style.display = 'block';
+		elem.divHot.style.display = 'block';
 		if( !beverage.iceable ) {
-			radioHot.checked = true;
+			elem.radioHot.checked = true;
 		}
 	} else {
-		divHot.style.display = 'none';
+		elem.divHot.style.display = 'none';
 	}
 
 	if( beverage.syrupable ) {
-		divSyrup.style.display = 'block';
+		elem.divSyrup.style.display = 'block';
 	} else {
-		divSyrup.style.display = 'none';
+		elem.divSyrup.style.display = 'none';
 	}
 }
 function popupCandidateList( start ) {
@@ -94,13 +121,14 @@ function popupCandidateList( start ) {
 	document.querySelector( 'div.cDimmer' ).style.visibility = visMode;
 	document.querySelector( 'div.cSelect' ).style.visibility = visMode;
 }
-function onChangeBeverage( self ) {
-	console.log( 'onChangeBeverage' );
-
-	let beverage = l2data.allBeverages[self.value];
+function onChangeBeverage( value ) {
+	let bShow = false;
+	let beverage = l2data.allBeverages[value];
 	if( beverage ) {
-		showBeverageOptions( beverage );
-	} else if( self.value !== "" ) {
+		bShow = true;
+	} else if( value === "" ) {
+		;
+	} else {
 		let oldList = document.querySelectorAll( 'p.stxt' );
 		for( let o of oldList ) {
 			document.querySelector( 'div.cSelect' ).removeChild( o );
@@ -108,7 +136,7 @@ function onChangeBeverage( self ) {
 		let bFound = false;
 		for( const k in l2data.allBeverages ) {
 			const b = l2data.allBeverages[k];
-			if( b.name.indexOf( self.value ) !== -1 ) {
+			if( b.name.indexOf( value ) !== -1 ) {
 				bFound = true;
 				let p = document.createElement( 'p' );
 				p.className = 'stxt';
@@ -121,8 +149,20 @@ function onChangeBeverage( self ) {
 			popupCandidateList( true );
 		}
 	}
+
+	if( bShow ) {
+		elem.divOrderList.style.display = 'none';
+		showBeverageOptions( beverage );
+	} else {
+		elem.divOrderList.style.display = 'block';
+		elem.divIce.style.display = 'none'
+		elem.divHot.style.display = 'none'
+		elem.divSyrup.style.display = 'none'
+	}
 }
+
 function selectBeverage( name ) {
 	document.querySelector( 'input#beverage' ).value = name;
+	onChangeBeverage( name );
 	popupCandidateList( false );
 }

@@ -138,7 +138,7 @@ module.exports = {
 			callback( this.allOrders );
 		} );
 	},
-	
+
 	loadOrders( bForce = false, _callback ) {
 		// 당분간 쓸 일은 없겠지만 구색맞추기-_-
 		if( !bForce ) {
@@ -168,7 +168,7 @@ module.exports = {
 					if( len === 0 ) {
 						//this.isLoaded = true;
 						_callback();
-					}					
+					}
 				} );
 			} );
 		} );
