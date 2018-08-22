@@ -10,7 +10,6 @@ module.exports = {
 	uniqueID: 0,
 
 	loadUsers() {
-
 		fs.readdir( 'data/users', ( err, files ) => {
 			let len = files.length;
 
@@ -23,11 +22,11 @@ module.exports = {
 
 					--len;
 					const value = JSON.parse( data );
-					const key = value.id;
-					allUsers[ key ] = value;
+					const key = file;
+					this.allUsers[ key ] = value;
 
-					if( id > uniqueID ) {
-						uniqueID = id;
+					if( key > this.uniqueID ) {
+						this.uniqueID = key;
 					}
 
 					if( len === 0 ) {
@@ -38,37 +37,69 @@ module.exports = {
 		} );
 	},
 
-	_getUser( id ) {
+	_getUser( uid ) {
 		if( !this.isLoaded )
 			return null;
 
-		return allUsers[ id ];
+		return allUsers[ uid ];
 	},
 
 	addUser( body, callback ) {
-		let user = { id: ++uniqueID };
-		for( let key in body ) {
-			let value = body[ key ];
-			/* TODO - 암호화하기
-			if( key == 'password' ) {
 
+		let user;
+		let uid = -1;
+		if( body.mode === 'add' ) {
+			uid = ++this.uniqueID;
+			user = {}
+			this.allUsers[uid] = user;
+		} else if( body.mode === 'edit' ) {
+			uid = body.uid;
+			user = this.allUsers[uid];
+			if( !user ) {
+				callback( {
+					err: 'editUser Failed',
+					msg: ['User Not Found', `uid=${uid}`]
+				} );
+				return;
 			}
-			*/
+		} else {
+			callback( {
+				err: 'addUser Failed',
+				msg: ['Invalid Mode', `mode = ${body.mode}`]
+			} );
+		}
+		console.log( body );		
+		for( let key in body ) {
+			let value = body[key];
+
+			if( key === 'mode' || key === 'uid' ) {
+				continue;
+			} else if( key === 'id' ) {
+				if( body.mode === 'edit' ) {
+					continue;
+				}
+			} else if( key == 'password' ) {
+				if( body.mode === 'edit' && value === '' ) {
+					continue;
+				}
+				// TODO - 암호화하기
+			}
+
 			user[ key ] = value;
 		}
-		this.allUsers[ user.id ] = user;
 
 		let userString = JSON.stringify( user );
-		fs.writeFile( `data/users/${user.id}`, userString, ( err ) => {
+		const filePath = `data/users/${uid}`;
+		fs.writeFile( filePath, userString, err => {
 			if( err ) {
 				callback( {
-					err: "WriteFileFailed",
-					msg: [ `addUser Failed - ${err}` ]
+					err: `${body.mode}User Failed`,
+					msg: ['writeFile Failed', err, `uid=${uid}`, userString]
 				} );
 			} else {
 				callback( {
-					err: "Success",
-					msg: [ `addUser Success - ${userString}` ]
+					err: `${body.mode} Success`,
+					msg: [`uid=${uid}`, userString]
 				} );
 			}
 		} );

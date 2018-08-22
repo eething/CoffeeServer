@@ -5,19 +5,21 @@ html
 										maximum-scale=1.0, minimum-scale=1.0,\
 										width=device-width, height=device-height")
 
-		title Beverage Edit Page
+		title Order
 
+		link(rel="stylesheet" type="text/css" href="/stylesheets/common.css")
 		link(rel="stylesheet" type="text/css" href="/stylesheets/vieworder.css")
+
 		script(src="/javascripts/common.js")
 		script(src="/javascripts/vieworder.js")
 
-	body(onLoad="init();")
+	body(onLoad="initOrder();")
 
 		div(class="cOuter")
 			form(action="/order" method="post" onsubmit="return order(this);")
 				div(class="cInput")
 					p(style="margin-left:10px;") 누구
-						select(name="orderBy")
+						select(id="orderBy" name="orderBy")
 							option ithing
 							option eething
 							option bluegoori

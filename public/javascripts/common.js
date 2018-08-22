@@ -10,10 +10,13 @@ MyError.prototype.constructor = MyError;
 
 let l2data = {
 	allBeverages: {},
+
 	allOrders: {},
 	currentOrder: [],
 	currentBuy: {},
 	buyKeySorted: [],
+
+	allUsers: {},
 
 	getBeverageList( callback ) {
 		fetch( '/beverage/list' )
@@ -40,7 +43,7 @@ let l2data = {
 				if( res.ok ) {
 					return res.json();
 				} else {
-					throw new MyError( 404, "FAILED : Get Beverage List" );
+					throw new MyError( 404, "FAILED : Get CurrentOrder List" );
 				}
 			} )
 			.then( data => {
@@ -112,19 +115,26 @@ let l2data = {
 			}
 			return count2 - count1;
 		} );
-
-		// TEST
-		this.printit();
 	},
 
-	printit() {
-		for( const k of this.buyKeysSorted ) {
-			console.log( `=== ${k} ===` );
-			for( const v of this.currentBuy[k] ) {
-				console.log( v );
-			}
-		}
-	}
+	getUserList( callback ) {
+		fetch( '/user/list' )
+			.then( res => {
+				if( res.ok ) {
+					return res.json();
+				} else {
+					throw new MyError( 404, "FAILED : Get User List" );
+				}
+			} )
+			.then( data => {
+				this.allUsers = data;
+				callback();
+			} )
+			.catch( err => {
+				// TODO - 에러창에 띄우기
+				alert( `${err} (${err.type})` );
+			} );
+	},
 };
 
 function removeChildAll( node ) {

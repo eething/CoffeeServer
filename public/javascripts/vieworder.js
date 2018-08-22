@@ -3,7 +3,7 @@
 let elem = {
 }
 
-function init() {
+function initOrder() {
 
 	elem.divIce = document.querySelector( 'div.cIce' );
 	elem.divHot = document.querySelector( 'div.cHot' );
@@ -13,6 +13,18 @@ function init() {
 	elem.chkSyrup = document.querySelector( 'input#syrup' );
 	elem.divOrderList = document.querySelector( 'div.cOrderList' );
 	elem.divPopup = document.querySelector( 'div.cPopup' );
+
+	l2data.getUserList( () => {
+		let select = document.querySelector( '#orderBy' );
+		removeChildAll( select );
+
+		for( const uid in l2data.allUsers ) {
+			let user = l2data.allUsers[uid];
+			let option = addElement( select, 'option', '',
+				user.name ? user.name : user.id );
+			option.value = uid;
+		}
+	} );
 
 	l2data.getBeverageList( () => {
 		let select = document.querySelector( '#beverageList select' );
@@ -65,7 +77,14 @@ function init() {
 					addElement( elem.divPopup, 'p', '', k );
 					addElement( elem.divPopup, 'p', '', optionStr );
 					v.orderBys.forEach( o => {
-						addElement( elem.divPopup, 'p', '', o );
+						let inner = '';
+						const user = l2data.allUsers[o];						
+						if( user ) {
+							inner = user.name ? user.name : user.id;
+						} else {
+							inner = `* ${o}`
+						}
+						addElement( elem.divPopup, 'p', '', inner );
 					} );
 
 					let input = addElement( elem.divPopup, 'input', 'cNadoNado', '' );
@@ -85,9 +104,9 @@ function init() {
 		}
 
 		let total = document.createElement( 'p' );
+		total.innerHTML = `총 ${totalCount} 잔`;
+		total.style = 'text-align:center;margin:auto;';
 		elem.divOrderList.prepend( total )
-
-
 	} );
 }
 

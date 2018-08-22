@@ -36,6 +36,7 @@
     <Compile Include="codes\user.js" />
     <Compile Include="public\javascripts\common.js" />
     <Compile Include="public\javascripts\vieworder.js" />
+    <Compile Include="public\javascripts\viewuser.js" />
     <Compile Include="routes\route-auth.js" />
     <Compile Include="routes\route-beverage.js" />
     <Compile Include="routes\route-index.js" />
@@ -43,8 +44,10 @@
     <Compile Include="routes\route-user.js" />
     <None Include="L2Coffee - Web Deploy.pubxml" />
     <Content Include="package.json" />
+    <Content Include="public\stylesheets\common.css" />
     <Content Include="public\stylesheets\main.css" />
     <Content Include="public\stylesheets\vieworder.css" />
+    <Content Include="public\stylesheets\viewuser.css" />
     <Content Include="README.md" />
     <Content Include="views\beverage.pug" />
     <Content Include="views\error.pug" />
@@ -62,6 +65,7 @@
     <Folder Include="views\" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="views\user.pug" />
     <Content Include="Web.config" />
     <Content Include="Web.Debug.config" />
   </ItemGroup>
