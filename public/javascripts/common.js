@@ -132,3 +132,14 @@ function removeChildAll( node ) {
 		node.removeChild( node.lastChild );
 	}
 }
+function addElement( parent, child, cls, inner ) {
+	let c = document.createElement( child );
+	if( cls ) {
+		c.className = cls;
+	}
+	if( inner ) {
+		c.innerHTML = inner;
+	}
+	parent.appendChild( c );
+	return c;
+}

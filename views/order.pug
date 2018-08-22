@@ -22,16 +22,21 @@ html
 							option eething
 							option bluegoori
 							option y2jinc
+
 					p(style="margin-left:10px;") 무엇
-						input(type="text" id="beverage" name="beverage"
+						input(type="text" class="cBeverage" id="beverage" name="beverage"
 						 	list="beverageList" autocomplete="off"
 							onchange="onChangeBeverage(value);"
 							onkeydown="if(event.keyCode==13){return false;}" )
 						datalist(id="beverageList")
+							select(id="beverageSelect" onchange="onChangeBeverage(value);"
+								style="width:180px;margin-left:-186px;height:22px;")
+
+						input(type="button" value="리셋" onclick="selectBeverage('');")
 
 				div(class="cMain")
 					div(class="cDimmer")
-					div(class="cSelect")
+					div(class="cPopup")
 						p(class="ctxt") 음료를 선택해주세요
 
 					div(class="cOrderList" id="orderList")
@@ -47,5 +52,4 @@ html
 						label(for="syrup") 시럽빼고
 
 				div(class="cNyam")
-					input(type="submit" value="냠냠"
-						style="font-size:13pt;background-color:lightgreen;border-color:green;width:200px;")
+					input(type="submit" class="cNyam" value="냠냠")
