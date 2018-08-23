@@ -20,19 +20,23 @@ router.post( '/', function ( req, res ) {
 
 
 router.get( '/list', function ( req, res ) {
-	order.getCurrentOrder( ( obj ) => {
+	order.getCurrentOrder( obj => {
 		res.send( JSON.stringify( obj ) );
 	} );
 } );
 
 router.get( '/list/today', function ( req, res ) {
-	order.getTodayOrder( ( obj ) => {
-		res.send( JSON.stringify( obj ) );
+	order.getTodayOrder( obj => {
+		if( obj ) {
+			res.send( JSON.stringify( obj ) );
+		} else {
+			res.status(500).send( { error: 'Something failed!' } );
+		}
 	} );
 } );
 
 router.get( '/list/all', function ( req, res ) {
-	order.getAllOrder( ( obj ) => {
+	order.getAllOrder( obj => {
 		res.send( JSON.stringify( obj ) );
 	} );
 } );

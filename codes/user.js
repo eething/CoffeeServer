@@ -68,7 +68,7 @@ module.exports = {
 				msg: ['Invalid Mode', `mode = ${body.mode}`]
 			} );
 		}
-		console.log( body );		
+
 		for( let key in body ) {
 			let value = body[key];
 
