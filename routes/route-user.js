@@ -28,7 +28,7 @@ router.post( '/', function ( req, res ) {
 } );
 
 router.get( '/list', function ( req, res ) {
-	res.send( JSON.stringify( user.allUsers ) );
+	res.send( user.getUserList() );
 } );
 
 module.exports = router;

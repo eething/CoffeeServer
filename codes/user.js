@@ -163,6 +163,26 @@ module.exports = {
 
 	},
 
+	getUserList() {
+		let temp = {};
+		for( const uid in this.allUsers ) {
+
+			if( uid == 0 ) {
+				continue;
+			}
+
+			temp[uid] = {};
+			const user = this.allUsers[uid];			
+			for( const key in user ) {
+				if( key !== 'password' ) {
+					temp[uid][key] = user[key];
+				}
+			}
+		}
+
+		return JSON.stringify( temp );
+	},
+
 	changePassword( body, callback ) {
 		let user = this._getUser( body.id );
 		if( !user ) {

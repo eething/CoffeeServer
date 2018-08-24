@@ -25,7 +25,7 @@ function checkAddForm( self, getMsg ) {
 	} else {
 		for( const uid in l2data.allUsers ) {
 			const user = l2data.allUsers[uid];
-			if( f.id.value === user.id ) {
+			if( f.id.value === user.id || f.id.value === 'admin' ) {
 				colorID = 'yellow';
 				break;
 			}
