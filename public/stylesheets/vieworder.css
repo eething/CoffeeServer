@@ -10,46 +10,44 @@
 		height: 300px;
 	}
 		div.cMain > div.cOrderList {
-			margin:0px;
-			border-color:#F0F;
-			height:100%;
+			margin: 0px;
+			border-color: #F0F;
+			height: 100%;
+			overflow: auto;
 		}
-			div.cOrderB, div.cOrderO {
-				margin:0px;
-				border-color:#0FF;
-				height:100%;
-				overflow-y:auto;
+
+			div.cTotal {
+				position: relative;
+				padding-left: 100px;
 			}
-				div.cOrderItem {
-					width: 90%;
-					margin: auto;
-					padding: 5px;
-					border: none;
-					border-bottom: 1px solid #DDD;
+				span.cSwap {
+					position: absolute;
+					right: 20px;
 				}
-					div.cOrderItem > span {
+
+			table.cOrderB, table.cOrderO {
+				width:100%;
+				margin: auto;
+			}
+				tr.cOrderItem {
+				}
+					tr.cOrderItem > td {
 						white-space: nowrap;
 						overflow: hidden;
 						text-overflow: ellipsis;
 						font-size: 15px;
-						display: inline-block;
 					}
-					div.cOrderItem > span.cBeverage {
-						width: 80px;
-					}
-					div.cOrderItem > span.cOption {
-						width: 150px;
-					}
-					div.cOrderItem > span.cOrderBy {
-						float: left;
-						border:1px dotted blue;
-						width: 80px;
-					}
-					div.cOrderItem > span.cBeverageOption {
-						display: block;
-						width: auto;
-						border:1px dotted red;
-					}
+						tr.cOrderItem > td.cBeverage {
+							width: 80px;
+						}	
+						tr.cOrderItem > td.cOption {
+							width: 180px;
+						}
+						tr.cOrderItem > td.cOrderBy {
+							width: 80px;
+						}
+						tr.cOrderItem > td.cBeverageOption {
+						}
 
 		div.cMain > div.cIce,
 		div.cMain > div.cHot,

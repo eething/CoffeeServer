@@ -1,0 +1,117 @@
+﻿div(class="cOuter" id="outerUser" style="height:1000px;")
+	form(action="/user" method="post")
+		input(type="text" name="mode" readonly)
+		input(type="text" name="uid" readonly)
+		input(type="text" name="name" readonly)
+		input(type="text" name="password" readonly)
+
+		div(class="cNewUser")
+			table
+				tr
+					td(style="width:90px;") FACEBOOK 
+					td 연동버튼
+				tr
+					td TWITTER 
+					td 연동버튼
+				tr
+					td GOOGLE
+					td 연동버튼
+				tr
+					td 이름
+					td
+						input(type="text" id="name_add" autocomplete="off"
+							style="width:150px;")
+				tr
+					td ID
+					td
+						input(type="text" id="id" name="id" autocomplete="off"
+							onchange="checkAddForm(this);"
+							style="width:150px;background-color:red;")
+				tr
+					td 비밀번호
+					td
+						input(type="password" id="password1_add"
+							onchange="checkAddForm(this);"
+							style="width:150px;background-color:red;")
+						tr
+				td 비번확인
+					td
+						input(type="password" id="password2_add"
+							onchange="checkAddForm(this);"
+							style="width:150px;")
+				tr
+					td(colspan="2" align="center")
+						input(type="button" value="회원가입"
+							onclick="addUser(this);"
+							style="width:200px;")
+
+		div(class="cMyInfo")
+			table
+				colgroup
+					col(style="width:90px;")
+					col
+				tr
+					th(colspan="2" align="center") My Info
+				tr
+					td(style="width:90px;") UserID
+					td(style="width:150px;") 123415
+				tr
+					td 이름
+					td
+						input(type="text" id="name_edit" style="width:150px;")
+				tr
+					td(colspan="2" align="center")
+						input(type="button" value="수정"
+							onclick="editUser(this);"
+							style="width:200px;")
+				tr
+					td FACEBOOK 
+					td 연동버튼
+				tr
+					td TWITTER 
+					td 연동버튼
+				tr
+					td GOOGLE
+					td 연동버튼
+				tr
+					td(colspan="2" align="center")
+						input(type="button" value="탈퇴"
+						onclick="delUser(this);"
+						style="width:200px;")
+
+		div(class="cAdmin")
+			table
+				colgroup
+					col(style="width:90px;")
+					col
+				tr
+					th(colspan="2" align="center") ADMIN
+				tr
+					td UserID
+					td
+						select(id="idSelect" onchange="onChangeUserID(this);")
+							option yaho
+				tr
+					td 이름
+					td
+						input(type="text" id="name_admin" style="width:150px;")
+				tr
+					td(colspan="2" align="center")
+						input(type="button" value="수정"
+							onclick="editUser(this,true);"
+							style="width:200px;")
+				tr
+					td FACEBOOK 
+					td 연동끊기
+				tr
+					td TWITTER 
+					td 연동끊기
+				tr
+					td GOOGLE
+					td 연동끊기
+				tr
+					td(colspan="2" align="center")
+						form(action="/user/del")
+							input(type="button" value="삭제"
+							onclick="delUser(this,true);"
+							style="width:200px;")

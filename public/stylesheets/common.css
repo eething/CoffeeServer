@@ -1,7 +1,7 @@
 ﻿* {
 	-webkit-box-sizing: border-box;
-	-moz-box-sizing: border-box;
-	box-sizing: border-box;
+	   -moz-box-sizing: border-box;
+	        box-sizing: border-box;
 }
 
 body {
@@ -9,7 +9,7 @@ body {
 
 table {
 	table-layout: fixed;
-	width: 90%;
+	width:90%;
 	margin: auto;
 	border-spacing: 0px;
 }
@@ -25,9 +25,21 @@ div {
 	padding: 0px;
 	border: 1px solid;
 }
+	div.cUpper {
+		border-color: #F00;
+		margin: auto;
+		width: 320px;
+	}
+		div.cUpper > span {
+			display: inline-block;
+			width: 25%;
+			text-align: center;
+		}
+
 	div.cOuter {
 		border-color: #F00;
 		margin: auto;
 		width: 320px;
 		height: 500px;
 	}
+

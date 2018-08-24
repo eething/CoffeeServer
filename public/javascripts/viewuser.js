@@ -1,11 +1,7 @@
 ﻿// vieworder.js
 
-let elem = {
-}
-
-function initUser() {
-
-	l2data.getUserList( () => {
+l2user = {
+	cbUserList() {
 		let select = document.querySelector( '#idSelect' );
 		removeChildAll( select );
 
@@ -17,13 +13,24 @@ function initUser() {
 		}
 
 		select.form.uid.value = select.value;
-	} );
+	}
 }
 
-function checkAddForm( self ) {
+function checkAddForm( self, getMsg ) {
 	const f = self.form;
 
-	const colorID = f.id.value ? '' : 'red';
+	let colorID = '';;
+	if( f.id.value === '' ) {
+		colorID = 'red';
+	} else {
+		for( const uid in l2data.allUsers ) {
+			const user = l2data.allUsers[uid];
+			if( f.id.value === user.id ) {
+				colorID = 'yellow';
+				break;
+			}
+		}
+	}
 	f.id.style.backgroundColor = colorID;
 
 	const colorP1 = f.password1_add.value ? '' : 'red';
@@ -32,10 +39,27 @@ function checkAddForm( self ) {
 	const colorP2 = ( f.password1_add.value === f.password2_add.value ) ? '' : 'red';
 	f.password2_add.style.backgroundColor = colorP2;
 
-	if( colorID || colorP1 || colorP2 ) {
-		return true;
+	if( !getMsg ) {
+		return;
 	}
-	return false;
+
+	let empty = 0;
+	let msg = '';
+	if( colorID === 'yellow' ) {
+		msg = 'ID 중복!!!';
+	} else if( colorID === 'red' ) {
+		empty++;
+		msg = 'ID'
+	}
+	if( colorP1 || colorP2 ) {
+		empty++;
+		msg = `${msg ? `${msg}, ` : ''}비밀번호`;
+	}
+	if( empty > 0 ) {
+		msg = `${msg}를 정확하게 입력해주세요.`;
+	}
+
+	return msg;
 }
 
 function checkEditForm( self ) {
@@ -52,10 +76,13 @@ function checkEditForm( self ) {
 
 function addUser( self ) {
 
-	if( checkAddForm( self ) ) {
-		alert( 'ID, 비밀번호를 정확하게 입력해주세요.')
+	const msg = checkAddForm( self, true );
+	if( msg ) {
+		alert( msg );
+		//alert( 'ID, 비밀번호를 정확하게 입력해주세요.')
 		return;
 	}
+
 	const f = self.form;
 	f.name.value = f.name_add.value;
 	f.password.value = f.password1_add.value;

@@ -5,7 +5,13 @@ module.exports = {
 
 	isLoaded: false,
 
-	allUsers: {},
+	allUsers: {
+		0: {
+			name: '관리자',
+			id: 'admin',
+			password: 'qwer'
+		}
+	},
 
 	uniqueID: 0,
 

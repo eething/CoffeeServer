@@ -8,6 +8,8 @@ function MyError( type, message ) {
 MyError.prototype = new Error();
 MyError.prototype.constructor = MyError;
 
+let elem = {};
+
 let l2data = {
 	allBeverages: {},
 

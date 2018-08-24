@@ -1,0 +1,21 @@
+﻿
+div.cAddBeverage {
+	border-color: #0FF
+}
+	div.cAddBeverage div.cMain {
+	}
+	div.cAddBeverage div.cOption {
+		height: 100px;
+		overflow: auto;
+	}
+
+div .cDelBeverage {
+	border-color: #F0F
+}
+	div.cDelBeverage div.cDeleteList {
+		height: 200px;
+		overflow: auto;
+	}
+	div.cDelBeverage div.cExecDelete {
+		//text-align: center;
+	}

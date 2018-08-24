@@ -1,0 +1,32 @@
+﻿div(class="cOuter" id="outerBeverage")
+	div(class="cAddBeverage")
+		form(action="/beverage/add" method="post" onsubmit="return add(this);")
+			div
+				input(type="text" id="name" name="name" placeholder="호로록")
+				input(type="submit" value="추가")
+			div(class="cOption")
+				input(type="checkbox" name="iceable" checked)
+				span 아이스
+				br
+
+				input(type="checkbox" name="hotable"  checked)
+				span 따뜻
+				br
+
+				input(type="checkbox" name="syrupable")
+				span 시럽
+
+	div(class="cDelBeverage")
+		div(class="cSelectDelete")
+			input(type="text" id="delBeverage"
+				list="beverageList" autocomplete="off"
+				onkeydown="if( event.keyCode == 13 ){ return false; }" )
+			datalist(id="beverageList2" )
+				select(id="beverageSelect2"
+					style="width:180px;margin-left:-186px;height:22px;")
+			input(type="button" value="삭제리스트" onclick="addDelete( this );")
+
+		form(action="/beverage/del" method="post" onsubmit="return del(this);")
+			div(class="cDeleteList")
+			div(class="cExecDelete")
+				input(type="submit" value="삭제실행")
