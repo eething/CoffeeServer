@@ -7,15 +7,11 @@ module.exports = {
 
 	/*
 	{
-		date: '2018-08-01',
-		orderList:	[
-						{ orderBy: 'ithing', beverage: '아메리카노', ... },
-						...
-					]
+		'2018-08-01' : [ { orderBy: 7, beverage: '아메리카노', ... }, ]
+		'2018-08-02' : [ { orderBy: 5, beverage: '카페라떼', ... }, ]
 	}
 	*/
 	allOrders: {},
-
 
 	currentOrderList: [],
 
@@ -45,7 +41,7 @@ module.exports = {
 			// orderBy 가 undefined 이면 true 가 되는 문제가 있지만, 일단 넘어가자
 			if( co.orderBy === order.orderBy ) {
 				isNewOrder = false;
-				this.currentOrderList[i] = order;
+				this.currentOrderList[ i ] = order;
 			}
 		} );
 
@@ -56,25 +52,21 @@ module.exports = {
 
 	_loadTodayOrder( _callback ) {
 
-		if( this.allOrders[ this.todayString ] ) {
+		const key = this.todayString;
+		if( this.allOrders[ key ] ) {
 			_callback();
 			return;
 		}
 
-		const filePath = `data/orders/${this.todayString}`;
-		const data = fs.readFile( filePath, ( err, data ) => {
+		const filePath = `data/orders/${key}`;
+		fs.readFile( filePath, ( err, data ) => {
 			if( err ) {
-				const key = this.todayString;
-				this.allOrders[ key ] = {
-					date: this.todayString,
-					orderList: []
-				};
+				this.allOrders[ key ] = [];
 			} else {
-				const value = JSON.parse( data ); // { date:'2018-08-01', orderList: [ { }, { }, ... ] }
-				const key = value.date;
+				const value = JSON.parse( data );
 				this.allOrders[ key ] = value;
 
-				for( const order of value.orderList ) {
+				for( const order of value ) {
 					this._addCurrentOrderList( order );
 				}
 			}
@@ -95,18 +87,21 @@ module.exports = {
 
 			this._addCurrentOrderList( order );
 
-			let todayOrder = this.allOrders[this.todayString];
-			todayOrder.orderList.push( order );
+			const key = this.todayString;
+			let todayOrder = this.allOrders[ key ];
+			todayOrder.push( order );
 			let orderString = JSON.stringify( todayOrder );
-			fs.writeFile( `data/orders/${this.todayString}`, orderString, ( err ) => {
+
+			const filePath = `data/orders/${key}`;
+			fs.writeFile( filePath, orderString, ( err ) => {
 				if( err ) {
 					callback( {
 						err: "WriteFileFailed",
 						msg: [ `addOrder Failed - ${err}` ]
 					} );
 				} else {
-					let msg = [`addOrder Success - ${todayOrder.date}`];
-					for( const o of todayOrder.orderList ) {
+					let msg = [`addOrder Success - ${key}`];
+					for( const o of todayOrder ) {
 						msg.push( JSON.stringify( o ) );
 					}
 					callback( {
@@ -128,7 +123,7 @@ module.exports = {
 	getTodayOrder( callback ) {
 		this._initOrderSetting( false );
 		this._loadTodayOrder( () => {
-			callback( this.allOrders[this.todayString] );
+			callback( this.allOrders[ this.todayString ] );
 		} );
 	},
 
@@ -156,11 +151,11 @@ module.exports = {
 					--len;
 
 					const value = JSON.parse( data );
-					const key = value.date;
+					const key = file;
 					this.allOrders[ key ] = value;
 
 					if( key === this.todayString ) {
-						for( const order of value.orderList ) {
+						for( const order of value ) {
 							this._addCurrentOrderList( order );
 						}
 					}

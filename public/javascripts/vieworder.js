@@ -162,6 +162,14 @@ function order( self ) {
 		alert( '없는 음료입니다.' );
 		return false;
 	}
+
+	if( elem.divIce.style.display && elem.divHot.style.display ) {
+		if( !elem.radioIce.checked && !elem.radioHot.checked ) {
+			alert( '아이스 / 따뜻 골라주세요.' );
+			return false;
+		}
+	}
+
 	return true;
 }
 function checkOptions( option ) {
