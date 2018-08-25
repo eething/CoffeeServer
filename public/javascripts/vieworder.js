@@ -22,6 +22,9 @@ l2order = {
 		let select = document.querySelector( '#beverageList select' );
 		removeChildAll( select );
 
+		let option = addElement( select, 'option', '', '음료선택' );
+		option.value = '';
+
 		for( const bKey in l2data.allBeverages ) {
 			let beverage = l2data.allBeverages[bKey];
 			let option = addElement( select, 'option', '', beverage.name );
@@ -151,6 +154,7 @@ function swapOrderList( self ) {
 }
 
 function order( self ) {
+
 	if( self.beverage.value == "" ) {
 		if( self.beverageSelect.value ) {
 			self.beverage.value = self.beverageSelect.value;

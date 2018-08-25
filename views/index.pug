@@ -32,12 +32,13 @@ html
 			}
 
 	body(onLoad="initAll();")
-		div.cUpper
-			div.cMenu(onclick="changePage('Order')") !{icons.cart}
-			div.cMenu(onclick="changePage('User')") !{icons.user}
-			div.cMenu(onclick="changePage('Beverage')") !{icons.gear}
-			div.cMenu(onclick="alert('Refresh !!!')") !{icons.refresh}
+		div.cApp
+			div.cUpper
+				div.cMenu(onclick="changePage('Order')") !{icons.cart}
+				div.cMenu(onclick="changePage('User')") !{icons.user}
+				div.cMenu(onclick="changePage('Beverage')") !{icons.gear}
+				div.cMenu(onclick="alert('Refresh !!!')") !{icons.refresh}
 
-		include order_part
-		include user_part
-		include beverage_part
+			include order_part
+			include user_part
+			include beverage_part

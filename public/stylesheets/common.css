@@ -5,6 +5,8 @@
 }
 
 body {
+	background-image: linear-gradient(to bottom right, black, gray);
+	background-attachment: fixed;
 }
 
 table {
@@ -15,7 +17,7 @@ table {
 }
 
 td {
-	border-bottom: 1px solid #DDD;
+	border-bottom: 1px solid #999;
 	padding: 5px;
 	font-size: 15px;
 }
@@ -25,9 +27,66 @@ div {
 	padding: 0px;
 	//border: 1px solid;
 }
-	div.cUpper {
-		border-color: #F00;
+	div.cApp {
+		position: relative;
+		width: 320px;
 		margin: auto;
+		background-image: linear-gradient(to bottom right, lightblue, #123);
+	}
+		div.cUpper:before {
+			content: "";
+			position: absolute;
+			top: 0;
+			left: 0;
+			right: 0;
+			margin: auto;
+			width: 100%;
+			height: 100%;
+			z-index: 1;
+			background-image: url('/images/sunshine.jpeg');
+			background-size: 1500px;
+			background-repeat: no-repeat;
+			animation: hideAnim 5s forwards;
+			animation-timing-function: linear;
+		}
+			@keyframes hideAnim {
+				0% {
+					background-position: 0px -200px;
+					opacity: 1;
+					visibility: visible;
+				}
+				30% {
+					background-position: -600px -50px;
+					opacity: 1;
+				}
+				100% {
+					background-position: -700px 0px;
+					opacity: 0;
+					visibility: hidden;
+				}
+			}
+			@-webkit-keyframes hideAnim {
+				0% {
+					background-position: 0px -200px;
+					opacity: 1;
+					visibility: visible;
+				}
+
+				30% {
+					background-position: -600px -50px;
+					opacity: 1;
+				}
+
+				100% {
+					background-position: -700px 0px;
+					opacity: 0;
+					visibility: hidden;
+				}
+			}
+
+
+	div.cUpper {
+		margin: 0;
 		width: 320px;
 	}
 		div.cUpper > div.cMenu {
@@ -43,10 +102,9 @@ div {
 			}
 
 	div.cOuter {
-		margin: 5px auto;
+		margin: 0;
 		width: 320px;
 		height: 500px;
-		background-color: cyan;
 	}
 
 input[type="button"], input[type="submit"] {

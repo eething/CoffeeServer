@@ -1,11 +1,12 @@
 ﻿
 
 	div.cInput {
-		border-color:#33F;
+		border:1px solid;
+		padding-top: 10px;
 		height:100px;
 	}
 	div.cMain {
-		border-color: #3F3;
+		border:1px solid;
 		position: relative;
 		height: 300px;
 	}
@@ -69,19 +70,19 @@
 		z-index: 10;
 	}
 
-	div.cPopupOuter {
-		visibility: hidden;
-		margin: 0px;
-		position: absolute;
-		top: 10%;
-		left: 10%;
-		width: 80%;
-		height: 80%;
-		z-index: 20;
-		text-align: center;
-		background-color: #D66;
-		border: 3px outset #F99;
-	}
+div.cPopupOuter {
+	visibility: hidden;
+	margin: 0px;
+	position: absolute;
+	top: 10%;
+	left: 10%;
+	width: 80%;
+	height: 80%;
+	z-index: 20;
+	text-align: center;
+	background-image: linear-gradient(to bottom right, lightblue, #123);
+	border: 3px outset lightcyan;
+}
 		div.cPopupOuter > div.cPopup {
 			margin: 0;
 			width: 100%;
