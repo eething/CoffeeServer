@@ -8,6 +8,11 @@ input.userRed {
 	background-color: red;
 }
 
+input.userGreen {
+	width: 150px;
+	background-color: lightgreen;
+}
+
 input.userYellow {
 	width: 150px;
 	background-color: yellow;

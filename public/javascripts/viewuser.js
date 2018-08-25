@@ -38,27 +38,27 @@ l2user = {
 function checkAddForm( self, getMsg ) {
 	const f = self.form;
 
-	let validID = 0;
+	let errID = 0;
 	if( f.id.value === '' ) {
-		validID = 1;
+		errID = 1;
 	} else {
 		for( const uid in l2data.allUsers ) {
 			const user = l2data.allUsers[uid];
 			if( f.id.value === user.id || f.id.value === 'admin' ) {
-				validID = 2;
+				errID = 2;
 				break;
 			}
 		}
 	}
-	f.id.className =	( validID === 2 ) ? 'userYellow' :
-						( validID === 1 ) ? 'userRed' : 'userWhite';
+	f.id.className =	( errID === 2 ) ? 'userYellow' :
+						( errID === 1 ) ? 'userRed' : 'userWhite';
 
 
-	const validP1 = f.password1_add.value ? 0 : 1;
-	f.password1_add.className = ( validP1 === 1 ) ? 'userRed' : 'userWhite';
+	const errP1 = f.password1_add.value ? 0 : 1;
+	f.password1_add.className = ( errP1 === 1 ) ? 'userRed' : 'userWhite';
 
-	const validP2 = ( f.password1_add.value === f.password2_add.value ) ? 0 : 1;
-	f.password2_add.className = ( validP2 === 1 ) ? 'userRed' : 'userWhite';
+	const errP2 = ( f.password1_add.value === f.password2_add.value ) ? 0 : 1;
+	f.password2_add.className = ( errP2 === 1 ) ? 'userRed' : 'userWhite';
 
 	if( !getMsg ) {
 		return;
@@ -66,13 +66,13 @@ function checkAddForm( self, getMsg ) {
 
 	let empty = 0;
 	let msg = '';
-	if( validID === 2 ) {
+	if( errID === 2 ) {
 		msg = 'ID 중복!!!';
-	} else if( validID === 1 ) {
+	} else if( errID === 1 ) {
 		empty++;
 		msg = 'ID'
 	}
-	if( validP1 || validP2 ) {
+	if( errP1 || errP2 ) {
 		empty++;
 		msg = `${msg ? `${msg}, ` : ''}비밀번호`;
 	}
@@ -103,24 +103,30 @@ function checkEditForm( self, getMsg ) {
 	const myName = '김개똥';
 
 	const f = self.form;
-	
-	const validP2 = ( f.password1_edit.value === f.password2_edit.value ) ? 0 : 1;
-	f.password2_edit.className = ( validP2 === 1 ) ? 'userRed' : 'userWhite';
 
-	// TODO - check same data
-	let validName = ( f.name_edit.value === '' ) ? 1 :
-					( f.name_edit.value === myName ) ? 2 : 0;
-	f.name_edit.className = ( validName === 2 ) ? 'userYellow' :
-							( validName === 1 ) ? 'userRed' : 'userWhite';
+	let hasChange = f.password1_edit.value ? true : false;
+
+	const errP2 = ( f.password1_edit.value === f.password2_edit.value ) ? 0 : 1;
+	f.password2_edit.className = ( errP2 === 1 ) ? 'userRed' : 'userWhite';
+
+	let changeName = ( f.name_edit.value === myName ) ? 0 : 1;
+	f.name_edit.className = ( changeName === 1 ) ? 'userGreen' : 'userWhite';
 
 	if( !getMsg ) {
 		return;
 	}
 
 	let msg;
+	if( errP2 ) {
+		return '비밀번호가 다릅니다.';
+	}
 
-	if( validP2 ) {
-		msg = '비밀번호가 다릅니다.';
+	if( changeName ) {
+		hasChange = true;
+	}
+
+	if( !hasChange ) {
+		msg = '변경사항이 없습니다.'
 	}
 
 	return msg;
@@ -142,7 +148,7 @@ function editUser( self, admin ) {
 			return;
 		}
 
-		f.password.value = f.password_edit;
+		f.password.value = f.password1_edit.value;
 	}
 
 	self.form.mode.value = "edit";
