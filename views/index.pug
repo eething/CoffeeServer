@@ -7,12 +7,14 @@ html
 
 		title L2 Coffee
 
+		link(rel="stylesheet" type="text/css" href="/evil-icons/evil-icons.css")
 		link(rel="stylesheet" type="text/css" href="/stylesheets/common.css")
 		link(rel="stylesheet" type="text/css" href="/stylesheets/viewbeverage.css")
 		link(rel="stylesheet" type="text/css" href="/stylesheets/viewuser.css")
 		link(rel="stylesheet" type="text/css" href="/stylesheets/vieworder.css")
 		//link(rel="stylesheet" type="text/css" href="/stylesheets/viewall.css")
 
+		script(src="/evil-icons/evil-icons.js")
 		script(src="/javascripts/common.js")
 		script(src="/javascripts/viewbeverage.js")
 		script(src="/javascripts/viewuser.js")
@@ -22,7 +24,7 @@ html
 			function initAll() {
 				initOrderElem();
 				//initBeverageElem();
-				//initUserElem();
+				initUserElem();
 				initAllElem();
 
 				l2data.getBeverageList( l2all.cbBeverageList );
@@ -30,11 +32,12 @@ html
 			}
 
 	body(onLoad="initAll();")
-		div(class="cUpper")
-			span(onclick="changePage('order')") Order
-			span(onclick="changePage('user')") User
-			span(onclick="changePage('beverage')") Beverage
-			span ...
+		div.cUpper
+			div.cMenu(onclick="changePage('Order')") !{icons.cart}
+			div.cMenu(onclick="changePage('User')") !{icons.user}
+			div.cMenu(onclick="changePage('Beverage')") !{icons.gear}
+			div.cMenu(onclick="alert('Refresh !!!')") !{icons.refresh}
+
 		include order_part
 		include user_part
 		include beverage_part

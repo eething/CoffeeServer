@@ -24,12 +24,12 @@ function initAllElem() {
 		elem.divOuterBeverage
 	];
 
-	changePage( 'order' );
+	changePage( 'Order' );
 }
 
 function changePage( page ) {
 	elem.outerList.forEach( o => {
-		if( o.id.substr( 5 ).toLowerCase() === page.toLowerCase() ) {
+		if( o.id.substr( 5 ) === page ) {
 			o.style.display = 'block'
 		} else {
 			o.style.display = 'none'

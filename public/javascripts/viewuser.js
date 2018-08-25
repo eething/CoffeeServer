@@ -1,5 +1,24 @@
 ﻿// vieworder.js
 
+function initUserElem() {
+
+	elem.divNewUser = document.querySelector( 'div.cNewUser' );
+	elem.divMyInfo = document.querySelector( 'div.cMyInfo' );
+	elem.divAdmin = document.querySelector( 'div.cAdmin' );
+
+	elem.divNewUser.style.display = 'block';
+	elem.divMyInfo.style.display = 'none';
+	elem.divAdmin.style.display = 'none';
+
+	elem.userList = [
+		elem.divNewUser,
+		elem.divMyInfo,
+		elem.divAdmin
+	];
+
+	changeUserPage( 'NewUser' );
+}
+
 l2user = {
 	cbUserList() {
 		let select = document.querySelector( '#idSelect' );
@@ -19,25 +38,27 @@ l2user = {
 function checkAddForm( self, getMsg ) {
 	const f = self.form;
 
-	let colorID = '';;
+	let validID = 0;
 	if( f.id.value === '' ) {
-		colorID = 'red';
+		validID = 1;
 	} else {
 		for( const uid in l2data.allUsers ) {
 			const user = l2data.allUsers[uid];
 			if( f.id.value === user.id || f.id.value === 'admin' ) {
-				colorID = 'yellow';
+				validID = 2;
 				break;
 			}
 		}
 	}
-	f.id.style.backgroundColor = colorID;
+	f.id.className =	( validID === 2 ) ? 'userYellow' :
+						( validID === 1 ) ? 'userRed' : 'userWhite';
 
-	const colorP1 = f.password1_add.value ? '' : 'red';
-	f.password1_add.style.backgroundColor = colorP1;
 
-	const colorP2 = ( f.password1_add.value === f.password2_add.value ) ? '' : 'red';
-	f.password2_add.style.backgroundColor = colorP2;
+	const validP1 = f.password1_add.value ? 0 : 1;
+	f.password1_add.className = ( validP1 === 1 ) ? 'userRed' : 'userWhite';
+
+	const validP2 = ( f.password1_add.value === f.password2_add.value ) ? 0 : 1;
+	f.password2_add.className = ( validP2 === 1 ) ? 'userRed' : 'userWhite';
 
 	if( !getMsg ) {
 		return;
@@ -45,13 +66,13 @@ function checkAddForm( self, getMsg ) {
 
 	let empty = 0;
 	let msg = '';
-	if( colorID === 'yellow' ) {
+	if( validID === 2 ) {
 		msg = 'ID 중복!!!';
-	} else if( colorID === 'red' ) {
+	} else if( validID === 1 ) {
 		empty++;
 		msg = 'ID'
 	}
-	if( colorP1 || colorP2 ) {
+	if( validP1 || validP2 ) {
 		empty++;
 		msg = `${msg ? `${msg}, ` : ''}비밀번호`;
 	}
@@ -62,24 +83,11 @@ function checkAddForm( self, getMsg ) {
 	return msg;
 }
 
-function checkEditForm( self ) {
-	const f = self.form;
-
-	const colorP2 = ( f.password1_edit.value === f.password2_edit.value ) ? '' : 'red';
-	f.password2_edit.style.backgroundColor = colorP2;
-
-	if( colorP2 ) {
-		return true;
-	}
-	return false;
-}
-
 function addUser( self ) {
 
 	const msg = checkAddForm( self, true );
 	if( msg ) {
 		alert( msg );
-		//alert( 'ID, 비밀번호를 정확하게 입력해주세요.')
 		return;
 	}
 
@@ -91,6 +99,33 @@ function addUser( self ) {
 	self.form.submit();
 }
 
+function checkEditForm( self, getMsg ) {
+	const myName = '김개똥';
+
+	const f = self.form;
+	
+	const validP2 = ( f.password1_edit.value === f.password2_edit.value ) ? 0 : 1;
+	f.password2_edit.className = ( validP2 === 1 ) ? 'userRed' : 'userWhite';
+
+	// TODO - check same data
+	let validName = ( f.name_edit.value === '' ) ? 1 :
+					( f.name_edit.value === myName ) ? 2 : 0;
+	f.name_edit.className = ( validName === 2 ) ? 'userYellow' :
+							( validName === 1 ) ? 'userRed' : 'userWhite';
+
+	if( !getMsg ) {
+		return;
+	}
+
+	let msg;
+
+	if( validP2 ) {
+		msg = '비밀번호가 다릅니다.';
+	}
+
+	return msg;
+}
+
 function editUser( self, admin ) {
 
 	const f = self.form;
@@ -99,10 +134,14 @@ function editUser( self, admin ) {
 	if( admin ) {
 		f.password.value = '';
 	} else {
-		if( checkEditForm( self ) ) {
-			alert( '비밀번호가 다릅니다.' );
+
+
+		const msg = checkEditForm( self, true );
+		if( msg ) {
+			alert( msg );
 			return;
 		}
+
 		f.password.value = f.password_edit;
 	}
 
@@ -123,4 +162,14 @@ function delUser( self ) {
 
 function onChangeUserID( self ) {
 	self.form.uid.value = self.value;
+}
+
+function changeUserPage( page ) {
+	elem.userList.forEach( o => {
+		if( o.className.substr( 1 ) === page ) {
+			o.style.display = 'block'
+		} else {
+			o.style.display = 'none'
+		}
+	} );
 }

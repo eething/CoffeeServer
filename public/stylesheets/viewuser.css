@@ -1,2 +1,19 @@
-﻿body {
+﻿
+input.userWhite {
+	width: 150px;
+}
+
+input.userRed {
+	width: 150px;
+	background-color: red;
+}
+
+input.userYellow {
+	width: 150px;
+	background-color: yellow;
+}
+
+div.cUserMenu > span {
+	display: inline-block;
+	width: 33%
 }

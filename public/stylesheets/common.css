@@ -30,16 +30,21 @@ div {
 		margin: auto;
 		width: 320px;
 	}
-		div.cUpper > span {
+		div.cUpper > div.cMenu {
 			display: inline-block;
-			width: 25%;
-			text-align: center;
+			border: none;
+			margin: 0 0 -4px 0;
+			height: 50px;
+			overflow: hidden;
 		}
+			div.cMenu > .ei-custom {
+				margin: 0px;
+				border: none;
+			}
 
 	div.cOuter {
 		border-color: #F00;
-		margin: auto;
+		margin: 5px auto;
 		width: 320px;
 		height: 500px;
 	}
-

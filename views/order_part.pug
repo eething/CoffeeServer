@@ -1,11 +1,11 @@
-﻿div(class="cOuter" id="outerOrder")
+﻿div.cOuter#outerOrder
 	form(action="/order" method="post" onsubmit="return order(this);")
-		div(class="cInput")
+		div.cInput
 			p(style="margin-left:10px;") 누구
-				select(id="orderBy" name="orderBy")
+				select#orderBy(name="orderBy")
 
 			p(style="margin-left:10px;") 무엇
-				input(type="text" class="cBeverage" id="beverage" name="beverage"
+				input.cBeverage#beverage(type="text" name="beverage"
 					list="beverageList" autocomplete="off"
 					onchange="onChangeBeverage(value);"
 					onkeydown="if(event.keyCode==13){return false;}" )
@@ -15,27 +15,27 @@
 
 				input(type="button" value="리셋" onclick="selectBeverage('');")
 
-		div(class="cMain")
-			div(class="cDimmer")
-			div(class="cPopup")
-				p(class="ctxt") 음료를 선택해주세요
+		div.cMain
+			div.cDimmer
+			div.cPopup
+				p.ctxt 음료를 선택해주세요
 
-			div(class="cOrderList" id="orderList")
-				div(class="cTotal")
-					span(class="cTotal")
-					span(class="cSwap" onclick="swapOrderList(this);") 유저별
-				table(class="cOrderB")
-				table(class="cOrderO")
+			di.cOrderList#orderList
+				div.cTotal
+					span.cTotal
+					span.cSwap(onclick="swapOrderList(this);") 유저별
+				table.cOrderB
+				table.cOrderO
 
-			div(class="cIce")
-				input(type="radio" id="ice" name="icehot" value="ice")
+			div.cIce
+				input#ice(type="radio" name="icehot" value="ice")
 				label(for="ice") 아이스
-			div(class="cHot")
-				input(type="radio" id="hot" name="icehot" value="hot")
+			div.cHot
+				input#hot(type="radio" name="icehot" value="hot")
 				label(for="hot") 따뜻
-			div(class="cSyrup")
-				input(type="checkbox" id="syrup" name="syrup" value="minus")
+			div.cSyrup
+				input#syrup(type="checkbox" name="syrup" value="minus")
 				label(for="syrup") 시럽빼고
 
-		div(class="cNyam")
-			input(type="submit" class="cNyam" value="냠냠")
+		div.cNyam
+			input.cNyam(type="submit" value="냠냠")
