@@ -10,17 +10,19 @@
 					onchange="onChangeBeverage(value);"
 					onkeydown="if(event.keyCode==13){return false;}" )
 				datalist(id="beverageList")
-					select(id="beverageSelect" onchange="onChangeBeverage(value);"
+					select#beverageSelect(onchange="onChangeBeverage(value);"
 						style="width:180px;margin-left:-186px;height:22px;")
 
 				input(type="button" value="리셋" onclick="selectBeverage('');")
 
 		div.cMain
 			div.cDimmer
-			div.cPopup
-				p.ctxt 음료를 선택해주세요
+			div.cPopupOuter
+				div.cPopup
+					p.ctxt 음료를 선택해주세요
+				input.cClose(type="button" value="닫기" onclick="showPopup(false)")
 
-			di.cOrderList#orderList
+			div.cOrderList#orderList
 				div.cTotal
 					span.cTotal
 					span.cSwap(onclick="swapOrderList(this);") 유저별

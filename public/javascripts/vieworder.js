@@ -8,6 +8,7 @@ function initOrderElem() {
 	elem.radioHot = document.querySelector( 'input#hot' );
 	elem.chkSyrup = document.querySelector( 'input#syrup' );
 	elem.divOrderList = document.querySelector( 'div.cOrderList' );
+	elem.divPopupOuter = document.querySelector( 'div.cPopupOuter' );
 	elem.divPopup = document.querySelector( 'div.cPopup' );
 
 	elem.tableOrderB = document.querySelector( 'table.cOrderB' );
@@ -211,7 +212,7 @@ function showPopup( start ) {
 		visMode = 'visible';
 	}
 	document.querySelector( 'div.cDimmer' ).style.visibility = visMode;
-	elem.divPopup.style.visibility = visMode;
+	elem.divPopupOuter.style.visibility = visMode;
 }
 function onChangeBeverage( value ) {
 	let bShow = false;

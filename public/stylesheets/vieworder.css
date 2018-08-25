@@ -69,22 +69,45 @@
 		z-index: 10;
 	}
 
-	div.cPopup {
+	div.cPopupOuter {
 		visibility: hidden;
 		margin: 0px;
 		position: absolute;
-		top: 5%;
-		left: 5%;
-		width: 90%;
-		height: 90%;
+		top: 10%;
+		left: 10%;
+		width: 80%;
+		height: 80%;
 		z-index: 20;
+		text-align: center;
 		background-color: #D66;
 		border: 3px outset #F99;
-		text-align: center;
 	}
-		div.cSelect p {
-			line-height: 30px;
+		div.cPopupOuter > div.cPopup {
+			margin: 0;
+			width: 100%;
+			height: 100%;
 		}
+			input.cNadoNado {
+				position: absolute;
+				bottom: 10px;
+				left: 10px;
+				right: 0;
+				font-size: 13pt;
+				background-color: lightgreen;
+				border-color: green;
+				width: 120px;
+}
+		div.cPopupOuter > input.cClose {
+			position: absolute;
+			bottom: 10px;
+			right: 10px;
+			width: 80px;
+			background-color: lightblue;
+			border-color: blue;
+		}
+//		div.cSelect p {
+//			line-height: 30px;
+//		}
 
 	div.cNyam {
 		height: 50px;
@@ -104,18 +127,6 @@ input {
 		width: 180px;
 	}
 	input.cNyam {
-		font-size: 13pt;
-		background-color: lightgreen;
-		border-color: green;
-		width: 200px;
-	}
-	input.cNadoNado {
-		position: absolute;
-		bottom: 10px;
-		left:0;
-		right:0;
-		margin: auto;
-		font-size: 13pt;
 		background-color: lightgreen;
 		border-color: green;
 		width: 200px;
