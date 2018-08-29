@@ -14,7 +14,7 @@ var beverage		= require( './codes/beverage' );
 var order			= require( './codes/order' );
 
 // Routers
-var routeAuth		= require( './routes/route-auth' );
+//var routeAuth		= require( './routes/route-auth' );
 var routeBeverage	= require( './routes/route-beverage' );
 var routeIndex		= require( './routes/route-index' );
 var routeOrder		= require( './routes/route-order' );
@@ -53,6 +53,8 @@ app.use( cookieParser() );
 app.use( express.static( path.join( __dirname, 'public' ) ) );
 app.use( '/evil-icons', express.static( path.join( __dirname, 'node_modules/evil-icons/assets' ) ) );
 
+// Auth
+var routeAuth		= require( './codes/auth' )( app );
 
 app.use( '/',			routeIndex );
 app.use( '/auth',		routeAuth );
@@ -65,6 +67,7 @@ app.use( '/user',		routeUser );
 app.use(function (req, res, next) {
     var err = new Error('Not Found');
     err.status = 404;
+	console.log( `ERROR NFD, ${err.status}, ${err.message}...` );
     next(err);
 });
 
@@ -72,25 +75,31 @@ app.use(function (req, res, next) {
 
 // development error handler
 // will print stacktrace
-if (app.get('env') === 'development') {
-    app.use(function (err, req, res, next) {
-        res.status(err.status || 500);
-        res.render('error', {
-            message: err.message,
-            error: err
-        });
-    });
+if( app.get('env') === 'development' ) {
+    app.use( function (err, req, res, next) {
+		console.log( `ERROR DEV, ${err.status}, ${err.message}...` );
+		if( !res.headersSent ) {
+			res.status( err.status || 500 );
+        	res.render('error', {
+				message: err.message,
+				error: err
+			} );
+		}
+	} );
 }
 
 // production error handler
 // no stacktraces leaked to user
-app.use(function (err, req, res, next) {
-    res.status(err.status || 500);
-    res.render('error', {
-        message: err.message,
-        error: {}
-    });
-});
+app.use( function (err, req, res, next) {
+	console.log( `ERROR PROD, ${err.status}, ${err.message}...` );
+	if( !res.headersSent ) {
+		res.status( err.status || 500 );
+		res.render('error', {
+			message: err.message,
+			error: {}
+    	} );
+	}
+} );
 
 app.set( 'port', process.env.PORT || 3000 );
 

@@ -1,5 +1,6 @@
 ﻿'use strict';
 const fs = require( 'fs' );
+const bcrypt = require( 'bcrypt' );
 
 module.exports = {
 
@@ -85,30 +86,48 @@ module.exports = {
 					continue;
 				}
 			} else if( key == 'password' ) {
-				if( body.mode === 'edit' && value === '' ) {
-					continue;
+				if( value === '' ) {
+					if( body.mode === 'edit' ) {
+						continue;
+					} else {
+						callback( {
+							err: `${body.mode} Failed`,
+							msg: ['Empty Password',`uid=${uid}`]
+						} );
+						return;
+					}
 				}
-				// TODO - 암호화하기
 			}
 
 			user[ key ] = value;
 		}
 
-		let userString = JSON.stringify( user );
-		const filePath = `data/users/${uid}`;
-		fs.writeFile( filePath, userString, err => {
-			if( err ) {
-				callback( {
-					err: `${body.mode}User Failed`,
-					msg: ['writeFile Failed', err, `uid=${uid}`, userString]
-				} );
-			} else {
-				callback( {
-					err: `${body.mode} Success`,
-					msg: [`uid=${uid}`, userString]
-				} );
-			}
-		} );
+		function _finalize() {
+			let userString = JSON.stringify( user );
+			const filePath = `data/users/${uid}`;
+			fs.writeFile( filePath, userString, err => {
+				if( err ) {
+					callback( {
+						err: `${body.mode}User Failed`,
+						msg: ['writeFile Failed', err, `uid=${uid}`, userString]
+					} );
+				} else {
+					callback( {
+						err: `${body.mode} Success`,
+						msg: [`uid=${uid}`, userString]
+					} );
+				}
+			} );
+		}
+
+		if( user.password ) {
+			bcrypt.hash( user.password, 10, ( err, hash ) => {
+				user.password = hash;
+				_finalize();
+			} );
+		} else {
+			_finalize();
+		}
 	},
 
 	_activateUser( active, body, callback ) {
@@ -172,7 +191,7 @@ module.exports = {
 			}
 
 			temp[uid] = {};
-			const user = this.allUsers[uid];			
+			const user = this.allUsers[uid];
 			for( const key in user ) {
 				if( key !== 'password' ) {
 					temp[uid][key] = user[key];
