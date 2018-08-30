@@ -137,6 +137,8 @@ let l2data = {
 				alert( `${err} (${err.type})` );
 			} );
 	},
+
+	login: {}
 };
 
 function removeChildAll( node ) {

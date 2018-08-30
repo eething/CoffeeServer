@@ -56,14 +56,14 @@ module.exports = function ( app ) {
 							return done( null, uid );
 						} else {
 							//console.log( 'AUTH : Password Fuck' );
-							return done( null, false, { message: 'Incorrect password.' } );
+							return done( null, false, { code:'EPASSWORD', message: 'Incorrect password.' } );
 						}
 					} );
 					return;
 				}
 			}
 			//console.log( 'AUTH : User Not Found' );
-			return done( null, false, { message: 'Incorrect username.' } );
+			return done( null, false, { code:'ENOUSER', message: 'Incorrect username.' } );
 		}
 	) );
 
@@ -96,28 +96,49 @@ module.exports = function ( app ) {
 	*/
 	// 우씨 자꾸 갱신이 안되서 짱남;;
 	router.post( '/login', function ( req, res, next ) {
-		passport.authenticate( 'local', function ( err, user, info ) {
+		passport.authenticate( 'local', ( err, user, info ) => {
+
+			let sendMsg = { code: 'UNKNOWN' };
+
 			if( err ) {
-				next( err );
+				console.log( `ERROR: Login - passport.authenticate, ${err}...` );
+				sendMsg.code = 'EAUTH';
+				sendMsg.err = err;
+				res.send( JSON.stringify( sendMsg ) );
+				//next( err );
 				return;
 			}
-			console.log( `POST LOGIN : ${user}...` );
+
 			if( !user ) { // 아마 uid 가 들어올 거임
-				res.redirect( '/auth/failed' );
+				sendMsg.code = info.code || 'ETC';
+				sendMsg.msg = info.message;
+				res.send( JSON.stringify( sendMsg ) );
+				//res.redirect( '/auth/failed' );
 				return;
 			}
+
 			req.login( user, err => {
+
 				if( err ) {
-					next( err );
+					console.log( `ERROR: Login - req.login, ${err}...` );
+					sendMsg.code = 'ELOGIN';
+					sendMsg.err = err;
+					res.send( JSON.stringify( sendMsg ) );
+					//next( err );
 					return;
 				}
 
 				req.session.save( err => {
+
 					if( err ) {
-						console.log( `SESSION SAVE ERROR: ${err}` );
-						return;
+						console.log( `ERROR: Login - Session Save, ${err}...` );
+						sendMsg.code = 'ESS';
+						sendMsg.err = err;
+					} else {
+						sendMsg.code = 'OK'
 					}
-					res.redirect( '/auth/success' );
+					res.send( JSON.stringify( sendMsg ) );
+					//res.redirect( '/auth/success' );
 				} );
 			} );
 		} )( req, res, next );
@@ -143,9 +164,21 @@ module.exports = function ( app ) {
 	} );
 
 	router.get( '/logout', function ( req, res ) {
- 			req.session.destroy( function ( err ) {
-				res.send( 'LOGOUT' );
-			} );
+ 		//req.session.destroy( function ( err ) {
+		req.logout();
+		req.session.save( err => {
+
+			let sendMsg = {};
+			if( err ) {
+				console.log( `ERROR: Logout - Session Save, ${err}...` );
+				sendMsg.code = 'ESS';
+				sendMsg.err = err;
+			} else {
+				sendMsg.code = 'OK';
+			}
+
+			res.send( JSON.stringfy( sendMsg ) );
+		} );
 	} );
 
 	return router;

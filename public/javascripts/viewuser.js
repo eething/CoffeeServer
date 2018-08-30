@@ -1,22 +1,46 @@
 ﻿// vieworder.js
 
-function initUserElem() {
+function initUserElem( loginType, loginName, loginID ) {
 
-	elem.divNewUser = document.querySelector( 'div.cNewUser' );
-	elem.divMyInfo = document.querySelector( 'div.cMyInfo' );
-	elem.divAdmin = document.querySelector( 'div.cAdmin' );
+	l2data.login.type	= loginType;
+	l2data.login.name	= loginName;
+	l2data.login.ID		= loginID;
 
-	elem.divNewUser.style.display = 'block';
-	elem.divMyInfo.style.display = 'none';
-	elem.divAdmin.style.display = 'none';
+	elem.spanLogin		= document.querySelector( '#menuLogin' );
+	elem.spanRegister	= document.querySelector( '#menuRegister' );
+	elem.spanMyInfo		= document.querySelector( '#menuMyInfo' );
+	elem.spanAdmin		= document.querySelector( '#menuAdmin' );
+	elem.spanLogout		= document.querySelector( '#menuLogout' );
+
+	elem.divLogin		= document.querySelector( 'div.cLogin' );
+	elem.divNewUser		= document.querySelector( 'div.cNewUser' );
+	elem.divMyInfo		= document.querySelector( 'div.cMyInfo' );
+	elem.divAdmin		= document.querySelector( 'div.cAdmin' );
 
 	elem.userList = [
+		elem.divLogin,
 		elem.divNewUser,
 		elem.divMyInfo,
 		elem.divAdmin
 	];
 
-	changeUserPage( 'NewUser' );
+	if( !loginType ) {
+		console.log( 'loginType null' );
+		elem.spanMyInfo.style.display = 'none';
+		elem.spanAdmin.style.display = 'none';
+		elem.spanLogout.style.display = 'none';
+		changeUserPage( 'Login' );
+	} else {
+		elem.spanLogin.style.display = 'none';
+		elem.spanRegister.style.display = 'none';
+
+		if( loginType === 'admin' ) {
+			changeUserPage( 'Admin' );
+		} else {
+			elem.spanAdmin.style.display = 'none';
+			changeUserPage( 'MyInfo' );
+		}
+	}
 }
 
 l2user = {
@@ -26,12 +50,14 @@ l2user = {
 
 		for( const uid in l2data.allUsers ) {
 			let user = l2data.allUsers[uid];
-			let option = addElement( select, 'option', '',
-				user.name ? user.name : user.id );
+			//let text = `${uid} / ${user.name||''} / ${user.id}`;
+			let username = user.name || user.id;
+			let option = addElement( select, 'option', '', username );
 			option.value = uid;
 		}
 
 		select.form.uid.value = select.value;
+		onSelectUser( select );
 	}
 }
 
@@ -99,18 +125,22 @@ function addUser( self ) {
 	self.form.submit();
 }
 
-function checkEditForm( self, getMsg ) {
-	const myName = '김개똥';
+function checkEditForm( self, admin, getMsg ) {
 
 	const f = self.form;
+	const fName = admin ? f.name_admin : f.name_edit;
+	const fPassword1 = admin ? f.password1_admin : f.password1_edit;
+	const fPassword2 = admin ? f.password2_admin : f.password2_edit;
 
-	let hasChange = f.password1_edit.value ? true : false;
+	let hasChange = fPassword1.value ? true : false;
 
-	const errP2 = ( f.password1_edit.value === f.password2_edit.value ) ? 0 : 1;
-	f.password2_edit.className = ( errP2 === 1 ) ? 'userRed' : 'userWhite';
+	const errP2 = ( fPassword1.value === fPassword2.value ) ? 0 : 1;
+	fPassword2.className = ( errP2 === 1 ) ? 'userRed' : 'userWhite';
 
-	let changeName = ( f.name_edit.value === myName ) ? 0 : 1;
-	f.name_edit.className = ( changeName === 1 ) ? 'userGreen' : 'userWhite';
+	const uid = document.querySelector( '#uid_admin' ).innerHTML;
+	const orgName = admin ? l2data.allUsers[uid].name : l2data.login.name;
+	let changeName = ( fName.value === orgName ) ? 0 : 1;
+	fName.className = ( changeName === 1 ) ? 'userGreen' : 'userWhite';
 
 	if( !getMsg ) {
 		return;
@@ -135,24 +165,50 @@ function checkEditForm( self, getMsg ) {
 function editUser( self, admin ) {
 
 	const f = self.form;
-	f.name.value = admin ? f.name_admin.value : f.name_edit.value;
 
-	if( admin ) {
-		f.password.value = '';
-	} else {
-
-
-		const msg = checkEditForm( self, true );
-		if( msg ) {
-			alert( msg );
-			return;
-		}
-
-		f.password.value = f.password1_edit.value;
+	const msg = checkEditForm( self, admin, true );
+	if( msg ) {
+		alert( msg );
+		return;
 	}
 
-	self.form.mode.value = "edit";
-	self.form.submit();
+	f.uid.value = admin ? f.uid.value : -1;
+	f.name.value = admin ? f.name_admin.value : f.name_edit.value;
+	f.password.value = admin ? f.password1_admin.value : f.password1_edit.value;
+	f.mode.value = "edit";
+
+	let v = new FormData( f )
+	alert( v.get( 'mode' ) );
+	fetch( '/user', {
+
+		headers: {
+//			'Accept': 'application/x-www-form-urlencoded;charset=UTF-8',
+//			'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
+//			'Accept': 'application/json',
+//			'Content-Type': 'application/json'
+			'Accept': 'text/plain;charset=UTF-8',
+			'Content-Type': 'text/plain;charset=UTF-8'
+		},
+		method: 'POST',
+//		body: JSON.stringify( { a: 3, b: 2 } )
+		body: v
+	} )
+		.then( res => {
+			if( res.ok ) {
+				return res.json();
+			} else {
+				throw new MyError( 404, "FAILED : Post User Edit" );
+			}
+		} )
+		.then( data => {
+			alert( data.code );
+		} )
+		.catch( err => {
+			// TODO - 에러창에 띄우기
+			alert( `${err} (${err.type})` );
+		} );
+
+	//f.submit();
 }
 
 function delUser( self ) {
@@ -166,8 +222,14 @@ function delUser( self ) {
 	}
 }
 
-function onChangeUserID( self ) {
+function onSelectUser( self ) {
+	const uid = self.value;
+	const user = l2data.allUsers[uid];
+
 	self.form.uid.value = self.value;
+	document.querySelector( '#uid_admin' ).innerHTML = uid;
+	document.querySelector( '#id_admin' ).innerHTML = user.id;
+	document.querySelector( '#name_admin' ).value = user.name;
 }
 
 function changeUserPage( page ) {

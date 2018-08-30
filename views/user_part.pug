@@ -1,14 +1,35 @@
 ﻿div.cOuter#outerUser
+
+	div.cUserMenu
+		span#menuLogin(onclick="changeUserPage('Login')") 로그인
+		span#menuRegister(onclick="changeUserPage('NewUser')") 회원가입
+		span#menuMyInfo(onclick="changeUserPage('MyInfo')") 정보수정
+		span#menuAdmin(onclick="changeUserPage('Admin')") 관리자
+		span#menuLogout(onclick="") 로그아웃
+
+	form(action="/auth/login" method="post")
+		div.cLogin
+			table
+				colgroup
+					col(width="90")
+					col
+				tr
+					td ID
+					td
+						input(type="text" name="id" autocomplete="off")
+				tr
+					td 비밀번호
+					td
+						input(type="password" name="password")
+				tr
+					td(colspan="2" align="center")
+						input(type="submit" value="로그인" style="width:200px;")
+
 	form(action="/user" method="post")
 		input(type="hidden" name="mode")
 		input(type="hidden" name="uid")
 		input(type="hidden" name="name")
 		input(type="hidden" name="password")
-
-		div.cUserMenu
-			span(onclick="changeUserPage('NewUser')") 회원가입
-			span(onclick="changeUserPage('MyInfo')") 정보수정
-			span(onclick="changeUserPage('Admin')") 관리자
 
 		div.cNewUser
 			table
@@ -53,11 +74,11 @@
 					th(colspan="2" align="center") My Info
 				tr
 					td(style="width:90px;") UserID
-					td(style="width:150px;") 123415
+					td(style="width:150px;") #{loginID}
 				tr
 					td 이름
 					td
-						input#name_edit(type="text" autocomplete="off" onchange="checkEditForm(this)" style="width:150px;")
+						input#name_edit(type="text" autocomplete="off" value=loginName onchange="checkEditForm(this)" style="width:150px;")
 				tr
 					td 비밀번호
 					td
@@ -92,12 +113,26 @@
 				tr
 					td UserID
 					td
-						select#idSelect(onchange="onChangeUserID(this);")
+						select#idSelect(onchange="onSelectUser(this);" onselect="alert('select');")
 							option yaho
+				tr
+					td uid
+					td#uid_admin
+				tr
+					td ID
+					td#id_admin
 				tr
 					td 이름
 					td
-						input#name_admin(type="text" style="width:150px;")
+						input.userWhite#name_admin(type="text" onchange="checkEditForm(this,true);")
+				tr
+					td 비밀번호
+					td
+						input.userWhite#password1_admin(type="password" onchange="checkEditForm(this,true);")
+				tr
+					td 비번확인
+					td
+						input.userWhite#password2_admin(type="password" onchange="checkEditForm(this,true);")
 				tr
 					td(colspan="2" align="center")
 						input(type="button" value="수정" onclick="editUser(this,true);" style="width:200px;")

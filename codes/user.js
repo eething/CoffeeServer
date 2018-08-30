@@ -10,7 +10,8 @@ module.exports = {
 		0: {
 			name: '관리자',
 			id: 'admin',
-			password: 'qwer'
+			admin: true,
+			password: '$2b$10$j4gB9lgzNoKvyEN5ZpV6SOkaGUKSrf8s0CvSQA4bq4ZLwBCrIUC8e'
 		}
 	},
 
@@ -51,52 +52,111 @@ module.exports = {
 		return allUsers[ uid ];
 	},
 
+	_findEmptyUID() {
+
+		let uid = 1;
+		while( uid < 10000 ) {
+			if( !this.allUsers[uid] ) {
+				if( uid > this.uniqueID ) {
+					this.uniqueID = uid;
+				}
+				return uid;
+			}
+			++uid;
+		}
+
+		console.log( 'ERROR: Something Wrong at _findEmptyUID' );
+		return ++this.uniqueID;
+	},
+
 	addUser( body, callback ) {
 
-		let user;
-		let uid = -1;
-		if( body.mode === 'add' ) {
-			uid = ++this.uniqueID;
-			user = {}
-			this.allUsers[uid] = user;
-		} else if( body.mode === 'edit' ) {
-			uid = body.uid;
-			user = this.allUsers[uid];
-			if( !user ) {
-				callback( {
-					err: 'editUser Failed',
-					msg: ['User Not Found', `uid=${uid}`]
-				} );
-				return;
+		//uid = ++this.uniqueID;
+		const uid = _findEmptyUID();
+		let user = {};
+
+		let changePassword = false;
+		for( let key in body ) {
+			let value = body[key];
+
+			if( key === 'mode' || key === 'uid' ) {
+				continue;
+			} else if( key == 'password' ) {
+				if( value === '' ) {
+					callback( {
+						code: 'EPASSWORD',
+						err: 'Empty Password.'
+					} );
+					return;
+				}
+				changePassword = true;
 			}
-		} else {
-			callback( {
-				err: 'addUser Failed',
-				msg: ['Invalid Mode', `mode = ${body.mode}`]
+
+			user[ key ] = value;
+		}
+
+		function _finalize() {
+
+			let userString = JSON.stringify( user );
+			const filePath = `data/users/${uid}`;
+			fs.writeFile( filePath, userString, err => {
+				if( err ) {
+					callback( {
+						code: 'EWRITE',
+						err: err,
+						msg: `uid=${uid}, userString=${userString}.`
+					} );
+				} else {
+					this.allUsers[ uid ] = user;
+					callback( {
+						code: 'OK'
+					} );
+				}
 			} );
 		}
 
+		if( changePassword ) {
+			bcrypt.hash( user.password, 10, ( err, hash ) => {
+				user.password = hash;
+				_finalize();
+			} );
+		} else {
+			_finalize();
+		}
+	},
+
+	editUser( uid, body, callback ) {
+
+		if( uid < 0 ) {
+			callback( {
+				code: 'EUID',
+				err: `Invalid uid=${uid}. It must be < 0.`
+			} );
+			return;
+		}
+
+		const user = this.allUsers[ uid ];
+		if( !user ) {
+			callback( {
+				code: 'ENOUSER',
+				err: `User Not Found, uid=${uid}.`
+			} );
+			return;
+		}
+
+		let changePassword = false;
 		for( let key in body ) {
 			let value = body[key];
 
 			if( key === 'mode' || key === 'uid' ) {
 				continue;
 			} else if( key === 'id' ) {
-				if( body.mode === 'edit' ) {
-					continue;
-				}
+				continue;
 			} else if( key == 'password' ) {
 				if( value === '' ) {
-					if( body.mode === 'edit' ) {
-						continue;
-					} else {
-						callback( {
-							err: `${body.mode} Failed`,
-							msg: ['Empty Password',`uid=${uid}`]
-						} );
-						return;
-					}
+					continue;
 				}
+				changePassword = true;
 			}
 
 			user[ key ] = value;
@@ -108,25 +168,75 @@ module.exports = {
 			fs.writeFile( filePath, userString, err => {
 				if( err ) {
 					callback( {
-						err: `${body.mode}User Failed`,
-						msg: ['writeFile Failed', err, `uid=${uid}`, userString]
+						code: 'EWRITE',
+						err: err,
+						msg: `uid=${uid}, userString=${userString}`
 					} );
 				} else {
 					callback( {
-						err: `${body.mode} Success`,
-						msg: [`uid=${uid}`, userString]
+						code: 'OK'
 					} );
 				}
 			} );
 		}
 
-		if( user.password ) {
+		if( changePassword ) {
 			bcrypt.hash( user.password, 10, ( err, hash ) => {
 				user.password = hash;
 				_finalize();
 			} );
 		} else {
 			_finalize();
+		}
+	},
+
+	deleteUser( uid, body, callback ) {
+
+		if( uid < 0 ) {
+			callback( {
+				code: 'EUID',
+				err: `Invalid uid=${uid}. It must be < 0.`
+			} );
+			return;
+		}
+
+		user = this.allUsers[ uid ];
+		if( !user ) {
+			callback( {
+				code: 'ENOUSER',
+				err: `User Not Found, uid=${uid}.`
+			} );
+			return;
+		}
+
+		function _finalize() {
+			const filePath = `data/users/${uid}`;
+			fs.unlink( filePath, err => {
+				if( err ) {
+					callback( {
+						code: 'EWRITE',
+						err: err,
+						msg: `uid=${uid}`
+					} );
+				} else {
+
+					if( uid != 0 ) {
+						delete allUsers[ uid ];
+					} else {
+						// TODO - 관리자 초기화...
+						allUsers[0] = {
+							name: '관리자',
+							id: 'admin',
+							admin: true,
+							password: '$2b$10$j4gB9lgzNoKvyEN5ZpV6SOkaGUKSrf8s0CvSQA4bq4ZLwBCrIUC8e'
+						};
+					}
+
+					callback( {
+						code: 'OK'
+					} );
+				}
+			} );
 		}
 	},
 
@@ -176,10 +286,6 @@ module.exports = {
 
 	disableUser( body, callback ) {
 		this._activateUser( false, body, callback );
-	},
-
-	deleteUser( body, callback ) {
-
 	},
 
 	getUserList() {

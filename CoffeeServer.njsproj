@@ -31,6 +31,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="app.js" />
+    <Compile Include="codes\auth.js" />
     <Compile Include="codes\beverage.js" />
     <Compile Include="codes\order.js" />
     <Compile Include="codes\user.js" />

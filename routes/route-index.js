@@ -37,9 +37,22 @@ let getIconCache = ( function () {
 
 router.get( '/', function ( req, res ) {
 
-	const currentTheme = 'ei-custom';
+	let params = {};
+	if( req.user ) {
+		params.loginName = req.user.name;
+		params.loginID = req.user.id;
 
-	res.render( 'index', { icons: getIconCache( 'ei-custom' ) } );
+		if( req.user.admin ) {
+			params.loginType = 'admin';
+		} else {
+			params.loginType = 'user';
+		}
+	}
+
+	const currentTheme = 'ei-custom';
+	params.icons = getIconCache( currentTheme );
+
+	res.render( 'index', params );
 
 } );
 

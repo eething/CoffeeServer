@@ -24,7 +24,7 @@ html
 			function initAll() {
 				initOrderElem();
 				//initBeverageElem();
-				initUserElem();
+				initUserElem( '#{loginType}', '#{loginName}', '#{loginID}' );
 				initAllElem();
 
 				l2data.getBeverageList( l2all.cbBeverageList );
