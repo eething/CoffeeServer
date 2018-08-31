@@ -72,7 +72,7 @@ module.exports = {
 	addUser( body, callback ) {
 
 		//uid = ++this.uniqueID;
-		const uid = _findEmptyUID();
+		const uid = this._findEmptyUID();
 		let user = {};
 
 		let changePassword = false;
@@ -95,7 +95,7 @@ module.exports = {
 			user[ key ] = value;
 		}
 
-		function _finalize() {
+		const _finalize = () => {
 
 			let userString = JSON.stringify( user );
 			const filePath = `data/users/${uid}`;
@@ -162,7 +162,8 @@ module.exports = {
 			user[ key ] = value;
 		}
 
-		function _finalize() {
+		const _finalize = () => {
+			
 			let userString = JSON.stringify( user );
 			const filePath = `data/users/${uid}`;
 			fs.writeFile( filePath, userString, err => {

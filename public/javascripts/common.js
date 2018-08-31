@@ -1,9 +1,11 @@
 ﻿// common.js
 
-function MyError( type, message ) {
-	this.type = type;
+function MyError( status, errMsg ) {
 	this.name = "L2Error";
-	this.message = message;// || "Default Message";
+	this.status = status;
+	this.code = errMsg.code || 'CUNKNOWN';
+	this.err = errMsg.err || '';
+//	this.message = message;// || "Default Message";
 }
 MyError.prototype = new Error();
 MyError.prototype.constructor = MyError;
@@ -26,7 +28,7 @@ let l2data = {
 				if( res.ok ) {
 					return res.json();
 				} else {
-					throw new MyError( 404, "FAILED : Get Beverage List" );
+					throw new MyError( res.status, { code: 'CFETCH', err: 'FAILED: Get Beverage List' } );
 				}
 			} )
 			.then( data => {
@@ -35,7 +37,7 @@ let l2data = {
 			} )
 			.catch( err => {
 				// TODO - 에러창에 띄우기
-				alert( `${err} (${err.type})` );
+				alert( `${err.status}, ${err.code}, ${err.err}` );
 			} );
 	},
 
@@ -45,7 +47,7 @@ let l2data = {
 				if( res.ok ) {
 					return res.json();
 				} else {
-					throw new MyError( 404, "FAILED : Get CurrentOrder List" );
+					throw new MyError( res.status, { code: 'CFETCH', err: 'FAILED: Get CurrentOrder List' } );
 				}
 			} )
 			.then( data => {
@@ -56,7 +58,7 @@ let l2data = {
 			} )
 			.catch( err => {
 				// TODO - 에러창에 띄우기
-				alert( `${err} (${err.type})` );
+				alert( `${err.status}, ${err.code}, ${err.err}` );
 			} );
 	},
 
@@ -125,7 +127,7 @@ let l2data = {
 				if( res.ok ) {
 					return res.json();
 				} else {
-					throw new MyError( 404, "FAILED : Get User List" );
+					throw new MyError( res.status, { code: 'CFETCH', err: 'FAILED: Get User List' } );
 				}
 			} )
 			.then( data => {
@@ -134,12 +136,46 @@ let l2data = {
 			} )
 			.catch( err => {
 				// TODO - 에러창에 띄우기
-				alert( `${err} (${err.type})` );
+				alert( `${err.status}, ${err.code}, ${err.err}` );
 			} );
 	},
 
 	login: {}
 };
+
+function fetchHelper( address, data, description, callback ) {
+
+	let options = {};
+	if( data ) {
+		options = {
+			headers: {
+				//'Accept': 'application/json',
+				'Content-Type': 'application/json'
+			},
+			method: 'post',
+			body: JSON.stringify( data )
+		};
+	}
+
+	fetch( address, options )
+		.then( res => {
+			if( res.ok ) {
+				return res.json();
+			} else {
+				throw new MyError( res.status, {
+					code: 'CFETCH',
+					err: `FAILED: ${description}`
+				} );
+			}
+		} )
+		.then( res => {
+			callback( res );
+		} )
+		.catch( err => {
+			// TODO - 에러창에 띄우기
+			alert( `${err.status}, ${err.code}, ${err.err}` );
+		} );
+}
 
 function removeChildAll( node ) {
 	while( node.lastChild ) {

@@ -96,7 +96,7 @@ module.exports = function ( app ) {
 	*/
 	// 우씨 자꾸 갱신이 안되서 짱남;;
 	router.post( '/login', function ( req, res, next ) {
-		passport.authenticate( 'local', ( err, user, info ) => {
+		passport.authenticate( 'local', ( err, uid, info ) => {
 
 			let sendMsg = { code: 'UNKNOWN' };
 
@@ -109,7 +109,7 @@ module.exports = function ( app ) {
 				return;
 			}
 
-			if( !user ) { // 아마 uid 가 들어올 거임
+			if( !uid ) { // 아마 uid 가 들어올 거임
 				sendMsg.code = info.code || 'ETC';
 				sendMsg.msg = info.message;
 				res.send( JSON.stringify( sendMsg ) );
@@ -117,7 +117,7 @@ module.exports = function ( app ) {
 				return;
 			}
 
-			req.login( user, err => {
+			req.login( uid, err => {
 
 				if( err ) {
 					console.log( `ERROR: Login - req.login, ${err}...` );
@@ -136,6 +136,7 @@ module.exports = function ( app ) {
 						sendMsg.err = err;
 					} else {
 						sendMsg.code = 'OK'
+						sendMsg.admin = user.allUsers[uid].admin;
 					}
 					res.send( JSON.stringify( sendMsg ) );
 					//res.redirect( '/auth/success' );
@@ -177,7 +178,7 @@ module.exports = function ( app ) {
 				sendMsg.code = 'OK';
 			}
 
-			res.send( JSON.stringfy( sendMsg ) );
+			res.send( JSON.stringify( sendMsg ) );
 		} );
 	} );
 

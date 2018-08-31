@@ -5,7 +5,7 @@
 }
 
 body {
-	background-image: linear-gradient(to bottom right, white, gray);
+	background-image: linear-gradient(to bottom right, gray, white);
 	background-attachment: fixed;
 }
 

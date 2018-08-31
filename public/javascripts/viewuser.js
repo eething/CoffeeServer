@@ -24,23 +24,7 @@ function initUserElem( loginType, loginName, loginID ) {
 		elem.divAdmin
 	];
 
-	if( !loginType ) {
-		console.log( 'loginType null' );
-		elem.spanMyInfo.style.display = 'none';
-		elem.spanAdmin.style.display = 'none';
-		elem.spanLogout.style.display = 'none';
-		changeUserPage( 'Login' );
-	} else {
-		elem.spanLogin.style.display = 'none';
-		elem.spanRegister.style.display = 'none';
-
-		if( loginType === 'admin' ) {
-			changeUserPage( 'Admin' );
-		} else {
-			elem.spanAdmin.style.display = 'none';
-			changeUserPage( 'MyInfo' );
-		}
-	}
+	changeLoginType( loginType );
 }
 
 l2user = {
@@ -59,6 +43,32 @@ l2user = {
 		select.form.uid.value = select.value;
 		onSelectUser( select );
 	}
+}
+
+function logout() {
+	fetchHelper( '/auth/logout', null, 'Logout', res => {
+		if( res.code == 'OK' ) {
+			changeLoginType();
+		} else {
+			throw new MyError( 500, res );
+		}
+	} );
+}
+
+function login( self ) {
+	//f.submit();
+	const data = {
+		id: self.form.id.value,
+		password: self.form.password.value
+	}
+
+	fetchHelper( '/auth/login', data, 'Login', res => {
+		if( res.code == 'OK' ) {
+			changeLoginType( res.admin ? 'admin' : 'user' );
+		} else {
+			throw new MyError( 500, res );
+		}
+	} );
 }
 
 function checkAddForm( self, getMsg ) {
@@ -120,9 +130,11 @@ function addUser( self ) {
 	const f = self.form;
 	f.name.value = f.name_add.value;
 	f.password.value = f.password1_add.value;
+	f.mode.value = "add";
 
-	self.form.mode.value = "add";
-	self.form.submit();
+	submitUser( f, () => {
+		changeLoginType( 'user' );
+	} );
 }
 
 function checkEditForm( self, admin, getMsg ) {
@@ -177,38 +189,8 @@ function editUser( self, admin ) {
 	f.password.value = admin ? f.password1_admin.value : f.password1_edit.value;
 	f.mode.value = "edit";
 
-	let v = new FormData( f )
-	alert( v.get( 'mode' ) );
-	fetch( '/user', {
-
-		headers: {
-//			'Accept': 'application/x-www-form-urlencoded;charset=UTF-8',
-//			'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
-//			'Accept': 'application/json',
-//			'Content-Type': 'application/json'
-			'Accept': 'text/plain;charset=UTF-8',
-			'Content-Type': 'text/plain;charset=UTF-8'
-		},
-		method: 'POST',
-//		body: JSON.stringify( { a: 3, b: 2 } )
-		body: v
-	} )
-		.then( res => {
-			if( res.ok ) {
-				return res.json();
-			} else {
-				throw new MyError( 404, "FAILED : Post User Edit" );
-			}
-		} )
-		.then( data => {
-			alert( data.code );
-		} )
-		.catch( err => {
-			// TODO - 에러창에 띄우기
-			alert( `${err} (${err.type})` );
-		} );
-
-	//f.submit();
+	submitUser( f, () => {
+	} );
 }
 
 function delUser( self ) {
@@ -216,10 +198,50 @@ function delUser( self ) {
 	const userName = 'asdf';
 	const msg = `${userName} 를 삭제하시겠습니까?`;
 
+	const f = self.form;
 	if( confirm( msg ) ) {
-		self.form.mode.value = "del";
-		self.form.submit();
+		f.mode.value = "del";
+		submitUser( f, () => {
+		} );
 	}
+}
+
+function submitUser( f, cb ) {
+	//f.submit();
+	const data = {
+		mode: f.mode.value,
+		uid: f.uid.value,
+		id: f.id.value,
+		name: f.name.value,
+		password: f.password.value
+	}
+
+	fetch( '/user', {
+			headers: {
+				//'Accept': 'application/json',
+				'Content-Type': 'application/json'
+			},
+			method: 'post',
+			body: JSON.stringify( data )
+		} )
+		.then( res => {
+			if( res.ok ) {
+				return res.json();
+			} else {
+				throw new MyError( res.status, { code: 'CFETCH', err: 'FAILED : Post User Edit' } );
+			}
+		} )
+		.then( data => {
+			if( data.code == 'OK' ) {
+				cb();
+			} else {
+				throw new MyError( 500, data );
+			}
+		} )
+		.catch( err => {
+			// TODO - 에러창에 띄우기
+			alert( `${err.status}, ${err.code}, ${err.err}` );
+		} );
 }
 
 function onSelectUser( self ) {
@@ -240,4 +262,30 @@ function changeUserPage( page ) {
 			o.style.display = 'none'
 		}
 	} );
+}
+
+function changeLoginType( loginType ) {
+	l2data.login.type = loginType;
+
+	if( !loginType ) {
+		elem.spanLogin.style.display	= 'inline-block'
+		elem.spanRegister.style.display = 'inline-block';
+		elem.spanMyInfo.style.display	= 'none';
+		elem.spanAdmin.style.display	= 'none';
+		elem.spanLogout.style.display	= 'none';
+		changeUserPage( 'Login' );
+	} else {
+		elem.spanLogin.style.display	= 'none';
+		elem.spanRegister.style.display	= 'none';
+		elem.spanMyInfo.style.display	= 'inline-block';
+		elem.spanLogout.style.display	= 'inline-block';
+
+		if( loginType === 'admin' ) {
+			elem.spanAdmin.style.display= 'inline-block';
+			changeUserPage( 'Admin' );
+		} else {
+			elem.spanAdmin.style.display= 'none';
+			changeUserPage( 'MyInfo' );
+		}
+	}
 }

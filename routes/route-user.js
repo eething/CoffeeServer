@@ -59,11 +59,12 @@ router.post( '/', function ( req, res ) {
 			return req.body.uid;
 		}
 	}
-	console.log( req.header );
-	console.log( req.body );
+
 	if( req.body.mode === 'add' ) {
 
-		user.addUser( req.body, handler );
+		user.addUser( req.body, sendMsg => {
+			res.send( JSON.stringify( sendMsg) );
+		} );
 
 	} else if( req.body.mode === 'edit' ) {
 
@@ -74,7 +75,7 @@ router.post( '/', function ( req, res ) {
 
 		user.editUser( uid, req.body, sendMsg => {
 			res.send( JSON.stringify( sendMsg ) );
-		} );		
+		} );
 	} else if( req.body.mode === 'del' ) {
 
 		const uid = checkAuth();

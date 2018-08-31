@@ -5,7 +5,7 @@
 		span#menuRegister(onclick="changeUserPage('NewUser')") 회원가입
 		span#menuMyInfo(onclick="changeUserPage('MyInfo')") 정보수정
 		span#menuAdmin(onclick="changeUserPage('Admin')") 관리자
-		span#menuLogout(onclick="") 로그아웃
+		span#menuLogout(onclick="logout();") 로그아웃
 
 	form(action="/auth/login" method="post")
 		div.cLogin
@@ -23,7 +23,7 @@
 						input(type="password" name="password")
 				tr
 					td(colspan="2" align="center")
-						input(type="submit" value="로그인" style="width:200px;")
+						input(type="button" value="로그인" onclick="login(this);" style="width:200px;")
 
 	form(action="/user" method="post")
 		input(type="hidden" name="mode")
@@ -37,10 +37,10 @@
 					col(width="90")
 					col
 				tr
-					td FACEBOOK 
+					td FACEBOOK
 					td 연동버튼
 				tr
-					td TWITTER 
+					td TWITTER
 					td 연동버튼
 				tr
 					td GOOGLE
@@ -91,10 +91,10 @@
 					td(colspan="2" align="center")
 						input(type="button" value="수정" onclick="editUser(this);" style="width:200px;")
 				tr
-					td FACEBOOK 
+					td FACEBOOK
 					td 연동버튼
 				tr
-					td TWITTER 
+					td TWITTER
 					td 연동버튼
 				tr
 					td GOOGLE
@@ -137,10 +137,10 @@
 					td(colspan="2" align="center")
 						input(type="button" value="수정" onclick="editUser(this,true);" style="width:200px;")
 				tr
-					td FACEBOOK 
+					td FACEBOOK
 					td 연동끊기
 				tr
-					td TWITTER 
+					td TWITTER
 					td 연동끊기
 				tr
 					td GOOGLE
