@@ -1,7 +1,8 @@
 ﻿'use strict';
-var user = require( '../codes/user' );
-var express = require( 'express' );
-var router = express.Router();
+const user = require( '../codes/user' );
+const express = require( 'express' );
+
+const router = express.Router();
 
 router.get( '/', function ( req, res ) {
 
@@ -34,6 +35,8 @@ router.post( '/', function ( req, res ) {
 				return false;
 			}
 
+			return user.loginIDList[ req.user.id ];
+			/*
 			if( !req.session ||
 				!req.session.passport ||
 				!req.session.passport.user ) {
@@ -43,8 +46,8 @@ router.post( '/', function ( req, res ) {
 				} ) );
 				return false;
 			}
-
 			return req.session.passport.user;
+			*/
 
 		} else {
 
@@ -63,7 +66,33 @@ router.post( '/', function ( req, res ) {
 	if( req.body.mode === 'add' ) {
 
 		user.addUser( req.body, sendMsg => {
-			res.send( JSON.stringify( sendMsg) );
+
+			if( sendMsg.code !== 'OK' ) {
+				res.send( JSON.stringify( sendMsg ) );
+				return;
+			}
+
+			req.login( sendMsg.uid, err => {
+				if( err ) {
+					sendMsg.code = 'ELOGIN';
+					sendMsg.err = err;
+					res.send( JSON.stringify( sendMsg ) );
+					return;
+				}
+
+				req.session.save( err => {
+					if( err ) {
+						sendMsg.code = 'ESS';
+						sendMsg.err = err;
+					} else {
+						//sendMsg.code = 'OK' // 이미 OK
+						//sendMsg.admin = user.allUsers[ uid ].admin; // 첫 생성에 admin 일리 없으니까
+					}
+					res.send( JSON.stringify( sendMsg ) );
+				} );
+			} );
+
+
 		} );
 
 	} else if( req.body.mode === 'edit' ) {
@@ -84,8 +113,61 @@ router.post( '/', function ( req, res ) {
 		}
 
 		user.deleteUser( uid, req.body, sendMsg => {
+
+			const deleteMe = ( id == -1 || user.loginIDList[req.user.id] == req.body.uid );
+
+			if( sendMsg.code !== 'OK' || !deleteMe ) {
+				res.send( JSON.stringify( sendMsg ) );
+				return;
+			}
+
+			req.logout();
+			req.session.save( err => {
+				if( err ) {
+					sendMsg.code = 'ESS';
+					sendMsg.err = err;
+				} else {
+					//sendMsg.code = 'OK'; // 이미 OK
+				}
+				res.send( JSON.stringify( sendMsg ) );
+			} );
+		} );
+	} else if( req.body.mode === 'enable' ) {
+
+		if( req.body.uid == -1 ) {
+			res.send( JSON.stringify( {
+				code: 'ESELF',
+				err: 'Can not enable yourself'
+			} ) );
+		}
+
+		const uid = checkAuth();
+		if( uid === false ) {
+			return;
+		}
+
+		user.enableUser( uid, req.body, sendMsg => {
 			res.send( JSON.stringify( sendMsg ) );
 		} );
+
+	} else if( req.body.mode === 'disable' ) {
+
+		if( req.body.uid == -1 ) {
+			res.send( JSON.stringify( {
+				code: 'ESELF',
+				err: 'Can not disable yourself'
+			} ) );
+		}
+
+		const uid = checkAuth();
+		if( uid === false ) {
+			return;
+		}
+
+		user.disableUser( uid, req.body, sendMsg => {
+			res.send( JSON.stringify( sendMsg ) );
+		} );
+
 	} else {
 		res.send( JSON.stringify(
 			{

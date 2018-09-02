@@ -57,10 +57,13 @@ function logout() {
 
 function login( self ) {
 	//f.submit();
+	const f = self.form;
 	const data = {
-		id: self.form.id.value,
-		password: self.form.password.value
+		id: f.id.value,
+		password: f.password.value
 	}
+	f.id.value = '';
+	f.password.value = '';
 
 	fetchHelper( '/auth/login', data, 'Login', res => {
 		if( res.code == 'OK' ) {
@@ -246,8 +249,10 @@ function submitUser( f, cb ) {
 
 function onSelectUser( self ) {
 	const uid = self.value;
-	const user = l2data.allUsers[uid];
-
+	const user = l2data.allUsers[ uid ];
+	if( !user ) {
+		return;
+	}
 	self.form.uid.value = self.value;
 	document.querySelector( '#uid_admin' ).innerHTML = uid;
 	document.querySelector( '#id_admin' ).innerHTML = user.id;

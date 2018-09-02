@@ -145,10 +145,13 @@ module.exports = {
 			files.forEach( ( file ) => {
 				const filePath = `data/orders/${file}`;
 				fs.readFile( filePath, ( err, data ) => {
-					if( err && err.code === 'EISDIR' ) {
-						return;
-					}
 					--len;
+					if( err ) {
+						if( err.code === 'EISDIR' ) {
+							return;
+						}
+						throw err;
+					}
 
 					const value = JSON.parse( data );
 					const key = file;

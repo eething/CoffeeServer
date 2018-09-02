@@ -2,39 +2,59 @@
 const fs = require( 'fs' );
 const bcrypt = require( 'bcrypt' );
 
+const adam = {
+	name: '관리자',
+	id: 'admin',
+	password: '$2b$10$j4gB9lgzNoKvyEN5ZpV6SOkaGUKSrf8s0CvSQA4bq4ZLwBCrIUC8e', //qwer
+}
+Object.freeze( adam );
+
 module.exports = {
 
 	isLoaded: false,
+	_maxUID: 0,
 
-	allUsers: {
-		0: {
-			name: '관리자',
-			id: 'admin',
-			admin: true,
-			password: '$2b$10$j4gB9lgzNoKvyEN5ZpV6SOkaGUKSrf8s0CvSQA4bq4ZLwBCrIUC8e'
-		}
+	// user -> id -> uid -> user ...
+	allUsers: {}, // key: uid, value: user
+	loginIDList: {}, // key: id, value: uid
+	
+	_initSuperAdmin() {
+		this.allUsers[0]			= this.allUsers[0] || {};
+
+		this.allUsers[0].name		= adam.name;
+		this.allUsers[0].id			= adam.id;
+		this.allUsers[0].password	= adam.password;
+		this.allUsers[0].admin		= true;
+
+		this.loginIDList[ 'admin' ]	= 0;
 	},
 
-	uniqueID: 0,
-
 	loadUsers() {
+
+		this._initSuperAdmin();
+
 		fs.readdir( 'data/users', ( err, files ) => {
 			let len = files.length;
 
 			files.forEach( ( file ) => {
 				const filePath = `data/users/${file}`;
 				fs.readFile( filePath, ( err, data ) => {
-					if( err && err.code === 'EISDIR' ) {
-						return;
+					--len;
+					if( err ) {
+						if( err.code === 'EISDIR' ) {
+							return;
+						}
+						throw err;
 					}
 
-					--len;
-					const value = JSON.parse( data );
 					const key = file;
-					this.allUsers[ key ] = value;
+					const value = JSON.parse( data );
 
-					if( key > this.uniqueID ) {
-						this.uniqueID = key;
+					this.allUsers[ key ] = value;
+					this.loginIDList[ value.id ] = value;
+
+					if( key > this._maxUID ) {
+						this._maxUID = key;
 					}
 
 					if( len === 0 ) {
@@ -45,39 +65,72 @@ module.exports = {
 		} );
 	},
 
-	_getUser( uid ) {
-		if( !this.isLoaded )
-			return null;
+	_getUser( uid, callback ) {
 
-		return allUsers[ uid ];
-	},
-
-	_findEmptyUID() {
-
-		let uid = 1;
-		while( uid < 10000 ) {
-			if( !this.allUsers[uid] ) {
-				if( uid > this.uniqueID ) {
-					this.uniqueID = uid;
-				}
-				return uid;
-			}
-			++uid;
+		if( !this.isLoaded ) {
+			callback( {
+				code: 'ELOAD',
+				err: 'User Not Loaded'
+			} );
+			return false;
 		}
 
-		console.log( 'ERROR: Something Wrong at _findEmptyUID' );
-		return ++this.uniqueID;
+		if( uid < 0 ) {
+			callback( {
+				code: 'EUID',
+				err: `Invalid uid=${uid}. It must be >= 0.`
+			} );
+			return false;
+		}
+
+		const user = this.allUsers[ uid ];
+		if( !user ) {
+			callback( {
+				code: 'ENOUSER',
+				err: `User Not Found, uid=${uid}.`
+			} );
+			return false;
+		}
+
+		return user;
+	},
+
+	_writeUser( uid, user, callback, success ) {
+
+		if( typeof user === 'function' ) {
+			success = callback;
+			callback = user;
+			user = this.allUsers[ uid ];
+		}
+
+		const userString = JSON.stringify( user );
+		const filePath = `data/users/${uid}`;
+		
+		fs.writeFile( filePath, userString, err => {
+			if( err ) {
+				callback( {
+					code: 'EWRITE',
+					err: err,
+					msg: `uid=${uid}, userString=${userString}`
+				} );
+			} else {
+				if( typeof success === 'function' ) {
+					success();
+				}
+				callback( {
+					code: 'OK',
+					uid: uid
+				} );
+			}
+		} );
 	},
 
 	addUser( body, callback ) {
 
-		//uid = ++this.uniqueID;
-		const uid = this._findEmptyUID();
 		let user = {};
-
 		let changePassword = false;
 		for( let key in body ) {
-			let value = body[key];
+			let value = body[ key ];
 
 			if( key === 'mode' || key === 'uid' ) {
 				continue;
@@ -95,8 +148,10 @@ module.exports = {
 			user[ key ] = value;
 		}
 
-		const _finalize = () => {
+		const uid = ++this._maxUID;
 
+		/*
+		const _finalize = () => {
 			let userString = JSON.stringify( user );
 			const filePath = `data/users/${uid}`;
 			fs.writeFile( filePath, userString, err => {
@@ -109,40 +164,52 @@ module.exports = {
 				} else {
 					this.allUsers[ uid ] = user;
 					callback( {
-						code: 'OK'
+						code: 'OK',
+						uid: uid
 					} );
 				}
 			} );
 		}
+		*/
 
 		if( changePassword ) {
 			bcrypt.hash( user.password, 10, ( err, hash ) => {
 				user.password = hash;
-				_finalize();
+				//_finalize();
+				this._writeUser( uid, user, callback, () => {
+					this.allUsers[ uid ] = user;
+				} );
 			} );
 		} else {
-			_finalize();
+			callback( {
+				code: 'EPASSWORD',
+				err: 'Password Not Exists.'
+			} );
 		}
 	},
 
 	editUser( uid, body, callback ) {
 
-		if( uid < 0 ) {
-			callback( {
-				code: 'EUID',
-				err: `Invalid uid=${uid}. It must be < 0.`
-			} );
+		const user = getUser( uid, callback );
+		if( !user ) {
 			return;
 		}
 
-		const user = this.allUsers[ uid ];
-		if( !user ) {
-			callback( {
-				code: 'ENOUSER',
-				err: `User Not Found, uid=${uid}.`
-			} );
-			return;
-		}
+		// old password check
+		// 막 만들다보니 기존암호 입력 안하게 해버렸음-_-
+		// 나중에 시간되면...
+		/*
+		bcrypt.compare( body.oldPassword, user.password, ( err, result ) => {
+			if( !result ) {
+				callback( {
+					code: "EPASSWORD",
+					err: `Password Wrong - ${body.oldPassword}`
+				} );
+			} else {
+				// 아래 코드들을 여기서 실행
+			}
+		} );
+		*/
 
 		let changePassword = false;
 		for( let key in body ) {
@@ -162,8 +229,8 @@ module.exports = {
 			user[ key ] = value;
 		}
 
-		const _finalize = () => {
-			
+		/*
+		const _finalize = () => {			
 			let userString = JSON.stringify( user );
 			const filePath = `data/users/${uid}`;
 			fs.writeFile( filePath, userString, err => {
@@ -180,67 +247,84 @@ module.exports = {
 				}
 			} );
 		}
+		*/
 
 		if( changePassword ) {
 			bcrypt.hash( user.password, 10, ( err, hash ) => {
 				user.password = hash;
-				_finalize();
+				//_finalize();
+				this._writeUser( uid, callback );
 			} );
 		} else {
-			_finalize();
+			//_finalize();
+			this._writeUser( uid, callback );
 		}
 	},
 
 	deleteUser( uid, body, callback ) {
 
-		if( uid < 0 ) {
-			callback( {
-				code: 'EUID',
-				err: `Invalid uid=${uid}. It must be < 0.`
-			} );
-			return;
-		}
-
-		user = this.allUsers[ uid ];
+		const user = getUser( uid, callback );
 		if( !user ) {
-			callback( {
-				code: 'ENOUSER',
-				err: `User Not Found, uid=${uid}.`
-			} );
 			return;
 		}
 
-		function _finalize() {
-			const filePath = `data/users/${uid}`;
-			fs.unlink( filePath, err => {
-				if( err ) {
-					callback( {
-						code: 'EWRITE',
-						err: err,
-						msg: `uid=${uid}`
-					} );
+		if( uid == 0 ) {
+			_initSuperAdmin();
+		} else {
+			user.deleted = true;
+		}		
+
+		this._writeUser( uid, callback );
+
+		/*
+		const filePath = `data/users/${uid}`;
+		fs.unlink( filePath, err => {
+			if( err ) {
+				callback( {
+					code: 'EUNLINK',
+					err: err,
+					msg: `uid=${uid}`
+				} );
+			} else {
+				if( uid == 0 ) {
+					this._initSuperAdmin();
 				} else {
-
-					if( uid != 0 ) {
-						delete allUsers[ uid ];
-					} else {
-						// TODO - 관리자 초기화...
-						allUsers[0] = {
-							name: '관리자',
-							id: 'admin',
-							admin: true,
-							password: '$2b$10$j4gB9lgzNoKvyEN5ZpV6SOkaGUKSrf8s0CvSQA4bq4ZLwBCrIUC8e'
-						};
-					}
-
-					callback( {
-						code: 'OK'
-					} );
+					delete allUsers[ uid ];
 				}
-			} );
-		}
+				callback( { code: 'OK' } );
+			}
+		} );
+		*/
 	},
 
+	enableUser( uid, body, callback ) {
+
+		const user = getUser( uid, callback );
+		if( !user ) {
+			return;
+		}
+
+		if( user.disabled ) {
+			user.disabled = false;
+		}
+
+		this._writeUser( uid, callback );
+	},
+
+	disableUser( uid, body, callback ) {
+
+		const user = getUser( uid, callback );
+		if( !user ) {
+			return;
+		}
+
+		user.disabled = true;
+
+		this._writeUser( uid, callback );
+	},
+
+
+	/*
 	_activateUser( active, body, callback ) {
 		const command = active ? 'enableUser' : 'disableUser';
 
@@ -280,22 +364,21 @@ module.exports = {
 			}
 		}
 	},
-
 	enableUser( body, callback ) {
 		this._activateUser( true, body, callback );
 	},
-
 	disableUser( body, callback ) {
 		this._activateUser( false, body, callback );
 	},
+	*/
 
 	getUserList() {
 		let temp = {};
 		for( const uid in this.allUsers ) {
 
-			if( uid == 0 ) {
-				continue;
-			}
+			//if( uid == 0 ) {
+			//	continue;
+			//}
 
 			temp[uid] = {};
 			const user = this.allUsers[uid];
@@ -307,41 +390,6 @@ module.exports = {
 		}
 
 		return JSON.stringify( temp );
-	},
-
-	changePassword( body, callback ) {
-		let user = this._getUser( body.id );
-		if( !user ) {
-			callback( {
-				err: "UserNotExist",
-				msg: `User ${id} NOT exist`
-			} );
-			return;
-		}
-
-		// TODO - 암호화하기
-		if( user.password !== body.oldPassword ) {
-			callback( {
-				err: "WrongOldPassword",
-				msg: `Password Wrong - ${body.oldPassword}`
-			} );
-			return;
-		}
-
-		if( body.newPassword !== body.newPassword2 ) {
-			callback( {
-				err: "NewPasswordsNotSame",
-				msg: `Password NOT Same - ${body.newPassword} ${body.newPassword2}`
-			} );
-			return;
-		}
-
-		// TODO - 암호화하기
-		user.password = body.newPassword;
-		callback( {
-			err: "Success",
-			msg: 'Password changed'
-		} );
 	},
 
 	setFavorite( body, callback ) {
