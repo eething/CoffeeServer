@@ -14,9 +14,9 @@ html
 		script(src="/javascripts/viewuser.js")
 		script.
 			function initUser() {
-				initUserElem( '#{loginType}', '#{loginName}', '#{loginID}' );
+				initUserElem( '#{loginType}', '#{loginName}', '#{loginID}', '#{loginUID}' );
 				l2data.getUserList( l2user.cbUserList );
 			}
 
-	body(onLoad="initUser();") 
+	body(onLoad="initUser();")
 		include user_part

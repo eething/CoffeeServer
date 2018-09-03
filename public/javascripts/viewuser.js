@@ -1,10 +1,11 @@
 ﻿// vieworder.js
 
-function initUserElem( loginType, loginName, loginID ) {
+function initUserElem( loginType, loginName, loginID, loginUID ) {
 
 	l2data.login.type	= loginType;
 	l2data.login.name	= loginName;
 	l2data.login.ID		= loginID;
+	l2data.login.uid	= loginUID;
 
 	elem.spanLogin		= document.querySelector( '#menuLogin' );
 	elem.spanRegister	= document.querySelector( '#menuRegister' );
@@ -28,6 +29,8 @@ function initUserElem( loginType, loginName, loginID ) {
 }
 
 l2user = {
+	duplicatedID: -1,
+
 	cbUserList() {
 		let select = document.querySelector( '#idSelect' );
 		removeChildAll( select );
@@ -74,24 +77,56 @@ function login( self ) {
 	} );
 }
 
+function checkDuplicatedID( self ) {
+	const f = self.form;
+	const data = { id: f.id.value.trim() };
+	if( !data.id ) {
+		return;
+	}
+	fetchHelper( '/user/duplicatedID', data, 'Logout', res => {
+		if( res.code === 'OK' ) {
+			l2user.duplicatedID = 1;
+			f.id_add.className = 'userGreen';
+		} else if( res.code === 'EUSERID' ) {
+			l2user.duplicatedID = 0;
+			f.id_add.className = 'userRed';
+		} else {
+			throw new MyError( 500, res );
+		}
+	} );
+}
+
+const checkIDChanged = function () {
+	previousID = '';
+	return function ( self ) {
+		const f = self.form;
+		if( previousID != f.id_add.value ) {
+			l2user.duplicatedID = -1;
+			f.id_add.className = 'userYellow';
+			previousID = f.id_add.value;
+		}
+	}
+}();
+
 function checkAddForm( self, getMsg ) {
 	const f = self.form;
 
+	/*
 	let errID = 0;
-	if( f.id.value === '' ) {
+	if( f.id_add.value === '' ) {
 		errID = 1;
 	} else {
 		for( const uid in l2data.allUsers ) {
 			const user = l2data.allUsers[uid];
-			if( f.id.value === user.id || f.id.value === 'admin' ) {
+			if( f.id_add.value === user.id || f.id_add.value === 'admin' ) {
 				errID = 2;
 				break;
 			}
 		}
 	}
-	f.id.className =	( errID === 2 ) ? 'userYellow' :
+	f.id_add.className =( errID === 2 ) ? 'userYellow' :
 						( errID === 1 ) ? 'userRed' : 'userWhite';
-
+	*/
 
 	const errP1 = f.password1_add.value ? 0 : 1;
 	f.password1_add.className = ( errP1 === 1 ) ? 'userRed' : 'userWhite';
@@ -103,22 +138,17 @@ function checkAddForm( self, getMsg ) {
 		return;
 	}
 
-	let empty = 0;
 	let msg = '';
-	if( errID === 2 ) {
-		msg = 'ID 중복!!!';
-	} else if( errID === 1 ) {
-		empty++;
-		msg = 'ID'
+	if( l2user.duplicatedID == -1 ) {
+		msg = 'ID 중복체크 하세요.';
+	} if( l2user.duplicatedID == 0 ) {
+		msg = '이미 존재하는 ID 입니다.';
 	}
-	if( errP1 || errP2 ) {
-		empty++;
-		msg = `${msg ? `${msg}, ` : ''}비밀번호`;
+	if( errP1 ) {
+		msg = `${msg ? `${msg}\n` : ''}비밀번호 를 입력해주세요`;
+	} else if( errP2 ) {
+		msg = `${msg ? `${msg}\n` : ''}비밀번호가 일치하지 않습니다`;
 	}
-	if( empty > 0 ) {
-		msg = `${msg}를 정확하게 입력해주세요.`;
-	}
-
 	return msg;
 }
 
@@ -137,6 +167,15 @@ function addUser( self ) {
 
 	submitUser( f, () => {
 		changeLoginType( 'user' );
+		f.id_add.value				= '';
+		f.name_add.value			= '';
+		f.password1_add.value		= '';
+		f.password2_add.value		= '';
+
+		f.id_add.className			= 'userYellow';
+		f.name_add.className		= 'userWhite';
+		f.password1_add.className	= 'userRed';
+		f.password2_add.className	= 'userWhite';
 	} );
 }
 
@@ -150,10 +189,24 @@ function checkEditForm( self, admin, getMsg ) {
 	let hasChange = fPassword1.value ? true : false;
 
 	const errP2 = ( fPassword1.value === fPassword2.value ) ? 0 : 1;
-	fPassword2.className = ( errP2 === 1 ) ? 'userRed' : 'userWhite';
+	if( errP2 === 1 ) {
+		fPassword1.className = 'userWhite';
+		fPassword2.className = 'userRed';
+	} else if( hasChange ) {
+		fPassword1.className = 'userGreen';
+		fPassword2.className = 'userGreen';
+	} else {
+		fPassword1.className = 'userWhite';
+		fPassword2.className = 'userWhite';
+	}
 
-	const uid = document.querySelector( '#uid_admin' ).innerHTML;
-	const orgName = admin ? l2data.allUsers[uid].name : l2data.login.name;
+	if( admin ) {
+		const uid = document.querySelector( '#uid_admin' ).innerHTML;
+		var orgName = l2data.allUsers[ uid ].name;
+	} else {
+		var orgName = l2data.login.name;
+	}
+	fName.value = fName.value.trim();
 	let changeName = ( fName.value === orgName ) ? 0 : 1;
 	fName.className = ( changeName === 1 ) ? 'userGreen' : 'userWhite';
 
@@ -165,15 +218,12 @@ function checkEditForm( self, admin, getMsg ) {
 	if( errP2 ) {
 		return '비밀번호가 다릅니다.';
 	}
-
 	if( changeName ) {
 		hasChange = true;
 	}
-
 	if( !hasChange ) {
 		msg = '변경사항이 없습니다.'
 	}
-
 	return msg;
 }
 
@@ -192,18 +242,50 @@ function editUser( self, admin ) {
 	f.password.value = admin ? f.password1_admin.value : f.password1_edit.value;
 	f.mode.value = "edit";
 
+	const newName = f.name.value;
+	const editMe = !admin || (f.uid.value == l2data.login.uid);
+
 	submitUser( f, () => {
+		if( editMe ) {
+			console.log( 'loginuid:' + l2data.login.uid );
+			console.log( l2data.allUsers[ l2data.login.uid ] );
+			l2data.allUsers[ l2data.login.uid ].name = newName;
+			//l2data.allUsers[ l2data.login.uid ].id = newID;
+			l2data.login.name = newName;
+			//l2data.login.ID = newID;
+		}
+		//f.name_edit.value			= '';
+		f.password1_edit.value		= '';
+		f.password2_edit.value		= '';
+
+		f.name_admin.value			= '';
+		f.password1_admin.value		= '';
+		f.password2_admin.value		= '';
+
+		f.name_edit.className		= 'userWhite';
+		f.password1_edit.className	= 'userWhite';
+		f.password2_edit.className	= 'userWhite';
+
+		f.name_admin.className		= 'userWhite';
+		f.password1_admin.className	= 'userWhite';
+		f.password2_admin.className	= 'userWhite';
 	} );
 }
 
-function delUser( self ) {
-
-	const userName = 'asdf';
-	const msg = `${userName} 를 삭제하시겠습니까?`;
-
+function delUser( self, admin ) {
 	const f = self.form;
+
+	if( admin ) {
+		const user = l2data.allUsers[ f.uid.value ];
+		const userName = user.name || user.id;
+		var msg = `${userName} 를 삭제하시겠습니까?`;
+	} else {
+		var msg = '탈퇴하시겠습니까?';
+	}
+
 	if( confirm( msg ) ) {
 		f.mode.value = "del";
+		f.uid.value = admin ? f.uid.value : -1;
 		submitUser( f, () => {
 		} );
 	}
@@ -219,32 +301,13 @@ function submitUser( f, cb ) {
 		password: f.password.value
 	}
 
-	fetch( '/user', {
-			headers: {
-				//'Accept': 'application/json',
-				'Content-Type': 'application/json'
-			},
-			method: 'post',
-			body: JSON.stringify( data )
-		} )
-		.then( res => {
-			if( res.ok ) {
-				return res.json();
-			} else {
-				throw new MyError( res.status, { code: 'CFETCH', err: 'FAILED : Post User Edit' } );
-			}
-		} )
-		.then( data => {
-			if( data.code == 'OK' ) {
-				cb();
-			} else {
-				throw new MyError( 500, data );
-			}
-		} )
-		.catch( err => {
-			// TODO - 에러창에 띄우기
-			alert( `${err.status}, ${err.code}, ${err.err}` );
-		} );
+	fetchHelper( '/user', data, `${data.mode}User`, res => {
+		if( res.code == 'OK' ) {
+			cb( res );
+		} else {
+			throw new MyError( 500, res );
+		}
+	} );
 }
 
 function onSelectUser( self ) {

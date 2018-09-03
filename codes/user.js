@@ -17,7 +17,7 @@ module.exports = {
 	// user -> id -> uid -> user ...
 	allUsers: {}, // key: uid, value: user
 	loginIDList: {}, // key: id, value: uid
-	
+
 	_initSuperAdmin() {
 		this.allUsers[0]			= this.allUsers[0] || {};
 
@@ -47,14 +47,14 @@ module.exports = {
 						throw err;
 					}
 
-					const key = file;
+					const uid = file;
 					const value = JSON.parse( data );
 
-					this.allUsers[ key ] = value;
-					this.loginIDList[ value.id ] = value;
+					this.allUsers[ uid ] = value;
+					this.loginIDList[ value.id ] = uid;
 
-					if( key > this._maxUID ) {
-						this._maxUID = key;
+					if( uid > this._maxUID ) {
+						this._maxUID = uid;
 					}
 
 					if( len === 0 ) {
@@ -75,7 +75,7 @@ module.exports = {
 			return false;
 		}
 
-		if( uid < 0 ) {
+		if( !(uid >= 0) ) {
 			callback( {
 				code: 'EUID',
 				err: `Invalid uid=${uid}. It must be >= 0.`
@@ -105,7 +105,7 @@ module.exports = {
 
 		const userString = JSON.stringify( user );
 		const filePath = `data/users/${uid}`;
-		
+
 		fs.writeFile( filePath, userString, err => {
 			if( err ) {
 				callback( {
@@ -125,7 +125,24 @@ module.exports = {
 		} );
 	},
 
+	haveDuplicatedID( id ) {
+		let sendMsg = {};
+		if( this.loginIDList[ id ] === undefined ) {
+			sendMsg.code = 'OK';
+		} else {
+			sendMsg.code = 'EUSERID';
+			sendMsg.err = 'UserID Already Exists.';
+		}
+		return sendMsg;
+	},
+
 	addUser( body, callback ) {
+
+		const msg = this.haveDuplicatedID( body.id );
+		if( msg.code !== 'OK' ) {
+			callback( msg );
+			return;
+		}
 
 		let user = {};
 		let changePassword = false;
@@ -178,6 +195,7 @@ module.exports = {
 				//_finalize();
 				this._writeUser( uid, user, callback, () => {
 					this.allUsers[ uid ] = user;
+					this.loginIDList[ user.id ] = uid;
 				} );
 			} );
 		} else {
@@ -190,7 +208,7 @@ module.exports = {
 
 	editUser( uid, body, callback ) {
 
-		const user = getUser( uid, callback );
+		const user = this._getUser( uid, callback );
 		if( !user ) {
 			return;
 		}
@@ -210,6 +228,7 @@ module.exports = {
 			}
 		} );
 		*/
+		const oldID = user.id;
 
 		let changePassword = false;
 		for( let key in body ) {
@@ -229,8 +248,13 @@ module.exports = {
 			user[ key ] = value;
 		}
 
+		if( user.id != oldID ) {
+			delete loginIDList[ oldID ];
+			loginIDList[ user.id ] = uid;
+		}
+
 		/*
-		const _finalize = () => {			
+		const _finalize = () => {
 			let userString = JSON.stringify( user );
 			const filePath = `data/users/${uid}`;
 			fs.writeFile( filePath, userString, err => {
@@ -263,7 +287,7 @@ module.exports = {
 
 	deleteUser( uid, body, callback ) {
 
-		const user = getUser( uid, callback );
+		const user = this._getUser( uid, callback );
 		if( !user ) {
 			return;
 		}
@@ -272,7 +296,7 @@ module.exports = {
 			_initSuperAdmin();
 		} else {
 			user.deleted = true;
-		}		
+		}
 
 		this._writeUser( uid, callback );
 
@@ -299,7 +323,7 @@ module.exports = {
 
 	enableUser( uid, body, callback ) {
 
-		const user = getUser( uid, callback );
+		const user = this._getUser( uid, callback );
 		if( !user ) {
 			return;
 		}
@@ -313,7 +337,7 @@ module.exports = {
 
 	disableUser( uid, body, callback ) {
 
-		const user = getUser( uid, callback );
+		const user = this._getUser( uid, callback );
 		if( !user ) {
 			return;
 		}

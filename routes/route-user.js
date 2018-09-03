@@ -5,19 +5,17 @@ const express = require( 'express' );
 const router = express.Router();
 
 router.get( '/', function ( req, res ) {
-
 	let params = {};
 	if( req.user ) {
 		params.loginName = req.user.name;
 		params.loginID = req.user.id;
-
+		params.loginUID = user.loginIDList[ req.user.id ];
 		if( req.user.admin ) {
 			params.loginType = 'admin';
 		} else {
 			params.loginType = 'user';
 		}
 	}
-
 	res.render( 'user', params );
 } );
 
@@ -114,7 +112,8 @@ router.post( '/', function ( req, res ) {
 
 		user.deleteUser( uid, req.body, sendMsg => {
 
-			const deleteMe = ( id == -1 || user.loginIDList[req.user.id] == req.body.uid );
+			const deleteMe = ( req.body.uid == -1 ||
+				user.loginIDList[ req.user.id ] == req.body.uid );
 
 			if( sendMsg.code !== 'OK' || !deleteMe ) {
 				res.send( JSON.stringify( sendMsg ) );
@@ -177,6 +176,10 @@ router.post( '/', function ( req, res ) {
 		//res.send( `<h1>Invalid MODE : ${req.body.mode}</h1>` );
 	}
 
+} );
+
+router.post( '/duplicatedID', function ( req, res ) {
+	res.send( JSON.stringify( user.haveDuplicatedID( req.body.id ) ) );
 } );
 
 router.get( '/list', function ( req, res ) {

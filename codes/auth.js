@@ -46,22 +46,26 @@ module.exports = function ( app ) {
 		},
 		function ( id, pwd, done ) {
 			//console.log( 'AUTH : START' );
-			for( const uid in user.allUsers ) {
+			const uid = user.loginIDList[ id ];
+			//for( const uid in user.allUsers ) {
 				const u = user.allUsers[ uid ];
-				if( u.id === id ) {
+				//if( u.id === id ) {
 					//console.log( 'AUTH : User Found' );
+					if( u.deleted ) {
+						return done( null, false, { code: 'EDELETED', message: 'Deleted User. Ask admin.' } );
+					}
 					bcrypt.compare( pwd, u.password, ( err, result ) => {
 						if( result ) {
 							//console.log( 'AUTH : Password Good' );
 							return done( null, uid );
 						} else {
 							//console.log( 'AUTH : Password Fuck' );
-							return done( null, false, { code:'EPASSWORD', message: 'Incorrect password.' } );
+							return done( null, false, { code: 'EPASSWORD', message: 'Incorrect password.' } );
 						}
 					} );
 					return;
-				}
-			}
+				//}
+			//}
 			//console.log( 'AUTH : User Not Found' );
 			return done( null, false, { code:'ENOUSER', message: 'Incorrect username.' } );
 		}

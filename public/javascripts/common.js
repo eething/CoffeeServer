@@ -173,7 +173,12 @@ function fetchHelper( address, data, description, callback ) {
 		} )
 		.catch( err => {
 			// TODO - 에러창에 띄우기
-			alert( `${err.status}, ${err.code}, ${err.err}` );
+			if( err.status ) {
+				alert( `${err.status}, ${err.code}, ${err.err}` );
+			} else {
+				console.log( err );
+				alert( err );
+			}
 		} );
 }
 

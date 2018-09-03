@@ -36,24 +36,21 @@ let getIconCache = ( function () {
 } )();
 
 router.get( '/', function ( req, res ) {
-
 	let params = {};
 	if( req.user ) {
 		params.loginName = req.user.name;
 		params.loginID = req.user.id;
-
+		params.loginUID = user.loginIDList[ req.user.id ];
 		if( req.user.admin ) {
 			params.loginType = 'admin';
 		} else {
 			params.loginType = 'user';
 		}
 	}
-
 	const currentTheme = 'ei-custom';
 	params.icons = getIconCache( currentTheme );
 
 	res.render( 'index', params );
-
 } );
 
 module.exports = router;
