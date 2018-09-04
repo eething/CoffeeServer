@@ -1,5 +1,5 @@
 'use strict';
-const user = require( './user' );
+const users = require( './user' );
 const passport = require( 'passport' );
 const LocalStrategy = require( 'passport-local' ).Strategy;
 const express = require( 'express' );
@@ -9,9 +9,6 @@ const session = require( 'express-session' );
 const FileStore = require( 'session-file-store' )( session );
 
 const bcrypt = require( 'bcrypt' );
-
-//let sCount = 0;
-//let dCount = 0;
 
 module.exports = function ( app ) {
 
@@ -24,20 +21,17 @@ module.exports = function ( app ) {
 	app.use( passport.initialize() );
 	app.use( passport.session() );
 
-	passport.serializeUser( function ( uid, done ) {
-		//console.log( `serializeUser, ${sCount++}` );
-		done( null, uid );
+	passport.serializeUser( function ( user, done ) {
+		done( null, users.loginIDList[ user.id ] );
 	} );
 
 	passport.deserializeUser( function ( uid, done ) {
-		const u = user.allUsers[ uid ];
+		const user = users.allUsers[ uid ];
 		let err = '';
 		if( !u ) {
 			err = `CANNOT deserializeUser: ${uid}`;
-			//console.log( err );
 		}
-		//console.log( `deserializeUser, ${dCount++}` );
-		done( err, u );
+		done( err, user );
 	} );
 
 	passport.use( new LocalStrategy( {
@@ -45,29 +39,21 @@ module.exports = function ( app ) {
 			passwordField: 'password'
 		},
 		function ( id, pwd, done ) {
-			//console.log( 'AUTH : START' );
-			const uid = user.loginIDList[ id ];
-			//for( const uid in user.allUsers ) {
-				const u = user.allUsers[ uid ];
-				//if( u.id === id ) {
-					//console.log( 'AUTH : User Found' );
-					if( u.deleted ) {
-						return done( null, false, { code: 'EDELETED', message: 'Deleted User. Ask admin.' } );
-					}
-					bcrypt.compare( pwd, u.password, ( err, result ) => {
-						if( result ) {
-							//console.log( 'AUTH : Password Good' );
-							return done( null, uid );
-						} else {
-							//console.log( 'AUTH : Password Fuck' );
-							return done( null, false, { code: 'EPASSWORD', message: 'Incorrect password.' } );
-						}
-					} );
-					return;
-				//}
-			//}
-			//console.log( 'AUTH : User Not Found' );
-			return done( null, false, { code:'ENOUSER', message: 'Incorrect username.' } );
+			const uid = users.loginIDList[ id ];
+			const user = users.allUsers[ uid ];
+			if( !user ) {
+				return done( null, false, { code:'ENOUSER', message: 'Incorrect username.' } );
+			}
+			if( user.deleted ) {
+				return done( null, false, { code: 'EDELETED', message: 'Deleted User. Ask admin.' } );
+			}
+			bcrypt.compare( pwd, user.password, ( err, result ) => {
+				if( result ) {
+					return done( null, user, { code: 'OK' } );
+				} else {
+					return done( null, false, { code: 'EPASSWORD', message: 'Incorrect password.' } );
+				}
+			} );
 		}
 	) );
 
@@ -82,15 +68,6 @@ module.exports = function ( app ) {
 			`);
 	} );
 
-	// 간헐적으로 에러가 남
-	// EPERM: operation not permitted,
-	// rename 'sessions\nvw-L3cTyKDbkKN3VKc1QXDw9KOYgYYR.json.3036754528' ->
-	// sessions\nvw-L3cTyKDbkKN3VKc1QXDw9KOYgYYR.json'
-	// req.session.save( callback ) 으로 해결 가능하다는 얘기가 있는데
-	// 일단 귀찮으니 넘어가자-_-
-	// ...
-	// 가 아니라 redirect 가 아니라 send 방식으로 처리해야 함-_-
-	// ajax fetch 로 할꺼니까... 일단 기능먼저...
 	/*
 	router.post( '/login', passport.authenticate( 'local', {
 		successRedirect: '/auth/success',
@@ -98,90 +75,60 @@ module.exports = function ( app ) {
 		//failureFlash: true
 	} ) );
 	*/
-	// 우씨 자꾸 갱신이 안되서 짱남;;
 	router.post( '/login', function ( req, res, next ) {
-		passport.authenticate( 'local', ( err, uid, info ) => {
+		passport.authenticate( 'local', ( err, user, info ) => {
 
-			let sendMsg = { code: 'UNKNOWN' };
+			let sendMsg = { info };
 
 			if( err ) {
-				console.log( `ERROR: Login - passport.authenticate, ${err}...` );
 				sendMsg.code = 'EAUTH';
 				sendMsg.err = err;
 				res.send( JSON.stringify( sendMsg ) );
-				//next( err );
 				return;
 			}
 
-			if( !uid ) { // 아마 uid 가 들어올 거임
+			if( !user ) {
 				sendMsg.code = info.code || 'ETC';
-				sendMsg.msg = info.message;
 				res.send( JSON.stringify( sendMsg ) );
-				//res.redirect( '/auth/failed' );
 				return;
 			}
 
-			req.login( uid, err => {
-
+			req.login( user, err => {
 				if( err ) {
-					console.log( `ERROR: Login - req.login, ${err}...` );
 					sendMsg.code = 'ELOGIN';
-					sendMsg.err = err;
+					sendMsg.err = {};
+					sendMsg.err.name = err.name;
+					sendMsg.err.message = err.message;
+					sendMsg.err.stack = err.stack;
 					res.send( JSON.stringify( sendMsg ) );
-					//next( err );
 					return;
 				}
-
 				req.session.save( err => {
-
 					if( err ) {
 						console.log( `ERROR: Login - Session Save, ${err}...` );
 						sendMsg.code = 'ESS';
 						sendMsg.err = err;
 					} else {
 						sendMsg.code = 'OK'
-						sendMsg.admin = user.allUsers[uid].admin;
+						sendMsg.admin = user.admin;
 					}
 					res.send( JSON.stringify( sendMsg ) );
-					//res.redirect( '/auth/success' );
 				} );
 			} );
 		} )( req, res, next );
-	} );
-
-	router.get( '/success', function ( req, res ) {
-		console.log( req.user );
-		if( req.user ) {
-			res.send( `LOGIN SUCCESS You Are <BR>
-			 			NAME: ${req.user.name}<BR>
-			 			ID: ${req.user.id}<BR>
-			 		` );
-		} else {
-			res.send( 'You Are NOT LOGINNED' );
-		}
-	} );
-
-	router.get( '/failed', function ( req, res ) {
-		console.log( req.user );
-		res.send( `LOGIN FAILED You Are <BR>
-			 ${JSON.stringify(req.user)}<BR>
-			 ` );
 	} );
 
 	router.get( '/logout', function ( req, res ) {
  		//req.session.destroy( function ( err ) {
 		req.logout();
 		req.session.save( err => {
-
 			let sendMsg = {};
 			if( err ) {
-				console.log( `ERROR: Logout - Session Save, ${err}...` );
 				sendMsg.code = 'ESS';
 				sendMsg.err = err;
 			} else {
 				sendMsg.code = 'OK';
 			}
-
 			res.send( JSON.stringify( sendMsg ) );
 		} );
 	} );
