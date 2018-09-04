@@ -28,7 +28,7 @@ module.exports = function ( app ) {
 	passport.deserializeUser( function ( uid, done ) {
 		const user = users.allUsers[ uid ];
 		let err = '';
-		if( !u ) {
+		if( !user ) {
 			err = `CANNOT deserializeUser: ${uid}`;
 		}
 		done( err, user );

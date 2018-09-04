@@ -50,7 +50,8 @@
 				tr
 					td 이름
 					td
-						input.userWhite#name_add(type="text" autocomplete="off")
+						input.userWhite#name_add(type="text" autocomplete="off"
+							onchange="this.value=this.value.trim();")
 				tr
 					td ID
 					td

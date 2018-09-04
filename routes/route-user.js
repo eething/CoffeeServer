@@ -1,5 +1,5 @@
 ﻿'use strict';
-const user = require( '../codes/user' );
+const users = require( '../codes/user' );
 const express = require( 'express' );
 
 const router = express.Router();
@@ -9,7 +9,7 @@ router.get( '/', function ( req, res ) {
 	if( req.user ) {
 		params.loginName = req.user.name;
 		params.loginID = req.user.id;
-		params.loginUID = user.loginIDList[ req.user.id ];
+		params.loginUID = users.loginIDList[ req.user.id ];
 		if( req.user.admin ) {
 			params.loginType = 'admin';
 		} else {
@@ -27,13 +27,13 @@ router.post( '/', function ( req, res ) {
 
 			if( !req.user ) {
 				res.send( JSON.stringify( {
-					code: 'ELOGIN',
+					code: 'EAUTH',
 					err: 'You must login.'
 				} ) );
 				return false;
 			}
 
-			return user.loginIDList[ req.user.id ];
+			return users.loginIDList[ req.user.id ];
 			/*
 			if( !req.session ||
 				!req.session.passport ||
@@ -63,33 +63,35 @@ router.post( '/', function ( req, res ) {
 
 	if( req.body.mode === 'add' ) {
 
-		user.addUser( req.body, sendMsg => {
+		users.addUser( req.body, sendMsg => {
 
 			if( sendMsg.code !== 'OK' ) {
 				res.send( JSON.stringify( sendMsg ) );
 				return;
 			}
 
-			req.login( sendMsg.uid, err => {
+			const user = users.allUsers[ sendMsg.uid ];
+			req.login( user, err => {
 				if( err ) {
 					sendMsg.code = 'ELOGIN';
-					sendMsg.err = err;
+					sendMsg.err = {};
+					sendMsg.err.name = err.name;
+					sendMsg.err.message = err.message;
+					sendMsg.err.stack = err.stack;
 					res.send( JSON.stringify( sendMsg ) );
 					return;
 				}
-
 				req.session.save( err => {
 					if( err ) {
 						sendMsg.code = 'ESS';
 						sendMsg.err = err;
 					} else {
-						//sendMsg.code = 'OK' // 이미 OK
-						//sendMsg.admin = user.allUsers[ uid ].admin; // 첫 생성에 admin 일리 없으니까
+						sendMsg.name = user.name;
+						sendMsg.id = user.id;
 					}
 					res.send( JSON.stringify( sendMsg ) );
 				} );
 			} );
-
 
 		} );
 
@@ -100,7 +102,7 @@ router.post( '/', function ( req, res ) {
 			return;
 		}
 
-		user.editUser( uid, req.body, sendMsg => {
+		users.editUser( uid, req.body, sendMsg => {
 			res.send( JSON.stringify( sendMsg ) );
 		} );
 	} else if( req.body.mode === 'del' ) {
@@ -110,10 +112,10 @@ router.post( '/', function ( req, res ) {
 			return;
 		}
 
-		user.deleteUser( uid, req.body, sendMsg => {
+		users.deleteUser( uid, req.body, sendMsg => {
 
 			const deleteMe = ( req.body.uid == -1 ||
-				user.loginIDList[ req.user.id ] == req.body.uid );
+				users.loginIDList[ req.user.id ] == req.body.uid );
 
 			if( sendMsg.code !== 'OK' || !deleteMe ) {
 				res.send( JSON.stringify( sendMsg ) );
@@ -145,7 +147,7 @@ router.post( '/', function ( req, res ) {
 			return;
 		}
 
-		user.enableUser( uid, req.body, sendMsg => {
+		users.enableUser( uid, req.body, sendMsg => {
 			res.send( JSON.stringify( sendMsg ) );
 		} );
 
@@ -163,7 +165,7 @@ router.post( '/', function ( req, res ) {
 			return;
 		}
 
-		user.disableUser( uid, req.body, sendMsg => {
+		users.disableUser( uid, req.body, sendMsg => {
 			res.send( JSON.stringify( sendMsg ) );
 		} );
 
@@ -179,12 +181,12 @@ router.post( '/', function ( req, res ) {
 } );
 
 router.post( '/duplicatedID', function ( req, res ) {
-	res.send( JSON.stringify( user.haveDuplicatedID( req.body.id ) ) );
+	res.send( JSON.stringify( users.haveDuplicatedID( req.body.id ) ) );
 } );
 
 router.get( '/list', function ( req, res ) {
 	res.setHeader( 'Content-Type', 'application/json' );
-	res.send( user.getUserList() );
+	res.send( users.getUserList() );
 } );
 
 module.exports = router;

@@ -79,7 +79,8 @@ function login( self ) {
 
 function checkDuplicatedID( self ) {
 	const f = self.form;
-	const data = { id: f.id.value.trim() };
+	f.id_add.value = f.id_add.value.trim();
+	const data = { id: f.id.value };
 	if( !data.id ) {
 		return;
 	}
@@ -100,6 +101,7 @@ const checkIDChanged = function () {
 	previousID = '';
 	return function ( self ) {
 		const f = self.form;
+		f.id_add.value = f.id_add.value.trim();
 		if( previousID != f.id_add.value ) {
 			l2user.duplicatedID = -1;
 			f.id_add.className = 'userYellow';
@@ -110,29 +112,26 @@ const checkIDChanged = function () {
 
 function checkAddForm( self, getMsg ) {
 	const f = self.form;
-
-	/*
-	let errID = 0;
-	if( f.id_add.value === '' ) {
-		errID = 1;
-	} else {
-		for( const uid in l2data.allUsers ) {
-			const user = l2data.allUsers[uid];
-			if( f.id_add.value === user.id || f.id_add.value === 'admin' ) {
-				errID = 2;
-				break;
-			}
-		}
-	}
-	f.id_add.className =( errID === 2 ) ? 'userYellow' :
-						( errID === 1 ) ? 'userRed' : 'userWhite';
-	*/
+	f.name_add.value = f.name_add.value.trim();
 
 	const errP1 = f.password1_add.value ? 0 : 1;
-	f.password1_add.className = ( errP1 === 1 ) ? 'userRed' : 'userWhite';
-
 	const errP2 = ( f.password1_add.value === f.password2_add.value ) ? 0 : 1;
+	f.password1_add.className = ( errP1 === 1 ) ? 'userRed' : 'userWhite';
 	f.password2_add.className = ( errP2 === 1 ) ? 'userRed' : 'userWhite';
+
+	if( !errP1 && !errP2 ) {
+		f.password1_add.className = 'userGreen';
+		f.password2_add.className = 'userGreen';
+	} else if( errP1 === 1 ) {
+		f.password1_add.className = 'userRed';
+		f.password2_add.className = 'userWhite';
+	} else if( errP2 === 1 ) {
+		f.password1_add.className = 'userWhite';
+		f.password2_add.className = 'userRed';
+	} else {
+		f.password1_add.className = 'userRed';
+		f.password2_add.className = 'userWhite';
+	}
 
 	if( !getMsg ) {
 		return;
@@ -165,8 +164,14 @@ function addUser( self ) {
 	f.password.value = f.password1_add.value;
 	f.mode.value = "add";
 
-	submitUser( f, () => {
+	submitUser( f, res => {
 		changeLoginType( 'user' );
+		l2data.login.name	= res.name;
+		l2data.login.ID		= res.id;
+		l2data.login.uid	= res.uid;
+		document.querySelector( '#id_edit').innerHTML = l2data.login.ID;
+		document.querySelector( '#name_edit').value = l2data.login.name;
+
 		f.id_add.value				= '';
 		f.name_add.value			= '';
 		f.password1_add.value		= '';
@@ -176,6 +181,8 @@ function addUser( self ) {
 		f.name_add.className		= 'userWhite';
 		f.password1_add.className	= 'userRed';
 		f.password2_add.className	= 'userWhite';
+
+		l2data.getUserList( l2user.cbUserList );
 	} );
 }
 
