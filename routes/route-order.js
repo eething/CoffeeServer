@@ -1,5 +1,5 @@
 ﻿'use strict';
-var order = require( '../codes/order' );
+var orders = require( '../codes/order' );
 var express = require( 'express' );
 var router = express.Router();
 
@@ -8,7 +8,7 @@ router.get( '/', function ( req, res ) {
 } );
 
 router.post( '/', function ( req, res ) {
-	order.addOrder( req.body, ( { err, msg } ) => {
+	orders.addOrder( req.body, ( { err, msg } ) => {
 		let sendMsg = `<h1>${err}</h1>`;
 		for( const m of msg ) {
 			sendMsg += `<li>${m}</li>`;
@@ -17,30 +17,43 @@ router.post( '/', function ( req, res ) {
 	} );
 } );
 
-
+function checkAuth( req, res ) {
+	if( !req.user ) {
+		res.send( JSON.stringify( {
+			code: 'EAUTH',
+			err: 'You must login.'
+		} ) );
+		return true;
+	}
+	res.setHeader( 'Content-Type', 'application/json' );
+	return false;
+}
 
 router.get( '/list', function ( req, res ) {
-	order.getCurrentOrder( obj => {
-		res.send( JSON.stringify( obj ) );
+	if( checkAuth( req, res ) ) {
+		return;
+	}
+	orders.getCurrentOrder( currentOrder => {
+		res.send( JSON.stringify( { currentOrder } ) );
 	} );
 } );
 
 router.get( '/list/today', function ( req, res ) {
-	order.getTodayOrder( obj => {
-		if( obj ) {
-			res.send( JSON.stringify( obj ) );
-		} else {
-			res.status(500).send( { error: 'Something failed!' } );
-		}
+	if( checkAuth( req, res ) ) {
+		return;
+	}
+	orders.getTodayOrder( todayOrder => {
+		res.send( JSON.stringify( { todayOrder } ) );
 	} );
 } );
 
 router.get( '/list/all', function ( req, res ) {
-	order.getAllOrder( obj => {
-		res.send( JSON.stringify( obj ) );
+	if( checkAuth( req, res ) ) {
+		return;
+	}
+	orders.getAllOrder( allOrders  => {
+		res.send( JSON.stringify( { allOrders } ) );
 	} );
 } );
-
-
 
 module.exports = router;

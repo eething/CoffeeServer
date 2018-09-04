@@ -1,5 +1,9 @@
 'use strict';
+
 const users = require( './user' );
+const beverages = require( './beverage' );
+const orders = require( './order' );
+
 const passport = require( 'passport' );
 const LocalStrategy = require( 'passport-local' ).Strategy;
 const express = require( 'express' );
@@ -112,7 +116,13 @@ module.exports = function ( app ) {
 						sendMsg.code = 'OK'
 						sendMsg.admin = user.admin;
 					}
-					res.send( JSON.stringify( sendMsg ) );
+
+					sendMsg.allUsers = users.getUserList();
+					sendMsg.allBeverages = beverages.allBeverages;
+					orders.getCurrentOrder( currentOrder => {
+						sendMsg.currentOrder = currentOrder;
+						res.send( JSON.stringify( sendMsg ) );
+					} );
 				} );
 			} );
 		} )( req, res, next );
@@ -129,6 +139,23 @@ module.exports = function ( app ) {
 			} else {
 				sendMsg.code = 'OK';
 			}
+			res.send( JSON.stringify( sendMsg ) );
+		} );
+	} );
+
+	router.get( '/list', function ( req, res ) {
+		if( !req.user ) {
+			res.send( JSON.stringify( {
+				code: 'EAUTH',
+				err: 'You must login.'
+			} ) );
+		}
+		res.setHeader( 'Content-Type', 'application/json' );
+		let sendMsg = { code: 'OK' };
+		sendMsg.allUsers = users.getUserList();
+		sendMsg.allBeverages = beverages.allBeverages();
+		orders.getCurrentOrder( currentOrder => {
+			sendMsg.currentOrder = currentOrder;
 			res.send( JSON.stringify( sendMsg ) );
 		} );
 	} );

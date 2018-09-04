@@ -1,5 +1,5 @@
 ﻿'use strict';
-var beverage = require( '../codes/beverage' );
+var beverages = require( '../codes/beverage' );
 var express = require( 'express' );
 var router = express.Router();
 
@@ -10,7 +10,7 @@ router.get( '/', function ( req, res ) {
 
 router.post( '/add', function ( req, res ) {
 
-	beverage.addBeverage( req.body, ( { err, msg } ) => {
+	beverages.addBeverage( req.body, ( { err, msg } ) => {
 		var sendMsg = `<h1>${err}</h1>`;
 		for( var m of msg ) {
 			sendMsg += `<li>${m}</li>`;
@@ -21,7 +21,7 @@ router.post( '/add', function ( req, res ) {
 
 router.post( '/del', function ( req, res ) {
 
-	beverage.deleteBeverage( req.body, ( { err, msg } ) => {
+	beverages.deleteBeverage( req.body, ( { err, msg } ) => {
 		var sendMsg = `<h1>${err}</h1>`;
 		for( var m of msg ) {
 			sendMsg += `<li>${m}</li>`;
@@ -31,7 +31,14 @@ router.post( '/del', function ( req, res ) {
 } );
 
 router.get( '/list', function ( req, res ) {
-	res.send( JSON.stringify( beverage.allBeverages ) );
+	if( !req.user ) {
+		res.send( JSON.stringify( {
+			code: 'EAUTH',
+			err: 'You must login.'
+		} ) );
+	}
+	res.setHeader( 'Content-Type', 'application/json' );
+	res.send( JSON.stringify( { allBeverages: beverages.allBeverages } ) );
 } );
 
 module.exports = router;

@@ -1,5 +1,9 @@
 ﻿'use strict';
+
 const users = require( '../codes/user' );
+const beverages = require( '../codes/beverage' );
+const orders = require( '../codes/order' );
+
 const express = require( 'express' );
 
 const router = express.Router();
@@ -73,6 +77,7 @@ router.post( '/', function ( req, res ) {
 			const user = users.allUsers[ sendMsg.uid ];
 			req.login( user, err => {
 				if( err ) {
+					// TODO - ERROR Convert
 					sendMsg.code = 'ELOGIN';
 					sendMsg.err = {};
 					sendMsg.err.name = err.name;
@@ -85,15 +90,23 @@ router.post( '/', function ( req, res ) {
 					if( err ) {
 						sendMsg.code = 'ESS';
 						sendMsg.err = err;
+						res.send( JSON.stringify( {
+							code: 'ESS',
+							err: err
+						} ) );
 					} else {
 						sendMsg.name = user.name;
 						sendMsg.id = user.id;
+						sendMsg.allUsers = users.getUserList();
+						sendMsg.allBeverages = beverages.allBeverages();
+						orders.getCurrentOrder( currentOrder => {
+							sendMsg.currentOrder = currentOrder;
+							res.send( JSON.stringify( sendMsg ) );
+						} );
 					}
-					res.send( JSON.stringify( sendMsg ) );
-				} );
-			} );
-
-		} );
+				} ); // save
+			} ); //login
+		} ); // addUser
 
 	} else if( req.body.mode === 'edit' ) {
 
@@ -185,8 +198,15 @@ router.post( '/duplicatedID', function ( req, res ) {
 } );
 
 router.get( '/list', function ( req, res ) {
+	if( !req.user ) {
+		res.send( JSON.stringify( {
+			code: 'EAUTH',
+			err: 'You must login.'
+		} ) );
+		return;
+	}
 	res.setHeader( 'Content-Type', 'application/json' );
-	res.send( users.getUserList() );
+	res.send( JSON.stringify( { allUsers: users.getUserList() } ) );
 } );
 
 module.exports = router;

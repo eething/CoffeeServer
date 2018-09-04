@@ -70,7 +70,6 @@ module.exports = {
 					this._addCurrentOrderList( order );
 				}
 			}
-
 			_callback();
 		} );
 	},
@@ -90,23 +89,23 @@ module.exports = {
 			const key = this.todayString;
 			let todayOrder = this.allOrders[ key ];
 			todayOrder.push( order );
-			let orderString = JSON.stringify( todayOrder );
 
+			let orderString = JSON.stringify( todayOrder );
 			const filePath = `data/orders/${key}`;
 			fs.writeFile( filePath, orderString, ( err ) => {
 				if( err ) {
 					callback( {
-						err: "WriteFileFailed",
-						msg: [ `addOrder Failed - ${err}` ]
+						code: 'EWRITE',
+						err: {
+							name: err.name,
+							message: err.message,
+							stack: err.stack
+						}
 					} );
 				} else {
-					let msg = [`addOrder Success - ${key}`];
-					for( const o of todayOrder ) {
-						msg.push( JSON.stringify( o ) );
-					}
 					callback( {
-						err: "Success",
-						msg
+						code: 'OK',
+						order: order
 					} );
 				}
 			} );

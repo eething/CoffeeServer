@@ -413,7 +413,7 @@ module.exports = {
 			}
 		}
 
-		return JSON.stringify( temp );
+		return temp;
 	},
 
 	setFavorite( body, callback ) {

@@ -12,54 +12,83 @@ MyError.prototype.constructor = MyError;
 
 let elem = {};
 
-let l2data = {
-	allBeverages: {},
+function fetchHelper( address, data, description, callback ) {
 
+	let options = {};
+	if( data ) {
+		options = {
+			headers: {
+				//'Accept': 'application/json',
+				'Content-Type': 'application/json'
+			},
+			method: 'post',
+			body: JSON.stringify( data )
+		};
+	}
+
+	fetch( address, options )
+		.then( res => {
+			if( res.ok ) {
+				return res.json();
+			} else {
+				throw new MyError( res.status, {
+					code: 'CFETCH',
+					err: `FAILED: ${description}`
+				} );
+			}
+		} )
+		.then( data => {
+			callback( data );
+		} )
+		.catch( err => {
+			// TODO - 에러창에 띄우기
+			if( err.status ) {
+				alert( `${err.status}, ${err.code}, ${err.err}` );
+			} else {
+				console.log( err );
+				alert( err );
+			}
+		} );
+}
+
+let l2data = {
+	login: {},
+	allUsers: {},
+	allBeverages: {},
 	allOrders: {},
 	currentOrder: [],
 	currentBuy: {},
 	buyKeySorted: [],
 
-	allUsers: {},
+	// TODO - currentOrder 의 정렬시 orderBy 로 정렬하는데
+	// 이거 uid 라서 실제 이름 정렬로 전환 해야 하나-_-
+	// 아님 orderBy 를 다시 userName 으로 바꿔야 하나-_-
+
+	getAllList( callback ) {
+		fetchHelper( '/auth/list', null, 'getAllList', data => {
+			this.allUsers = data.allUsers;
+			this.allBeverages = data.allBeverages;
+			this.currentOrder = data.currentOrder;
+			this.currentOrder.sort( ( a, b ) => a.orderBy > b.orderBy );
+			this._convertOrderToBuy();
+			callback();
+		} );
+	}
 
 	getBeverageList( callback ) {
-		fetch( '/beverage/list' )
-			.then( res => {
-				if( res.ok ) {
-					return res.json();
-				} else {
-					throw new MyError( res.status, { code: 'CFETCH', err: 'FAILED: Get Beverage List' } );
-				}
-			} )
-			.then( data => {
-				this.allBeverages = data;
-				callback();
-			} )
-			.catch( err => {
-				// TODO - 에러창에 띄우기
-				alert( `${err.status}, ${err.code}, ${err.err}` );
-			} );
+		fetchHelper( '/beverage/list', null, 'getBeverageList', data => {
+			this.allBeverages = data.allBeverages;
+			callback();
+		} );
 	},
 
 	getCurrentOrderList( callback ) {
-		fetch( 'order/list' )
-			.then( res => {
-				if( res.ok ) {
-					return res.json();
-				} else {
-					throw new MyError( res.status, { code: 'CFETCH', err: 'FAILED: Get CurrentOrder List' } );
-				}
-			} )
-			.then( data => {
-				this.currentOrder = data;
-				this.currentOrder.sort( ( a, b ) => a.orderBy > b.orderBy );
-				this._convertOrderToBuy();
-				callback();
-			} )
-			.catch( err => {
-				// TODO - 에러창에 띄우기
-				alert( `${err.status}, ${err.code}, ${err.err}` );
-			} );
+		fetchHelper( '/order/list', null, 'getBeverageList', data => {
+			this.currentOrder = data.currentOrder;
+			this.currentOrder.sort( ( a, b ) => a.orderBy > b.orderBy );
+			this._convertOrderToBuy();
+			callback();
+		} );
 	},
 
 	_convertOrderToBuy() {
@@ -122,65 +151,12 @@ let l2data = {
 	},
 
 	getUserList( callback ) {
-		fetch( '/user/list' )
-			.then( res => {
-				if( res.ok ) {
-					return res.json();
-				} else {
-					throw new MyError( res.status, { code: 'CFETCH', err: 'FAILED: Get User List' } );
-				}
-			} )
-			.then( data => {
-				this.allUsers = data;
-				callback();
-			} )
-			.catch( err => {
-				// TODO - 에러창에 띄우기
-				alert( `${err.status}, ${err.code}, ${err.err}` );
-			} );
-	},
-
-	login: {}
-};
-
-function fetchHelper( address, data, description, callback ) {
-
-	let options = {};
-	if( data ) {
-		options = {
-			headers: {
-				//'Accept': 'application/json',
-				'Content-Type': 'application/json'
-			},
-			method: 'post',
-			body: JSON.stringify( data )
-		};
-	}
-
-	fetch( address, options )
-		.then( res => {
-			if( res.ok ) {
-				return res.json();
-			} else {
-				throw new MyError( res.status, {
-					code: 'CFETCH',
-					err: `FAILED: ${description}`
-				} );
-			}
-		} )
-		.then( res => {
-			callback( res );
-		} )
-		.catch( err => {
-			// TODO - 에러창에 띄우기
-			if( err.status ) {
-				alert( `${err.status}, ${err.code}, ${err.err}` );
-			} else {
-				console.log( err );
-				alert( err );
-			}
+		fetchHelper( '/user/list', null, 'getBeverageList', data => {
+			this.allUsers = data.allUsers;
+			callback();
 		} );
-}
+	},
+};
 
 function removeChildAll( node ) {
 	while( node.lastChild ) {
