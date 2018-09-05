@@ -36,6 +36,7 @@ router.get( '/list', function ( req, res ) {
 			code: 'EAUTH',
 			err: 'You must login.'
 		} ) );
+		return;
 	}
 	res.setHeader( 'Content-Type', 'application/json' );
 	res.send( JSON.stringify( { allBeverages: beverages.allBeverages } ) );

@@ -155,35 +155,59 @@ function swapOrderList( self ) {
 	}
 }
 
-function order( self ) {
+function addOrder( self ) {
+	const f = self.form;
 
-	if( self.beverage.value == "" ) {
-		if( self.beverageSelect.value ) {
-			self.beverage.value = self.beverageSelect.value;
+	if( f.beverage.value == '' ) {
+		if( f.beverageSelect.value ) {
+			f.beverage.value = f.beverageSelect.value;
 		} else {
 			alert( '음료명을 입력해주세요' );
-			return false;
+			return;
 		}
 	}
-	if( !l2data.allBeverages[self.beverage.value] ) {
+	if( !l2data.allBeverages[f.beverage.value] ) {
 		alert( '없는 음료입니다.' );
-		return false;
+		return;
 	}
 
-	if( elem.divIce.style.display && elem.divHot.style.display ) {
-		if( !elem.radioIce.checked && !elem.radioHot.checked ) {
-			alert( '아이스 / 따뜻 골라주세요.' );
-			return false;
+	if( elem.divIce.style.display && elem.divHot.style.display &&
+		!elem.radioIce.checked && !elem.radioHot.checked ) {
+		alert( '아이스 / 따뜻 골라주세요.' );
+		return;
+	}
+
+
+	const data = {
+		beverage: f.beverage.value,
+		icehot: f.icehot.value,
+		syrup: f.syrup.value
+	}
+	f.beverage.value = '',
+	elem.radioIce.checked = false;
+	elem.radioHot.checked = false;
+	elem.chkSyrup.checked = false;
+	onChangeBeverage()
+
+	fetchHelper( '/order', data, 'addOrder', data => {
+		if( data.code == 'OK' ) {
+			l2data.setData( data );
+		} else {
+			throw new MyError( 500, data );
 		}
-	}
-
-	return true;
+	} );
 }
+
+
+
+
+
 function checkOptions( option ) {
 	elem.radioIce.checked = (option.icehot === 'ice');
 	elem.radioHot.checked = (option.icehot === 'hot');
 	elem.chkSyrup.checked = (option.syrup === 'minus');
 }
+
 function showBeverageOptions( beverage ) {
 	elem.radioIce.checked = false;
 	elem.radioHot.checked = false;
@@ -221,6 +245,9 @@ function showPopup( start ) {
 	elem.divPopupOuter.style.visibility = visMode;
 }
 function onChangeBeverage( value ) {
+
+	// TODO - self, trim;
+
 	let bShow = false;
 	let beverage = l2data.allBeverages[value];
 	if( beverage ) {

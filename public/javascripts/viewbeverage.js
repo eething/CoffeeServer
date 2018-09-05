@@ -4,11 +4,12 @@ l2data.view.beverage = true;
 
 l2beverage = {
 	cbBeverageList() {
-		let select = document.querySelector( '#beverageList2 select' );
+
+		let select = document.querySelector( '#beverageSelect2' );
 		removeChildAll( select );
 
 		for( const bKey in l2data.allBeverages ) {
-			let beverage = l2data.allBeverages[bKey];
+			let beverage = l2data.allBeverages[ bKey ];
 			let option = document.createElement( 'option' );
 			option.text = `${beverage.name}Text`;
 			option.value = `${beverage.name}`;

@@ -114,6 +114,9 @@ module.exports = function ( app ) {
 						sendMsg.err = err;
 					} else {
 						sendMsg.code = 'OK'
+						sendMsg.name = user.name;
+						sendMsg.id = user.id;
+						sendMsg.uid = users.loginIDList[ user.id ];
 						sendMsg.admin = user.admin;
 					}
 

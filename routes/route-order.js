@@ -3,20 +3,6 @@ var orders = require( '../codes/order' );
 var express = require( 'express' );
 var router = express.Router();
 
-router.get( '/', function ( req, res ) {
-	res.render( 'order' ); //, { title: 'Express' } );
-} );
-
-router.post( '/', function ( req, res ) {
-	orders.addOrder( req.body, ( { err, msg } ) => {
-		let sendMsg = `<h1>${err}</h1>`;
-		for( const m of msg ) {
-			sendMsg += `<li>${m}</li>`;
-		}
-		res.send( sendMsg );
-	} );
-} );
-
 function checkAuth( req, res ) {
 	if( !req.user ) {
 		res.send( JSON.stringify( {
@@ -28,6 +14,19 @@ function checkAuth( req, res ) {
 	res.setHeader( 'Content-Type', 'application/json' );
 	return false;
 }
+
+router.get( '/', function ( req, res ) {
+	res.render( 'order' ); //, { title: 'Express' } );
+} );
+
+router.post( '/', function ( req, res ) {
+	if( checkAuth( req, res ) ) {
+		return;
+	}
+	orders.addOrder( req.body, sendMsg => {
+		res.send( sendMsg );
+	} );
+} );
 
 router.get( '/list', function ( req, res ) {
 	if( checkAuth( req, res ) ) {

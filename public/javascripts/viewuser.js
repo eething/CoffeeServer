@@ -4,11 +4,6 @@ l2data.view.user = true;
 
 function initUserElem( loginType, loginName, loginID, loginUID ) {
 
-	l2data.login.type	= loginType;
-	l2data.login.name	= loginName;
-	l2data.login.ID		= loginID;
-	l2data.login.uid	= loginUID;
-
 	elem.spanLogin		= document.querySelector( '#menuLogin' );
 	elem.spanRegister	= document.querySelector( '#menuRegister' );
 	elem.spanMyInfo		= document.querySelector( '#menuMyInfo' );
@@ -27,7 +22,7 @@ function initUserElem( loginType, loginName, loginID, loginUID ) {
 		elem.divAdmin
 	];
 
-	changeLoginType( loginType );
+	changeLoginData( loginType, loginName, loginID, loginUID );
 }
 
 l2user = {
@@ -53,7 +48,7 @@ l2user = {
 function logout() {
 	fetchHelper( '/auth/logout', null, 'Logout', res => {
 		if( res.code == 'OK' ) {
-			changeLoginType();
+			changeLoginData();
 		} else {
 			throw new MyError( 500, res );
 		}
@@ -61,7 +56,7 @@ function logout() {
 }
 
 function login( self ) {
-	//f.submit();
+
 	const f = self.form;
 	const data = {
 		id: f.id.value,
@@ -73,7 +68,7 @@ function login( self ) {
 	fetchHelper( '/auth/login', data, 'Login', data => {
 		if( data.code == 'OK' ) {
 			l2data.setData( data );
-			changeLoginType( data.admin ? 'admin' : 'user' );
+			changeLoginData( data.admin ? 'admin' : 'user', data.name, data.id, data.uid );
 		} else {
 			throw new MyError( 500, data );
 		}
@@ -342,9 +337,10 @@ function changeUserPage( page ) {
 	} );
 }
 
-function changeLoginType( loginType ) {
-	l2data.login.type = loginType;
+function changeLoginData( loginType, loginName, loginID, loginUID ) {
 
+	// Type
+	l2data.login.type = loginType;
 	if( !loginType ) {
 		elem.spanLogin.style.display	= 'inline-block'
 		elem.spanRegister.style.display = 'inline-block';
@@ -366,4 +362,12 @@ function changeLoginType( loginType ) {
 			changeUserPage( 'MyInfo' );
 		}
 	}
+	// Name
+	l2data.login.name = loginName;
+	document.querySelector( '#name_edit' ).value = loginName;
+	// ID
+	l2data.login.ID = loginID;
+	document.querySelector( '#id_edit' ).innerHTML = l2data.login.ID;
+	// uid
+	l2data.login.uid = loginUID;
 }

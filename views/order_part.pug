@@ -1,5 +1,5 @@
 ﻿div.cOuter#outerOrder
-	form(action="/order" method="post" onsubmit="return order(this);")
+	form(action="/order" method="post")
 		div.cInput
 			div 누구
 				select#orderBy(name="orderBy")
@@ -40,4 +40,4 @@
 				label(for="syrup") 시럽빼고
 
 		div.cNyam
-			input.cNyam(type="submit" value="냠냠")
+			input.cNyam(type="button" value="냠냠" onclick="addOrder(this);")
