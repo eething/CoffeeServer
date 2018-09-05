@@ -1,5 +1,7 @@
 ﻿// vieworder.js
 
+l2data.view.user = true;
+
 function initUserElem( loginType, loginName, loginID, loginUID ) {
 
 	l2data.login.type	= loginType;
@@ -68,11 +70,12 @@ function login( self ) {
 	f.id.value = '';
 	f.password.value = '';
 
-	fetchHelper( '/auth/login', data, 'Login', res => {
-		if( res.code == 'OK' ) {
-			changeLoginType( res.admin ? 'admin' : 'user' );
+	fetchHelper( '/auth/login', data, 'Login', data => {
+		if( data.code == 'OK' ) {
+			l2data.setData( data );
+			changeLoginType( data.admin ? 'admin' : 'user' );
 		} else {
-			throw new MyError( 500, res );
+			throw new MyError( 500, data );
 		}
 	} );
 }

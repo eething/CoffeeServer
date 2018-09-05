@@ -1,5 +1,7 @@
 ﻿// viewbeverage.js
 
+l2data.view.beverage = true;
+
 l2beverage = {
 	cbBeverageList() {
 		let select = document.querySelector( '#beverageList2 select' );

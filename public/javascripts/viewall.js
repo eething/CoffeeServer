@@ -1,6 +1,13 @@
 ﻿// viewall.js
 
+l2data.view.all = true;
+
 l2all = {
+
+	cbAllList() {
+		this.cbBeverageList();
+		this.cbUserList();
+	},
 
 	cbBeverageList() {
 		l2beverage.cbBeverageList();

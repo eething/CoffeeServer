@@ -15,7 +15,9 @@ html
 		script.
 			function initUser() {
 				initUserElem( '#{loginType}', '#{loginName}', '#{loginID}', '#{loginUID}' );
-				l2data.getUserList( l2user.cbUserList );
+				if( '#{loginType}' ) {
+					l2data.getUserList();
+				}
 			}
 
 	body(onLoad="initUser();")

@@ -1,5 +1,7 @@
 ﻿// vieworder.js
 
+l2data.view.order = true;
+
 function initOrderElem() {
 	elem.divIce = document.querySelector( 'div.cIce' );
 	elem.divHot = document.querySelector( 'div.cHot' );
