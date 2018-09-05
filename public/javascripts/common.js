@@ -52,6 +52,8 @@ function fetchHelper( address, data, description, callback ) {
 }
 
 let l2data = {
+
+	view: {},
 	login: {},
 	allUsers: {},
 	allBeverages: {},
@@ -63,30 +65,55 @@ let l2data = {
 	// TODO - currentOrder 의 정렬시 orderBy 로 정렬하는데
 	// 이거 uid 라서 실제 이름 정렬로 전환 해야 하나-_-
 	// 아님 orderBy 를 다시 userName 으로 바꿔야 하나-_-
+	setData( data ) {
+
+		this.allUsers = data.allUsers || this.allUsers;
+		if( data.allUsers ) {
+			if( this.view.all ) {
+				l2all.cbUserList();
+			} else if( this.view.user ){
+				l2user.cbUserList();
+			}
+		}
+
+		this.allBeverages = data.allBeverages || this.allBeverages;
+		if( data.allBeverages ) {
+			if( this.view.all ) {
+				l2all.cbBeverageList();
+			} else if( this.view.beverage ){
+				l2beverage.cbBeverageList();
+			}
+		}
+
+		this.currentOrder = data.currentOrder || this.currentOrder;
+		this.currentOrder.sort( ( a, b ) => a.orderBy > b.orderBy );
+		this._convertOrderToBuy();
+		if( data.currentOrder ) {
+			if( this.view.all ) {
+				l2all.cbOrderList();
+			} else if( this.view.order ){
+				l2order.cbOrderList();
+			}
+		}
+	},
 
 	getAllList( callback ) {
 		fetchHelper( '/auth/list', null, 'getAllList', data => {
-			this.allUsers = data.allUsers;
-			this.allBeverages = data.allBeverages;
-			this.currentOrder = data.currentOrder;
-			this.currentOrder.sort( ( a, b ) => a.orderBy > b.orderBy );
-			this._convertOrderToBuy();
+			this.setData( data );
 			callback();
 		} );
-	}
+	},
 
 	getBeverageList( callback ) {
 		fetchHelper( '/beverage/list', null, 'getBeverageList', data => {
-			this.allBeverages = data.allBeverages;
+			this.setData( data );
 			callback();
 		} );
 	},
 
 	getCurrentOrderList( callback ) {
 		fetchHelper( '/order/list', null, 'getBeverageList', data => {
-			this.currentOrder = data.currentOrder;
-			this.currentOrder.sort( ( a, b ) => a.orderBy > b.orderBy );
-			this._convertOrderToBuy();
+			this.setData( data );
 			callback();
 		} );
 	},
@@ -152,8 +179,10 @@ let l2data = {
 
 	getUserList( callback ) {
 		fetchHelper( '/user/list', null, 'getBeverageList', data => {
-			this.allUsers = data.allUsers;
-			callback();
+			this.setData( data );
+			if( callback ) {
+				callback();
+			}
 		} );
 	},
 };
