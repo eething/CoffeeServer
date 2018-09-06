@@ -1,5 +1,5 @@
 ﻿div.cOuter#outerOrder
-	form(action="/order" method="post")
+	form#order_form(action="/order" method="post")
 		div.cInput
 			div 누구
 				select#orderBy(name="orderBy")
@@ -7,10 +7,10 @@
 			div 무엇
 				input.cBeverage#beverage(type="text" name="beverage"
 					list="beverageList" autocomplete="off"
-					onchange="onChangeBeverage(value);"
+					onchange="onChangeBeverage(this);"
 					onkeydown="if(event.keyCode==13){return false;}" )
-				datalist(id="beverageList")
-					select#beverageSelect(onchange="onChangeBeverage(value);"
+				datalist#beverageList
+					select#beverageSelect(onchange="onChangeBeverage(this);"
 						style="width:180px;margin-left:-186px;height:22px;")
 
 				input(type="button" value="리셋" onclick="selectBeverage('');")
