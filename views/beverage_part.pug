@@ -1,9 +1,10 @@
 ﻿div.cOuter#outerBeverage
 	div.cAddBeverage
-		form(action="/beverage/add" method="post" onsubmit="return add(this);")
+		form(action="/beverage/add" method="post" onsubmit="return false;")
 			div
-				input(type="text" id="name" name="name" placeholder="호로록")
-				input(type="submit" value="추가")
+				input#name(type="text" name="name"
+					autocomplete="off" placeholder="호로록")
+				input(type="button" value="추가" onclick="addBeverage(this);")
 			div.cOption
 				input(type="checkbox" name="iceable" checked)
 				span 아이스

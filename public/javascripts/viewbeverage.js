@@ -18,24 +18,47 @@ l2beverage = {
 	}
 }
 
-function add( self ) {
-	if( self.name.value == "" ) {
+function addBeverage( self ) {
+	const f = self.form;
+	if( f.name.value == '' ) {
 		alert( '음료명을 입력해주세요' );
-		return false;
+		return;
 	}
-	return true;
+
+	const data = {
+		name: f.name.value,
+	}
+	if( f.iceable.checked ) {
+		data.iceable = true;
+	}
+	if( f.hotable.checked ) {
+		data.hotable = true;
+	}
+	if( f.syrupable.checked ) {
+		data.syrupable = true;
+	}
+
+	fetchHelper( '/beverage/add', data, 'addBeverage', data => {
+		if( data.code == 'OK' ) {
+			l2data.setData( data );
+		} else {
+			throw new MyError( 500, data );
+		}
+	} );
 }
 
-function del( self ) {
-	var chkon = false;
+function delBeverage( self ) {
+	const f = self.form;
+
+	//var chkon = false;
 	var delchks = document.querySelectorAll( 'input.delchk' );
 	for( var delchk of delchks ) {
 		if( delchk.checked ) {
-			return true;
+			fetchHelper();
+			return;
 		}
 	}
 	alert( '삭제할 음료를 선택해주세요' );
-	return false;
 }
 
 function addDelete( self ) {

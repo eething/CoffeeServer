@@ -71,7 +71,7 @@ let l2data = {
 		if( data.allUsers ) {
 			if( this.view.all ) {
 				l2all.cbUserList();
-			} else if( this.view.user ){
+			} else if( this.view.user ) {
 				l2user.cbUserList();
 			}
 		}
@@ -91,7 +91,7 @@ let l2data = {
 		if( data.currentOrder ) {
 			if( this.view.all ) {
 				l2all.cbOrderList();
-			} else if( this.view.order ){
+			} else if( this.view.order ) {
 				l2order.cbOrderList();
 			}
 		}
@@ -119,6 +119,7 @@ let l2data = {
 	},
 
 	_convertOrderToBuy() {
+		this.currentBuy = {};
 		this.currentOrder.forEach( co => {
 			let buyList = this.currentBuy[co.beverage];
 			if( !buyList ) {
@@ -132,7 +133,7 @@ let l2data = {
 			for( const k of optionKeys ) {
 				options[k] = co[k];
 			}
-			let optionString = JSON.stringify( options );;
+			let optionString = JSON.stringify( options );
 
 			let buy = buyList.find( b => b.options === optionString );
 			if( !buy ) {

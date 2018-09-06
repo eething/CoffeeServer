@@ -42,13 +42,17 @@ module.exports = {
 		fs.writeFile( filePath, beverageString, ( err ) => {
 			if( err ) {
 				callback( {
-					err: "WriteFileFailed",
-					msg: [ `addBeverage Failed - ${err}` ]
+					code: 'EWRITE',
+					err: {
+						name: err.name,
+						message: err.message,
+						stack: err.stack
+					}
 				} );
 			} else {
 				callback( {
-					err: "Success",
-					msg: [ `addBeverage Success - ${beverageString}` ]
+					code: 'OK',
+					beverage: beverage
 				} );
 			}
 		} );

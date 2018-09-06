@@ -92,7 +92,7 @@ module.exports = {
 
 			let orderString = JSON.stringify( todayOrder );
 			const filePath = `data/orders/${key}`;
-			fs.writeFile( filePath, orderString, ( err ) => {
+			fs.writeFile( filePath, orderString, err => {
 				if( err ) {
 					callback( {
 						code: 'EWRITE',
@@ -105,6 +105,7 @@ module.exports = {
 				} else {
 					callback( {
 						code: 'OK',
+						currentOrder: this.currentOrderList,
 						order: order
 					} );
 				}

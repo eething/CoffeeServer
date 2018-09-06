@@ -90,7 +90,21 @@ l2order = {
 		} );
 	},
 	_totalCount: 0,
-	_addPopup( tdNum, k, v, optionStr ) {
+	_addTableOrderB( k, v ) {
+		let tr = addElement( elem.tableOrderB, 'tr', 'cOrderItem' );
+
+		let tdBeverage = addElement( tr, 'td', 'cBeverage', k );
+		let size = Math.min( Math.max( 23 - k.length * 2, 11 ), 15 );
+		tdBeverage.style.fontSize = size + 'px';
+
+		const option = JSON.parse( v.options );
+		let optionStr = this._makeOptionStr( option );
+		let tdOption = addElement( tr, 'td', 'cOption', optionStr );
+		size = Math.min( Math.max( 25 - optionStr.length, 10 ), 15 );
+		tdOption.style.fontSize = size + 'px';
+
+		let tdNum = addElement( tr, 'td' );
+
 		let aPopup = addElement( tdNum, 'a', '', v.orderBys.length );
 		this._totalCount += v.orderBys.length;
 		function popupViewOrderBys() {
@@ -122,22 +136,6 @@ l2order = {
 			popupViewOrderBys();
 		} );
 	},
-	_addTableOrderB( k, v ) {
-		let tr = addElement( elem.tableOrderB, 'tr', 'cOrderItem' );
-
-		let tdBeverage = addElement( tr, 'td', 'cBeverage', k );
-		let size = Math.min( Math.max( 23 - k.length * 2, 11 ), 15 );
-		tdBeverage.style.fontSize = size + 'px';
-
-		const option = JSON.parse( v.options );
-		let optionStr = this._makeOptionStr( option );
-		let tdOption = addElement( tr, 'td', 'cOption', optionStr );
-		size = Math.min( Math.max( 25 - optionStr.length, 10 ), 15 );
-		tdOption.style.fontSize = size + 'px';
-
-		let tdNum = addElement( tr, 'td' );
-		this._addPopup( tdNum, k, v, optionStr );
-	},
 	_setTotalForOrderB() {
 		document.querySelector( 'span.cTotal' ).innerHTML = `총 ${this._totalCount} 잔`;
 	},
@@ -156,11 +154,13 @@ l2order = {
 		l2order._makeTableOrderB();
 		l2order._setTotalForOrderB();
 	},
+	/*
 	cbOrderOne( order ) {
 		l2order._addTableOrderO( order );
 		l2order._addTableOrderB( '엄훠', order );
 		l2order._setTotalForOrderB();
 	}
+	*/
 }
 
 function swapOrderList( self ) {
