@@ -156,7 +156,7 @@ module.exports = function ( app ) {
 		res.setHeader( 'Content-Type', 'application/json' );
 		let sendMsg = { code: 'OK' };
 		sendMsg.allUsers = users.getUserList();
-		sendMsg.allBeverages = beverages.allBeverages();
+		sendMsg.allBeverages = beverages.allBeverages;
 		orders.getCurrentOrder( currentOrder => {
 			sendMsg.currentOrder = currentOrder;
 			res.send( JSON.stringify( sendMsg ) );

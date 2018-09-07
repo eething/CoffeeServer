@@ -37,7 +37,7 @@ html
 				div.cMenu(onclick="changePage('Order')") !{icons.cart}
 				div.cMenu(onclick="changePage('User')") !{icons.user}
 				div.cMenu(onclick="changePage('Beverage')") !{icons.gear}
-				div.cMenu(onclick="alert('Refresh !!!')") !{icons.refresh}
+				div.cMenu(onclick="l2data.getAllList( l2all.cbAllList );") !{icons.refresh}
 
 			include order_part
 			include user_part

@@ -5,8 +5,15 @@ l2data.view.all = true;
 l2all = {
 
 	cbAllList() {
-		this.cbBeverageList();
-		this.cbUserList();
+		/* 할필요없음 setData 에서 다 알아서 해줌
+		l2user.cbUserList();
+		l2order.cbUserList();
+
+		l2beverage.cbBeverageList();
+		l2order.cbBeverageList();
+
+		l2order.cbOrderList();
+		*/
 	},
 
 	cbBeverageList() {
