@@ -18,6 +18,10 @@ l2all = {
 		l2user.cbUserList();
 		l2order.cbUserList();
 	},
+
+	cbOrderList() {
+		l2order.cbOrderList();
+	}
 }
 
 function initAllElem() {

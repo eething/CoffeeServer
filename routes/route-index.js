@@ -1,8 +1,10 @@
 ﻿'use strict';
-var icons = require( 'evil-icons' );
-var express = require( 'express' );
 
-var router = express.Router();
+const users = require( '../codes/user' );
+const icons = require( 'evil-icons' );
+const express = require( 'express' );
+
+const router = express.Router();
 
 const useIconList = [
 	'ei-cart',
@@ -40,7 +42,7 @@ router.get( '/', function ( req, res ) {
 	if( req.user ) {
 		params.loginName = req.user.name;
 		params.loginID = req.user.id;
-		params.loginUID = user.loginIDList[ req.user.id ];
+		params.loginUID = users.loginIDList[ req.user.id ];
 		if( req.user.admin ) {
 			params.loginType = 'admin';
 		} else {

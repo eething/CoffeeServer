@@ -46,11 +46,11 @@ l2user = {
 }
 
 function logout() {
-	fetchHelper( '/auth/logout', null, 'Logout', res => {
-		if( res.code == 'OK' ) {
+	fetchHelper( '/auth/logout', null, 'Logout', data => {
+		if( data.code == 'OK' ) {
 			changeLoginData();
 		} else {
-			throw new MyError( 500, res );
+			throw new MyError( 500, data );
 		}
 	} );
 }
@@ -82,15 +82,15 @@ function checkDuplicatedID( self ) {
 	if( !data.id ) {
 		return;
 	}
-	fetchHelper( '/user/duplicatedID', data, 'Logout', res => {
-		if( res.code === 'OK' ) {
+	fetchHelper( '/user/duplicatedID', data, 'Logout', data => {
+		if( data.code === 'OK' ) {
 			l2user.duplicatedID = 1;
 			f.id_add.className = 'userGreen';
-		} else if( res.code === 'EUSERID' ) {
+		} else if( data.code === 'EUSERID' ) {
 			l2user.duplicatedID = 0;
 			f.id_add.className = 'userRed';
 		} else {
-			throw new MyError( 500, res );
+			throw new MyError( 500, data );
 		}
 	} );
 }
@@ -162,11 +162,11 @@ function addUser( self ) {
 	f.password.value = f.password1_add.value;
 	f.mode.value = "add";
 
-	submitUser( f, res => {
+	submitUser( f, data => {
 		changeLoginType( 'user' );
-		l2data.login.name	= res.name;
-		l2data.login.ID		= res.id;
-		l2data.login.uid	= res.uid;
+		l2data.login.name	= data.name;
+		l2data.login.ID		= data.id;
+		l2data.login.uid	= data.uid;
 		document.querySelector( '#id_edit').innerHTML = l2data.login.ID;
 		document.querySelector( '#name_edit').value = l2data.login.name;
 
@@ -205,14 +205,20 @@ function checkEditForm( self, admin, getMsg ) {
 		fPassword2.className = 'userWhite';
 	}
 
+	let changeDel = false;
+	let changeEnable = false;
 	if( admin ) {
 		const uid = document.querySelector( '#uid_admin' ).innerHTML;
-		var orgName = l2data.allUsers[ uid ].name;
+		const user = l2data.allUsers[ uid ];
+		var orgName = user.name;
+		changeDel = f.del_admin.checked != user.deleted;
+		changeEnable = f.enable_admin.checked != user.enabled;
+		// TODO - deleted, enabled 도 배경색 바꿔주자
 	} else {
 		var orgName = l2data.login.name;
 	}
 	fName.value = fName.value.trim();
-	let changeName = ( fName.value === orgName ) ? 0 : 1;
+	const changeName = ( fName.value === orgName ) ? 0 : 1;
 	fName.className = ( changeName === 1 ) ? 'userGreen' : 'userWhite';
 
 	if( !getMsg ) {
@@ -223,7 +229,7 @@ function checkEditForm( self, admin, getMsg ) {
 	if( errP2 ) {
 		return '비밀번호가 다릅니다.';
 	}
-	if( changeName ) {
+	if( changeName || changeDel || changeEnable ) {
 		hasChange = true;
 	}
 	if( !hasChange ) {
@@ -298,7 +304,7 @@ function delUser( self, admin ) {
 
 function submitUser( f, cb ) {
 	//f.submit();
-	const data = {
+	const input = {
 		mode: f.mode.value,
 		uid: f.uid.value,
 		id: f.id.value,
@@ -306,11 +312,16 @@ function submitUser( f, cb ) {
 		password: f.password.value
 	}
 
-	fetchHelper( '/user', data, `${data.mode}User`, res => {
-		if( res.code == 'OK' ) {
-			cb( res );
+	if( input.mode === 'edit' && input.id >= 0 ) { // admin 을 대채하는 코드
+		input.deleted = f.del_admin.checked;
+		input.enabled = f.enable_admin.checked;
+	}
+
+	fetchHelper( '/user', input, `${input.mode}User`, data => {
+		if( data.code == 'OK' ) {
+			cb( data );
 		} else {
-			throw new MyError( 500, res );
+			throw new MyError( 500, data );
 		}
 	} );
 }
@@ -321,10 +332,12 @@ function onSelectUser( self ) {
 	if( !user ) {
 		return;
 	}
-	self.form.uid.value = self.value;
+	self.form.uid.value = uid;
 	document.querySelector( '#uid_admin' ).innerHTML = uid;
 	document.querySelector( '#id_admin' ).innerHTML = user.id;
 	document.querySelector( '#name_admin' ).value = user.name;
+	document.querySelector( '#del_admin' ).checked = user.deleted ? true : false;
+	document.querySelector( '#enable_admin' ).checked = user.enabled ? true : false;
 }
 
 function changeUserPage( page ) {

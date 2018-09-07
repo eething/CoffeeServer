@@ -6,6 +6,8 @@ const adam = {
 	name: '관리자',
 	id: 'admin',
 	password: '$2b$10$j4gB9lgzNoKvyEN5ZpV6SOkaGUKSrf8s0CvSQA4bq4ZLwBCrIUC8e', //qwer
+	// admin: true,
+	// enabled: false
 }
 Object.freeze( adam );
 
@@ -25,6 +27,7 @@ module.exports = {
 		this.allUsers[0].id			= adam.id;
 		this.allUsers[0].password	= adam.password;
 		this.allUsers[0].admin		= true;
+		this.allUsers[0].enabled	= false;
 
 		this.loginIDList[ 'admin' ]	= 0;
 	},

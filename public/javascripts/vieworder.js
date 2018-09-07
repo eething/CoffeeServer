@@ -40,7 +40,10 @@ l2order = {
 		removeChildAll( select );
 
 		for( const uid in l2data.allUsers ) {
-			let user = l2data.allUsers[ uid ];
+			const user = l2data.allUsers[ uid ];
+			if( user.deleted || !user.enabled ) {
+				continue;
+			}
 			let option = addElement( select, 'option', '',
 				user.name ? user.name : user.id );
 			option.value = uid;
