@@ -4,6 +4,7 @@ var express = require( 'express' );
 var router = express.Router();
 
 function checkAuth( req, res ) {
+	res.setHeader( 'Content-Type', 'application/json' );
 	if( !req.user ) {
 		res.send( JSON.stringify( {
 			code: 'EAUTH',
@@ -11,7 +12,6 @@ function checkAuth( req, res ) {
 		} ) );
 		return true;
 	}
-	res.setHeader( 'Content-Type', 'application/json' );
 	return false;
 }
 

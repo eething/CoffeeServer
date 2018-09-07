@@ -3,18 +3,24 @@ var beverages = require( '../codes/beverage' );
 var express = require( 'express' );
 var router = express.Router();
 
-
-router.get( '/', function ( req, res ) {
-	res.render( 'beverage' );
-} );
-
-router.post( '/add', function ( req, res ) {
+function checkAuth( req, res ) {
 	res.setHeader( 'Content-Type', 'application/json' );
 	if( !req.user ) {
 		res.send( JSON.stringify( {
 			code: 'EAUTH',
 			err: 'You must login.'
 		} ) );
+		return true;
+	}
+	return false;
+}
+
+router.get( '/', function ( req, res ) {
+	res.render( 'beverage' );
+} );
+
+router.post( '/add', function ( req, res ) {
+	if( checkAuth( req, res ) ) {
 		return;
 	}
 	beverages.addBeverage( req.body, sendMsg => {
@@ -28,25 +34,23 @@ router.post( '/add', function ( req, res ) {
 } );
 
 router.post( '/del', function ( req, res ) {
-
-	beverages.deleteBeverage( req.body, ( { err, msg } ) => {
-		var sendMsg = `<h1>${err}</h1>`;
-		for( var m of msg ) {
-			sendMsg += `<li>${m}</li>`;
+	if( checkAuth( req, res ) ) {
+		return;
+	}
+	beverages.delBeverage( req.body, sendMsg => {
+		if( sendMsg.code !== 'OK' ) {
+			res.send( JSON.stringify( sendMsg ) );
+			return;
 		}
-		res.send( sendMsg );
+		sendMsg.allBeverages = beverages.allBeverages;
+		res.send( JSON.stringify( sendMsg ) );
 	} );
 } );
 
 router.get( '/list', function ( req, res ) {
-	if( !req.user ) {
-		res.send( JSON.stringify( {
-			code: 'EAUTH',
-			err: 'You must login.'
-		} ) );
+	if( checkAuth( req, res ) ) {
 		return;
 	}
-	res.setHeader( 'Content-Type', 'application/json' );
 	res.send( JSON.stringify( { allBeverages: beverages.allBeverages } ) );
 } );
 

@@ -25,7 +25,7 @@
 				select#beverageSelect2(style="width:180px;margin-left:-186px;height:22px;")
 			input(type="button" value="삭제리스트" onclick="addDelete( this );")
 
-		form(action="/beverage/del" method="post" onsubmit="return del(this);")
+		form(action="/beverage/del" method="post" onsubmit="return false;")
 			div.cDeleteList
 			div.cExecDelete
-				input(type="submit" value="삭제실행")
+				input(type="button" value="삭제실행" onclick="delBeverage(this);")

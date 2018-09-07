@@ -58,33 +58,44 @@ module.exports = {
 		} );
 	},
 
-	deleteBeverage( body, callback ) {
+	delBeverage( body, callback ) {
 
 		let len = Object.keys( body ).length;
 		if( len === 0 ) {
 			callback( {
-				err: "InputNotExist",
-				msg: [ 'deleteBeverage Failed - Input is NOT Exist' ]
+				code: "EINPUT",
+				err: 'Input NOT Exist'
 			} );
 			return;
 		}
 
-		let msg = [ 'deleteBeverage' ];
+		let sendMsg = {
+			code: 'OK',
+			errList: [],
+			delList: []
+		}
+
 		for( let key in body ) {
-			console.log( key + ' : ' + this.allBeverages[key] );
+			//console.log( key + ' : ' + this.allBeverages[key] );
 			delete this.allBeverages[ key ];
 
 			const filePath = `data/beverages/${key}`;
-			fs.unlink( filePath, ( err ) => {
+			fs.unlink( filePath, err => {
 				--len;
 				if( err ) {
-					msg.push( `${err}` );
+					sendMsg.code = 'EUNLINK';
+					sendMsg.errList.push( {
+						key: key,
+						name: err.name,
+						message: err.message,
+						stack: err.stack
+					} );
 				} else {
-					msg.push( `Success - ${filePath}` );
+					sendMsg.delList.push( key );
 				}
 
 				if( len === 0 ) {
-					callback( { msg: msg } );
+					callback( sendMsg );
 				}
 			} );
 		}
