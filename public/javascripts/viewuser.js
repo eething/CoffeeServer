@@ -163,7 +163,7 @@ function addUser( self ) {
 	f.mode.value = "add";
 
 	submitUser( f, data => {
-		changeLoginType( 'user' );
+		changeLoginData( 'user' );
 		l2data.login.name	= data.name;
 		l2data.login.ID		= data.id;
 		l2data.login.uid	= data.uid;

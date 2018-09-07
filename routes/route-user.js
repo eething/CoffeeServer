@@ -98,7 +98,7 @@ router.post( '/', function ( req, res ) {
 						sendMsg.name = user.name;
 						sendMsg.id = user.id;
 						sendMsg.allUsers = users.getUserList();
-						sendMsg.allBeverages = beverages.allBeverages();
+						sendMsg.allBeverages = beverages.allBeverages;
 						orders.getCurrentOrder( currentOrder => {
 							sendMsg.currentOrder = currentOrder;
 							res.send( JSON.stringify( sendMsg ) );

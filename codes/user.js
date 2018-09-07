@@ -38,6 +38,10 @@ module.exports = {
 
 		fs.readdir( 'data/users', ( err, files ) => {
 			let len = files.length;
+			if( len === 0 ) {
+				this.isLoaded = true;
+				return;
+			}
 
 			files.forEach( ( file ) => {
 				const filePath = `data/users/${file}`;
