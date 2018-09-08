@@ -39,8 +39,7 @@ l2user = {
 			let option = addElement( select, 'option', '', username );
 			option.value = uid;
 		}
-
-		select.form.uid.value = select.value;
+//		select.form.uid.value = select.value;
 		onSelectUser( select );
 	}
 }
@@ -78,7 +77,7 @@ function login( self ) {
 function checkDuplicatedID( self ) {
 	const f = self.form;
 	f.id_add.value = f.id_add.value.trim();
-	const data = { id: f.id.value };
+	const data = { id: f.id_add.value };
 	if( !data.id ) {
 		return;
 	}
@@ -156,13 +155,13 @@ function addUser( self ) {
 		alert( msg );
 		return;
 	}
-
 	const f = self.form;
-	f.name.value = f.name_add.value;
-	f.password.value = f.password1_add.value;
-	f.mode.value = "add";
-
-	submitUser( f, data => {
+	const input = {
+		name: f.name_add.value,
+		id: f.id.value,
+		password: f.password1_add.value
+	};
+	submitUser( 'addUser', input, data => {
 		changeLoginData( 'user' );
 		l2data.login.name	= data.name;
 		l2data.login.ID		= data.id;
@@ -187,9 +186,9 @@ function addUser( self ) {
 function checkEditForm( self, admin, getMsg ) {
 
 	const f = self.form;
-	const fName = admin ? f.name_admin : f.name_edit;
-	const fPassword1 = admin ? f.password1_admin : f.password1_edit;
-	const fPassword2 = admin ? f.password2_admin : f.password2_edit;
+	const fName = f.name_edit;
+	const fPassword1 = f.password1_edit;
+	const fPassword2 = f.password2_edit;
 
 	let hasChange = fPassword1.value ? true : false;
 
@@ -205,18 +204,10 @@ function checkEditForm( self, admin, getMsg ) {
 		fPassword2.className = 'userWhite';
 	}
 
-	let changeDel = false;
-	let changeEnable = false;
-	if( admin ) {
-		const uid = document.querySelector( '#uid_admin' ).innerHTML;
-		const user = l2data.allUsers[ uid ];
-		var orgName = user.name;
-		changeDel = f.del_admin.checked != user.deleted;
-		changeEnable = f.enable_admin.checked != user.enabled;
-		// TODO - deleted, enabled 도 배경색 바꿔주자
-	} else {
-		var orgName = l2data.login.name;
-	}
+	const changeDel = false;
+	const changeEnable = false;
+	const orgName = l2data.login.name;
+
 	fName.value = fName.value.trim();
 	const changeName = ( fName.value === orgName ) ? 0 : 1;
 	fName.className = ( changeName === 1 ) ? 'userGreen' : 'userWhite';
@@ -238,44 +229,121 @@ function checkEditForm( self, admin, getMsg ) {
 	return msg;
 }
 
-function editUser( self, admin ) {
+function editUser( self ) {
 
 	const f = self.form;
 
-	const msg = checkEditForm( self, admin, true );
+	const msg = checkEditForm( self, true );
 	if( msg ) {
 		alert( msg );
 		return;
 	}
 
-	f.uid.value = admin ? f.uid.value : -1;
-	f.name.value = admin ? f.name_admin.value : f.name_edit.value;
-	f.password.value = admin ? f.password1_admin.value : f.password1_edit.value;
-	f.mode.value = "edit";
+	const newName = f.name_edit.value;
+	const editMe = true;
 
-	const newName = f.name.value;
-	const editMe = !admin || (f.uid.value == l2data.login.uid);
-
-	submitUser( f, () => {
+	const input = {
+		//uid: -1,
+		name: f.name_edit.value,
+		password: f.password1_edit.value
+	}
+	submitUser( 'editUser', input, () => {
 		if( editMe ) {
-			console.log( 'loginuid:' + l2data.login.uid );
-			console.log( l2data.allUsers[ l2data.login.uid ] );
-			l2data.allUsers[ l2data.login.uid ].name = newName;
-			//l2data.allUsers[ l2data.login.uid ].id = newID;
-			l2data.login.name = newName;
-			//l2data.login.ID = newID;
+			const user = l2data.allUsers[ l2data.login.uid ];
+			user.name = l2data.login.name = newName;
+			//user.id = l2data.login.ID = newID;			
 		}
 		//f.name_edit.value			= '';
 		f.password1_edit.value		= '';
 		f.password2_edit.value		= '';
 
-		f.name_admin.value			= '';
-		f.password1_admin.value		= '';
-		f.password2_admin.value		= '';
-
 		f.name_edit.className		= 'userWhite';
 		f.password1_edit.className	= 'userWhite';
 		f.password2_edit.className	= 'userWhite';
+	} );
+}
+
+function checkAdminForm( self, getMsg ) {
+
+	const f = self.form;
+	const fName = f.name_admin;
+	const fPassword1 = f.password1_admin;
+	const fPassword2 = f.password2_admin;
+
+	let hasChange = fPassword1.value ? true : false;
+
+	const errP2 = ( fPassword1.value === fPassword2.value ) ? 0 : 1;
+	if( errP2 === 1 ) {
+		fPassword1.className = 'userWhite';
+		fPassword2.className = 'userRed';
+	} else if( hasChange ) {
+		fPassword1.className = 'userGreen';
+		fPassword2.className = 'userGreen';
+	} else {
+		fPassword1.className = 'userWhite';
+		fPassword2.className = 'userWhite';
+	}
+
+	const uid = document.querySelector( '#uid_admin' ).innerHTML;
+	const user = l2data.allUsers[uid];
+	const orgName = user.name;
+	const changeDel = f.del_admin.checked != user.deleted;
+	const changeEnable = f.enable_admin.checked != user.enabled;
+	// TODO - deleted, enabled 도 배경색 바꿔주자
+
+	fName.value = fName.value.trim();
+	const changeName = ( fName.value === orgName ) ? 0 : 1;
+	fName.className = ( changeName === 1 ) ? 'userGreen' : 'userWhite';
+
+	if( !getMsg ) {
+		return;
+	}
+
+	let msg;
+	if( errP2 ) {
+		return '비밀번호가 다릅니다.';
+	}
+	if( changeName || changeDel || changeEnable ) {
+		hasChange = true;
+	}
+	if( !hasChange ) {
+		msg = '변경사항이 없습니다.'
+	}
+	return msg;
+}
+
+function adminUser( self ) {
+
+	const f = self.form;
+
+	const msg = checkAdminForm( self, true );
+	if( msg ) {
+		alert( msg );
+		return;
+	}
+
+	const newName = f.name_admin.value;
+	const editMe = ( f.idSelect.value == l2data.login.uid );
+//	const editMe = ( f.uid.value == l2data.login.uid );
+
+	const input = {
+		uid: f.idSelect.value,
+//		uid: f.uid.value,
+		name: f.name_admin.value,
+		password: f.password1_admin.value,
+		deleted: f.del_admin.checked,
+		enabled: f.enable_admin.checked
+	}
+	submitUser( 'adminUser', input, () => {
+		if( editMe ) {
+			const user = l2data.allUsers[ l2data.login.uid ];
+			user.name = l2data.login.name = newName;
+			//user.id = l2data.login.ID = newID;
+		}
+
+		f.name_admin.value		= '';
+		f.password1_admin.value	= '';
+		f.password2_admin.value	= '';
 
 		f.name_admin.className		= 'userWhite';
 		f.password1_admin.className	= 'userWhite';
@@ -283,41 +351,30 @@ function editUser( self, admin ) {
 	} );
 }
 
-function delUser( self, admin ) {
+// delUser 는 무조건 admin 기능으로 바꾸려고 함
+function delUser( self ) {
 	const f = self.form;
-
-	if( admin ) {
-		const user = l2data.allUsers[ f.uid.value ];
-		const userName = user.name || user.id;
+//	if( admin ) {
+		const uid = f.idSelect.value
+//		const uid = f.uid.value;
+		const user = l2data.allUsers[ uid ];
+		const userName = user.name || user.id || `* ${uid}`;
 		var msg = `${userName} 를 삭제하시겠습니까?`;
-	} else {
-		var msg = '탈퇴하시겠습니까?';
-	}
+//	} else {
+//		var msg = '탈퇴하시겠습니까?';
+//	}
 
 	if( confirm( msg ) ) {
-		f.mode.value = "del";
-		f.uid.value = admin ? f.uid.value : -1;
-		submitUser( f, () => {
-		} );
+		const input = {
+			uid: uid
+		}
+		submitUser( 'delUser', input, () => {} );
 	}
 }
 
-function submitUser( f, cb ) {
-	//f.submit();
-	const input = {
-		mode: f.mode.value,
-		uid: f.uid.value,
-		id: f.id.value,
-		name: f.name.value,
-		password: f.password.value
-	}
+function submitUser( mode, input, cb ) {
 
-	if( input.mode === 'edit' && input.id >= 0 ) { // admin 을 대채하는 코드
-		input.deleted = f.del_admin.checked;
-		input.enabled = f.enable_admin.checked;
-	}
-
-	fetchHelper( '/user', input, `${input.mode}User`, data => {
+	fetchHelper( `/user/${mode}`, input, mode, data => {
 		if( data.code == 'OK' ) {
 			cb( data );
 		} else {
@@ -332,7 +389,7 @@ function onSelectUser( self ) {
 	if( !user ) {
 		return;
 	}
-	self.form.uid.value = uid;
+//	self.form.uid.value = uid;
 	document.querySelector( '#uid_admin' ).innerHTML = uid;
 	document.querySelector( '#id_admin' ).innerHTML = user.id;
 	document.querySelector( '#name_admin' ).value = user.name;

@@ -236,6 +236,7 @@ module.exports = {
 			}
 		} );
 		*/
+
 		const oldID = user.id;
 
 		let changePassword = false;
@@ -246,19 +247,23 @@ module.exports = {
 				continue;
 			} else if( key === 'id' ) {
 				continue;
-			} else if( key == 'password' ) {
+			} else if( key === 'password' ) {
 				if( value === '' ) {
 					continue;
 				}
 				changePassword = true;
+			} else if( key !== 'name' ) {
+				if( uid == 0 ) {
+					continue;
+				}
 			}
 
-			user[ key ] = value;
+			user[key] = value;
 		}
 
 		if( user.id != oldID ) {
-			delete loginIDList[ oldID ];
-			loginIDList[ user.id ] = uid;
+			delete loginIDList[oldID];
+			loginIDList[user.id] = uid;
 		}
 
 		/*
@@ -329,9 +334,9 @@ module.exports = {
 		*/
 	},
 
-	enableUser( uid, body, callback ) {
+	enableUser( body, callback ) {
 
-		const user = this._getUser( uid, callback );
+		const user = this._getUser( body.uid, callback );
 		if( !user ) {
 			return;
 		}
@@ -340,19 +345,19 @@ module.exports = {
 			user.disabled = false;
 		}
 
-		this._writeUser( uid, callback );
+		this._writeUser( body.uid, callback );
 	},
 
-	disableUser( uid, body, callback ) {
+	disableUser( body, callback ) {
 
-		const user = this._getUser( uid, callback );
+		const user = this._getUser( body.uid, callback );
 		if( !user ) {
 			return;
 		}
 
 		user.disabled = true;
 
-		this._writeUser( uid, callback );
+		this._writeUser( body.uid, callback );
 	},
 
 

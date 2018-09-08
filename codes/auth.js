@@ -150,8 +150,10 @@ module.exports = function ( app ) {
 				code: 'EAUTH',
 				err: 'You must login.'
 			} ) );
+			return;
 		}
 		res.setHeader( 'Content-Type', 'application/json' );
+
 		let sendMsg = { code: 'OK' };
 		sendMsg.allUsers = users.getUserList();
 		sendMsg.allBeverages = beverages.allBeverages;
