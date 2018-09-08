@@ -1,19 +1,13 @@
 ﻿'use strict';
-var orders = require( '../codes/order' );
-var express = require( 'express' );
-var router = express.Router();
 
-function checkAuth( req, res ) {
-	res.setHeader( 'Content-Type', 'application/json' );
-	if( !req.user ) {
-		res.send( JSON.stringify( {
-			code: 'EAUTH',
-			err: 'You must login.'
-		} ) );
-		return true;
-	}
-	return false;
-}
+const orders = require( '../codes/order' );
+const users = require( '../codes/user' );
+const checkAuth = require( '../lib/check-auth' );
+const express = require( 'express' );
+
+const router = express.Router();
+
+
 
 router.get( '/', function ( req, res ) {
 	res.render( 'order' ); //, { title: 'Express' } );
@@ -23,6 +17,19 @@ router.post( '/', function ( req, res ) {
 	if( checkAuth( req, res ) ) {
 		return;
 	}
+
+	const uid = req.body.orderBy;
+	const user = users.allUsers[ uid ];
+
+	if( !user ) {
+		res.send( {
+			code: 'ENOUSER',
+			err: `User Not Found, uid=${uid}.`
+		} );
+		return;
+	}
+	req.body.orderByDN = user.name || user.ID;
+
 	orders.addOrder( req.body, sendMsg => {
 		res.send( sendMsg );
 	} );

@@ -26,9 +26,7 @@ html
 				//initBeverageElem();
 				initUserElem( '#{loginType}', '#{loginName}', '#{loginID}', '#{loginUID}' );
 				initAllElem();
-
-				l2data.getBeverageList( l2all.cbBeverageList );
-				l2data.getUserList( l2all.cbUserList );
+				l2data.getAllList();
 			}
 
 	body(onLoad="initAll();")

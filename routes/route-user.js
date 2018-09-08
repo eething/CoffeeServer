@@ -3,7 +3,7 @@
 const users = require( '../codes/user' );
 const beverages = require( '../codes/beverage' );
 const orders = require( '../codes/order' );
-
+const convertError = require( '../lib/convert-error' );
 const express = require( 'express' );
 
 const router = express.Router();
@@ -77,12 +77,8 @@ router.post( '/', function ( req, res ) {
 			const user = users.allUsers[ sendMsg.uid ];
 			req.login( user, err => {
 				if( err ) {
-					// TODO - ERROR Convert
 					sendMsg.code = 'ELOGIN';
-					sendMsg.err = {};
-					sendMsg.err.name = err.name;
-					sendMsg.err.message = err.message;
-					sendMsg.err.stack = err.stack;
+					sendMsg.err = convertError( err );
 					res.send( JSON.stringify( sendMsg ) );
 					return;
 				}
@@ -115,7 +111,14 @@ router.post( '/', function ( req, res ) {
 			return;
 		}
 
+		const user = users.allUsers[uid].name;
+		const oldDisplayName = user.name || user.ID;
+
 		users.editUser( uid, req.body, sendMsg => {
+			const newDisplayName = user.name || user.ID;
+			if( oldDisplayName != newDisplayName ) {
+				orders.changeDisplayName( uid, newDisplayName );
+			}
 			res.send( JSON.stringify( sendMsg ) );
 		} );
 	} else if( req.body.mode === 'del' ) {

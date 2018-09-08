@@ -1,5 +1,7 @@
 ﻿'use strict';
+
 const fs = require( 'fs' );
+const convertError = require( '../lib/convert-error' );
 
 module.exports = {
 
@@ -34,6 +36,13 @@ module.exports = {
 		}
 	},
 
+	changeDisplayName( uid, newDisplayName ) {
+		this.currentOrderList.forEach( ( co, i ) => {
+			if( co.orderBy === uid ) {
+				co.orderByDN = newDisplayName;
+			}
+		} );
+	},
 	_addCurrentOrderList( order ) {
 		let isNewOrder = true;
 
@@ -96,11 +105,7 @@ module.exports = {
 				if( err ) {
 					callback( {
 						code: 'EWRITE',
-						err: {
-							name: err.name,
-							message: err.message,
-							stack: err.stack
-						}
+						err: convertError( err )
 					} );
 				} else {
 					callback( {

@@ -1,19 +1,12 @@
 ﻿'use strict';
-var beverages = require( '../codes/beverage' );
-var express = require( 'express' );
-var router = express.Router();
 
-function checkAuth( req, res ) {
-	res.setHeader( 'Content-Type', 'application/json' );
-	if( !req.user ) {
-		res.send( JSON.stringify( {
-			code: 'EAUTH',
-			err: 'You must login.'
-		} ) );
-		return true;
-	}
-	return false;
-}
+const beverages = require( '../codes/beverage' );
+const checkAuth = require( '../lib/check-auth' );
+const express = require( 'express' );
+
+const router = express.Router();
+
+
 
 router.get( '/', function ( req, res ) {
 	res.render( 'beverage' );

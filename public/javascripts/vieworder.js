@@ -45,11 +45,10 @@ l2order = {
 				continue;
 			}
 			let option = addElement( select, 'option', '',
-				user.name ? user.name : user.id );
+				user.name || user.id || `* ${uid}` );
 			option.value = uid;
 		}
-
-		l2data.getCurrentOrderList( l2order.cbOrderList );
+		//l2data.getCurrentOrderList( l2order.cbOrderList );
 	},
 
 	_makeOptionStr( option ) {
@@ -70,6 +69,9 @@ l2order = {
 	},
 	_addTableOrderO( co ) {
 		let optionStr = this._makeOptionStr( co );
+
+		const userName = co.orderByDN;
+		/*
 		const user = l2data.allUsers[co.orderBy];
 		let username = '';
 		if( user ) {
@@ -77,12 +79,14 @@ l2order = {
 		} else {
 			username = `* ${co.orderBy}`
 		}
+		*/
+
 		let tr = addElement( elem.tableOrderO, 'tr', 'cOrderItem' );
 
 		const beverageStr = `${co.beverage}(${optionStr})`;
 		let size = Math.min( Math.max( 30 - beverageStr.length, 11 ), 15 );
 
-		addElement( tr, 'td', 'cOrderBy', username );
+		addElement( tr, 'td', 'cOrderBy', userName );
 		let td = addElement( tr, 'td', 'cBeverageOption', beverageStr );
 		td.style.fontSize = size + 'px';
 	},
@@ -200,24 +204,24 @@ function addOrder( self ) {
 		return;
 	}
 
-	const data = {
+	const input = {
 		orderBy: f.orderBy.value,
 		beverage: f.beverage.value,
 	}
 	f.beverage.value = '';
 	if( f.icehot.value ) {
-		data.icehot = f.icehot.value;
+		input.icehot = f.icehot.value;
 		elem.radioIce.checked = false;
 		elem.radioHot.checked = false;
 	}
 	if( f.syrup.checked ) {
-		data.syrup = f.syrup.value;
+		input.syrup = f.syrup.value;
 		elem.chkSyrup.checked = false;
 	}
 
 	changeBeverage( f, '' );
 
-	fetchHelper( '/order', data, 'addOrder', data => {
+	fetchHelper( '/order', input, 'addOrder', data => {
 		if( data.code == 'OK' ) {
 			l2data.setData( data );
 		} else {

@@ -1,5 +1,7 @@
 ﻿'use strict';
+
 const fs = require( 'fs' );
+const convertError = require( '../lib/convert-error' );
 
 module.exports = {
 
@@ -39,15 +41,11 @@ module.exports = {
 
 		let beverageString = JSON.stringify( beverage );
 		let filePath = `data/beverages/${beverage.name}`;
-		fs.writeFile( filePath, beverageString, ( err ) => {
+		fs.writeFile( filePath, beverageString, err => {
 			if( err ) {
 				callback( {
 					code: 'EWRITE',
-					err: {
-						name: err.name,
-						message: err.message,
-						stack: err.stack
-					}
+					err: convertError( err )
 				} );
 			} else {
 				callback( {
@@ -84,12 +82,7 @@ module.exports = {
 				--len;
 				if( err ) {
 					sendMsg.code = 'EUNLINK';
-					sendMsg.errList.push( {
-						key: key,
-						name: err.name,
-						message: err.message,
-						stack: err.stack
-					} );
+					sendMsg.errList.push( errorConvert( err ) ); //key: key,
 				} else {
 					sendMsg.delList.push( key );
 				}

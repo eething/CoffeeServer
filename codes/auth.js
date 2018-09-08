@@ -3,6 +3,7 @@
 const users = require( './user' );
 const beverages = require( './beverage' );
 const orders = require( './order' );
+const convertError = require( '../lib/convert-error' );
 
 const passport = require( 'passport' );
 const LocalStrategy = require( 'passport-local' ).Strategy;
@@ -100,10 +101,7 @@ module.exports = function ( app ) {
 			req.login( user, err => {
 				if( err ) {
 					sendMsg.code = 'ELOGIN';
-					sendMsg.err = {};
-					sendMsg.err.name = err.name;
-					sendMsg.err.message = err.message;
-					sendMsg.err.stack = err.stack;
+					sendMsg.err = convertError( err );
 					res.send( JSON.stringify( sendMsg ) );
 					return;
 				}

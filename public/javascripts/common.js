@@ -86,7 +86,7 @@ let l2data = {
 		}
 
 		this.currentOrder = data.currentOrder || this.currentOrder;
-		this.currentOrder.sort( ( a, b ) => a.orderBy > b.orderBy );
+		this.currentOrder.sort( ( a, b ) => a.orderByDN > b.orderByDN );
 		this._convertOrderToBuy();
 		if( data.currentOrder ) {
 			if( this.view.all ) {
@@ -100,21 +100,36 @@ let l2data = {
 	getAllList( callback ) {
 		fetchHelper( '/auth/list', null, 'getAllList', data => {
 			this.setData( data );
-			callback();
+			if( callback ) {
+				callback();
+			}
+		} );
+	},
+
+	getUserList( callback ) {
+		fetchHelper( '/user/list', null, 'getUserList', data => {
+			this.setData( data );
+			if( callback ) {
+				callback();
+			}
 		} );
 	},
 
 	getBeverageList( callback ) {
 		fetchHelper( '/beverage/list', null, 'getBeverageList', data => {
 			this.setData( data );
-			callback();
+			if( callback ) {
+				callback();
+			}
 		} );
 	},
 
 	getCurrentOrderList( callback ) {
-		fetchHelper( '/order/list', null, 'getBeverageList', data => {
+		fetchHelper( '/order/list', null, 'getCurrentOrderList', data => {
 			this.setData( data );
-			callback();
+			if( callback ) {
+				callback();
+			}
 		} );
 	},
 
@@ -126,8 +141,8 @@ let l2data = {
 				buyList = this.currentBuy[co.beverage] = [];
 			}
 
-			let optionKeys = Object.keys(co)
-				.filter( b => (b !== 'orderBy' &&  b !== 'beverage') )
+			let optionKeys = Object.keys( co )
+				.filter( b => ( b !== 'orderBy' && b !== 'orderByDN' && b !== 'beverage' ) )
 				.sort();
 			let options = {};
 			for( const k of optionKeys ) {
@@ -137,15 +152,17 @@ let l2data = {
 
 			let buy = buyList.find( b => b.options === optionString );
 			if( !buy ) {
-				buy = { options: optionString, orderBys: [] };
+				buy = { options: optionString, orderBys: [], orderByDNs: [] };
 				buyList.push( buy );
 			}
-			buy.orderBys.push( co.orderBy )
+			buy.orderBys.push( co.orderBy );
+			buy.orderByDNs.push( co.orderByDN );
 		} );
 
 		for( const k in this.currentBuy ) {
 			this.currentBuy[k].forEach( b => {
-				b.orderBys.sort();
+				//b.orderBys.sort();
+				b.orderByDNs.sort();
 			} )
 		}
 
@@ -176,16 +193,7 @@ let l2data = {
 			}
 			return count2 - count1;
 		} );
-	},
-
-	getUserList( callback ) {
-		fetchHelper( '/user/list', null, 'getBeverageList', data => {
-			this.setData( data );
-			if( callback ) {
-				callback();
-			}
-		} );
-	},
+	}
 };
 
 function removeChildAll( node ) {
