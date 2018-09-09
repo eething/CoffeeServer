@@ -160,7 +160,7 @@
 						input#enable_admin(type="checkbox")
 				tr
 					td(colspan="2" align="center")
-						input(type="button" value="수정"
+						input#button_admin(type="button" value="수정"
 							style="width:200px;"
 						 	onclick="adminUser(this);")
 				tr
@@ -175,4 +175,6 @@
 				tr
 					td(colspan="2" align="center")
 						form(action="/user/del")
-							input(type="button" value="삭제" onclick="delUser(this);" style="width:200px;")
+							input#button_del(type="button" value="삭제"
+								style="width:200px;"
+								onclick="delUser(this);")

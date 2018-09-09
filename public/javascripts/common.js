@@ -101,7 +101,7 @@ let l2data = {
 		fetchHelper( '/auth/list', null, 'getAllList', data => {
 			this.setData( data );
 			if( callback ) {
-				callback();
+				callback( data );
 			}
 		} );
 	},

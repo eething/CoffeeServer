@@ -26,7 +26,7 @@ html
 				//initBeverageElem();
 				initUserElem( '#{loginType}', '#{loginName}', '#{loginID}', '#{loginUID}' );
 				initAllElem();
-				l2data.getAllList();
+				l2data.getAllList( l2all.cbAllList );
 			}
 
 	body(onLoad="initAll();")
@@ -35,7 +35,7 @@ html
 				div.cMenu(onclick="changePage('Order')") !{icons.cart}
 				div.cMenu(onclick="changePage('User')") !{icons.user}
 				div.cMenu(onclick="changePage('Beverage')") !{icons.gear}
-				div.cMenu(onclick="l2data.getAllList( l2all.cbAllList );") !{icons.refresh}
+				div.cMenu(onclick="l2data.getAllList();") !{icons.refresh}
 
 			include order_part
 			include user_part

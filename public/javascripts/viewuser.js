@@ -33,13 +33,20 @@ l2user = {
 		removeChildAll( select );
 
 		for( const uid in l2data.allUsers ) {
-			let user = l2data.allUsers[uid];
-			//let text = `${uid} / ${user.name||''} / ${user.id}`;
-			let username = user.name || user.id;
+			if( uid == 0 ) {
+				continue;
+			}
+			const user = l2data.allUsers[uid];
+			const username = user.name || user.id || `* ${uid}`;
 			let option = addElement( select, 'option', '', username );
 			option.value = uid;
 		}
-//		select.form.uid.value = select.value;
+
+		if( select.length === 0 ) {
+			let option = addElement( select, 'option', '', 'NNUULL' );
+			option.value = -1;
+		}
+
 		onSelectUser( select );
 	}
 }
@@ -68,6 +75,9 @@ function login( self ) {
 		if( data.code == 'OK' ) {
 			l2data.setData( data );
 			changeLoginData( data.admin ? 'admin' : 'user', data.name, data.id, data.uid );
+			if( l2data.view.all ) {
+				changePage( 'Order' );
+			}
 		} else {
 			throw new MyError( 500, data );
 		}
@@ -177,13 +187,15 @@ function addUser( self ) {
 		f.id_add.className			= 'userYellow';
 		f.name_add.className		= 'userWhite';
 		f.password1_add.className	= 'userRed';
-		f.password2_add.className	= 'userWhite';
+		f.password2_add.className = 'userWhite';
 
-		l2data.getUserList( l2user.cbUserList );
+		if( l2data.view.all ) {
+			changePage( 'Order' );
+		}
 	} );
 }
 
-function checkEditForm( self, admin, getMsg ) {
+function checkEditForm( self, getMsg ) {
 
 	const f = self.form;
 	const fName = f.name_edit;
@@ -243,7 +255,6 @@ function editUser( self ) {
 	const editMe = true;
 
 	const input = {
-		//uid: -1,
 		name: f.name_edit.value,
 		password: f.password1_edit.value
 	}
@@ -251,7 +262,7 @@ function editUser( self ) {
 		if( editMe ) {
 			const user = l2data.allUsers[ l2data.login.uid ];
 			user.name = l2data.login.name = newName;
-			//user.id = l2data.login.ID = newID;			
+			//user.id = l2data.login.ID = newID;
 		}
 		//f.name_edit.value			= '';
 		f.password1_edit.value		= '';
@@ -261,6 +272,16 @@ function editUser( self ) {
 		f.password1_edit.className	= 'userWhite';
 		f.password2_edit.className	= 'userWhite';
 	} );
+}
+
+function disableAdminForm( f, b ) {
+	f.name_admin.disabled		= b;
+	f.password1_admin.disabled	= b;
+	f.password2_admin.disabled	= b;
+	f.del_admin.disabled		= b;
+	f.enable_admin.disabled		= b;
+	f.button_admin.disabled		= b;
+	f.button_del.disabled		= b;
 }
 
 function checkAdminForm( self, getMsg ) {
@@ -284,12 +305,16 @@ function checkAdminForm( self, getMsg ) {
 		fPassword2.className = 'userWhite';
 	}
 
-	const uid = document.querySelector( '#uid_admin' ).innerHTML;
-	const user = l2data.allUsers[uid];
-	const orgName = user.name;
-	const changeDel = f.del_admin.checked != user.deleted;
-	const changeEnable = f.enable_admin.checked != user.enabled;
-	// TODO - deleted, enabled 도 배경색 바꿔주자
+	const uid = f.idSelect.value;
+	let orgName = '';
+	if( uid > 0 ) {
+		const user = l2data.allUsers[uid];
+		orgName = user.name;
+		var changeDel = f.del_admin.checked != user.deleted;
+		var changeEnable = f.enable_admin.checked != user.enabled;
+		// TODO - deleted, enabled 도 배경색 바꿔주자
+	}
+
 
 	fName.value = fName.value.trim();
 	const changeName = ( fName.value === orgName ) ? 0 : 1;
@@ -300,6 +325,9 @@ function checkAdminForm( self, getMsg ) {
 	}
 
 	let msg;
+	if( uid < 0 ) {
+		return '유저를 선택해 주세요.';
+	}
 	if( errP2 ) {
 		return '비밀번호가 다릅니다.';
 	}
@@ -324,11 +352,9 @@ function adminUser( self ) {
 
 	const newName = f.name_admin.value;
 	const editMe = ( f.idSelect.value == l2data.login.uid );
-//	const editMe = ( f.uid.value == l2data.login.uid );
 
 	const input = {
 		uid: f.idSelect.value,
-//		uid: f.uid.value,
 		name: f.name_admin.value,
 		password: f.password1_admin.value,
 		deleted: f.del_admin.checked,
@@ -355,7 +381,11 @@ function adminUser( self ) {
 function delUser( self ) {
 	const f = self.form;
 //	if( admin ) {
-		const uid = f.idSelect.value
+		const uid = f.idSelect.value;
+		if( uid < 0 ) {
+			alert( '유저를 선택해 주세요.' );
+			return;
+		}
 //		const uid = f.uid.value;
 		const user = l2data.allUsers[ uid ];
 		const userName = user.name || user.id || `* ${uid}`;
@@ -376,6 +406,7 @@ function submitUser( mode, input, cb ) {
 
 	fetchHelper( `/user/${mode}`, input, mode, data => {
 		if( data.code == 'OK' ) {
+			l2data.setData( data );
 			cb( data );
 		} else {
 			throw new MyError( 500, data );
@@ -384,12 +415,14 @@ function submitUser( mode, input, cb ) {
 }
 
 function onSelectUser( self ) {
+	const f = self.form;
 	const uid = self.value;
 	const user = l2data.allUsers[ uid ];
 	if( !user ) {
+		disableAdminForm( f, true );
 		return;
 	}
-//	self.form.uid.value = uid;
+	disableAdminForm( f, false );
 	document.querySelector( '#uid_admin' ).innerHTML = uid;
 	document.querySelector( '#id_admin' ).innerHTML = user.id;
 	document.querySelector( '#name_admin' ).value = user.name;

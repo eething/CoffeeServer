@@ -87,6 +87,7 @@ router.post( '/editUser', function ( req, res ) {
 		if( oldDisplayName != newDisplayName ) {
 			orders.changeDisplayName( uid, newDisplayName );
 		}
+		sendMsg.allUsers = users.getUserList();
 		res.send( JSON.stringify( sendMsg ) );
 	} );
 } );
@@ -119,6 +120,8 @@ router.post( '/adminUser', function ( req, res ) {
 		if( oldDisplayName != newDisplayName ) {
 			orders.changeDisplayName( uid, newDisplayName );
 		}
+
+		sendMsg.allUsers = users.getUserList();
 		res.send( JSON.stringify( sendMsg ) );
 	} );
 } );
@@ -134,7 +137,8 @@ router.post( '/delUser', function ( req, res ) {
 	users.deleteUser( uid, req.body, sendMsg => {
 
 		if( sendMsg.code !== 'OK' ||
-			uid != users.loginIDList[ req.user.id ] ) {
+			uid != users.loginIDList[req.user.id] ) {
+			sendMsg.allUsers = users.getUserList();
 			res.send( JSON.stringify( sendMsg ) );
 			return;
 		}

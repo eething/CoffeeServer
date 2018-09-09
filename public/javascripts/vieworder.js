@@ -48,7 +48,11 @@ l2order = {
 				user.name || user.id || `* ${uid}` );
 			option.value = uid;
 		}
-		//l2data.getCurrentOrderList( l2order.cbOrderList );
+
+		if( select.length === 0 ) {
+			let option = addElement( select, 'option', '', 'NNUULL' );
+			option.value = -1;
+		}
 	},
 
 	_makeOptionStr( option ) {
@@ -185,11 +189,15 @@ function swapOrderList( self ) {
 function addOrder( self ) {
 	const f = self.form;
 
+	if( f.orderBy.value < 0 ) {
+		alert( '마실 사람을 선택해 주세요.' );
+		return;
+	}
 	if( f.beverage.value == '' ) {
 		if( f.beverageSelect.value ) {
 			f.beverage.value = f.beverageSelect.value;
 		} else {
-			alert( '음료명을 입력해주세요' );
+			alert( '음료명을 입력해주세요.' );
 			return;
 		}
 	}
