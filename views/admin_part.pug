@@ -1,0 +1,33 @@
+﻿div.cOuter#outerAdmin
+
+	form(onsubmit="return false;")
+		div.cNewUser
+			table
+				colgroup
+					col(width="90")
+					col
+				tr
+					td Admin
+					td
+						select#idSelect
+							option Facebook
+							option Google
+							option Kakao
+							option Twitter
+				tr
+					td clientID
+					td
+						input.userWhite#clientID(type="text" autocomplete="off")
+				tr
+					td clientSecret
+					td
+						input.userWhite#clientSecret(type="text" autocomplete="off")
+				tr
+					td callbackURL
+					td
+						input.userWhite#callbackURL(type="text" autocomplete="off")
+				tr
+					td(colspan="2" align="center")
+						input(type="button" value="변경/저장"
+						style="width:200px;"
+						onclick="changeAdminConfig(this);")

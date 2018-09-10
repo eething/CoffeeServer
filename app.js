@@ -9,9 +9,10 @@ var cookieParser	= require( 'cookie-parser' );
 var bodyParser		= require( 'body-parser' );
 
 // Data Manager
-var user			= require( './codes/user' );
-var beverage		= require( './codes/beverage' );
-var order			= require( './codes/order' );
+var admins			= require( './codes/admin' );
+var users			= require( './codes/user' );
+var beverages		= require( './codes/beverage' );
+var orders			= require( './codes/order' );
 
 // Routers
 //var routeAuth		= require( './routes/route-auth' );
@@ -19,19 +20,24 @@ var routeBeverage	= require( './routes/route-beverage' );
 var routeIndex		= require( './routes/route-index' );
 var routeOrder		= require( './routes/route-order' );
 var routeUser		= require( './routes/route-user' );
+var routeAdmin		= require( './routes/route-admin' );
 
 fs.mkdir( 'data', () => {
 
+	fs.mkdir( 'data/admins', () => {
+		admins.loadAdmins();
+	} );
+
 	fs.mkdir( 'data/users', () => {
-		user.loadUsers();
+		users.loadUsers();
 	} );
 
 	fs.mkdir( 'data/beverages', () => {
-		beverage.loadBeverages();
+		beverages.loadBeverages();
 	} );
 
 	fs.mkdir( 'data/orders', () => {
-		order.loadOrders();
+		orders.loadOrders();
 	} );
 
 } );
@@ -61,6 +67,7 @@ app.use( '/auth',		routeAuth );
 app.use( '/beverage',	routeBeverage );
 app.use( '/order',		routeOrder );
 app.use( '/user',		routeUser );
+app.use( '/admin',		routeAdmin );
 
 
 // catch 404 and forward to error handler

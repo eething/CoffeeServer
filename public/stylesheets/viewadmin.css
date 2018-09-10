@@ -1,0 +1,24 @@
+﻿
+input.userWhite {
+	width: 150px;
+}
+
+input.userRed {
+	width: 150px;
+	background-color: red;
+}
+
+input.userGreen {
+	width: 150px;
+	background-color: lightgreen;
+}
+
+input.userYellow {
+	width: 150px;
+	background-color: yellow;
+}
+
+div.cUserMenu > span {
+	display: inline-block;
+	width: 33%
+}

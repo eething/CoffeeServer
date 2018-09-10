@@ -31,6 +31,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="app.js" />
+    <Compile Include="codes\admin.js" />
     <Compile Include="codes\auth.js" />
     <Compile Include="codes\beverage.js" />
     <Compile Include="codes\order.js" />
@@ -38,10 +39,12 @@
     <Compile Include="lib\check-auth.js" />
     <Compile Include="lib\convert-error.js" />
     <Compile Include="public\javascripts\common.js" />
+    <Compile Include="public\javascripts\viewadmin.js" />
     <Compile Include="public\javascripts\viewall.js" />
     <Compile Include="public\javascripts\vieworder.js" />
     <Compile Include="public\javascripts\viewuser.js" />
     <Compile Include="public\javascripts\viewbeverage.js" />
+    <Compile Include="routes\route-admin.js" />
     <Compile Include="routes\route-auth.js" />
     <Compile Include="routes\route-beverage.js" />
     <Compile Include="routes\route-index.js" />
@@ -51,10 +54,13 @@
     <Content Include="package.json" />
     <Content Include="public\stylesheets\common.css" />
     <Content Include="public\stylesheets\main.css" />
+    <Content Include="public\stylesheets\viewadmin.css" />
     <Content Include="public\stylesheets\viewbeverage.css" />
     <Content Include="public\stylesheets\vieworder.css" />
     <Content Include="public\stylesheets\viewuser.css" />
     <Content Include="README.md" />
+    <Content Include="views\admin.pug" />
+    <Content Include="views\admin_part.pug" />
     <Content Include="views\beverage.pug" />
     <Content Include="views\beverage_part.pug" />
     <Content Include="views\error.pug" />
