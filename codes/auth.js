@@ -69,91 +69,96 @@ module.exports = function ( app ) {
 		}
 	) );
 
-	passport.use( new FacebookStrategy( {
-			clientID: admins.credentials.Facebook.clientID,
-			clientSecret: admins.credentials.Facebook.clientSecret,
-			callbackURL: admins.credentials.Facebook.callbackURL
-		},
-		function ( accessToken, refreshToken, profile, done ) {
-			const uid = users.facebookIDList[ profile.id ];
-			const user = users.allUsers[ uid ];
-			done( null, user, { code:'FACEBOOK', facebookID: profile.id } );
-		}
-	) );
+	const fb = admins.credentials.Facebook;
+	if( fb.clientID && fb.clientSecret && fb.callbackURL ) {
 
-	app.get( '/auth/facebook', passport.authenticate( 'facebook' ) );
-	app.get( '/auth/facebook/callback', function ( req, res, next ) {
-		passport.authenticate( 'facebook', ( err, user, info ) => {
-
-			if( err ) {
-				res.send( JSON.stringify( {
-					code: 'EAUTH_F',
-					err: convertError( err )
-				} ) );
-				return;
+		passport.use( new FacebookStrategy( {
+				clientID: fb.clientID,
+				clientSecret: fb.clientSecret,
+				callbackURL: fb.callbackURL,
+				enableProof: true
+			},
+			function ( accessToken, refreshToken, profile, done ) {
+				const uid = users.facebookIDList[profile.id];
+				const user = users.allUsers[uid];
+				done( null, user, { code: 'FACEBOOK', facebookID: profile.id } );
 			}
+		) );
 
-			if( req.user ) {
-				if( !req.user.facebookID ) {
-					req.user.facebookID = info.facebookID;
-					res.send( JSON.stringify( {
-						code: 'OK',
-						msg: 'New FacebookID',
-						uid: users.loginIDList[ user.id ],
-						facebookID: info.facebookID
-					} ) );
-				} else if( req.user.facebookID != info.facebookID ) {
-					const oldID = req.user.facebookID;
-					req.user.facebookID = info.facebookID;
-					res.send( JSON.stringify( {
-						code: 'OK',
-						msg: 'Change FacebookID',
-						uid: users.loginIDList[ user.id ],
-						facebookID: info.facebookID,
-						oldID: oldID
-					} ) );
-				}
-				return;
-			}
+		app.get( '/auth/facebook', passport.authenticate( 'facebook' ) );
+		app.get( '/auth/facebook/callback', function ( req, res, next ) {
+			passport.authenticate( 'facebook', ( err, user, info ) => {
 
-			let sendMsg = { info };
-
-			if( !user ) {
-				sendMsg.code = info.code || 'ETC';
-				res.send( JSON.stringify( sendMsg ) );
-				return;
-			}
-			req.login( user, err => {
 				if( err ) {
-					sendMsg.code = 'ELOGIN';
-					sendMsg.err = convertError( err );
+					res.send( JSON.stringify( {
+						code: 'EAUTH_F',
+						err: convertError( err )
+					} ) );
+					return;
+				}
+
+				if( req.user ) {
+					if( !req.user.facebookID ) {
+						req.user.facebookID = info.facebookID;
+						res.send( JSON.stringify( {
+							code: 'OK',
+							msg: 'New FacebookID',
+							uid: users.loginIDList[ user.id ],
+							facebookID: info.facebookID
+						} ) );
+					} else if( req.user.facebookID != info.facebookID ) {
+						const oldID = req.user.facebookID;
+						req.user.facebookID = info.facebookID;
+						res.send( JSON.stringify( {
+							code: 'OK',
+							msg: 'Change FacebookID',
+							uid: users.loginIDList[ user.id ],
+							facebookID: info.facebookID,
+							oldID: oldID
+						} ) );
+					}
+					return;
+				}
+
+				let sendMsg = { info };
+
+				if( !user ) {
+					sendMsg.code = info.code || 'ETC';
 					res.send( JSON.stringify( sendMsg ) );
 					return;
 				}
-				req.session.save( err => {
+				req.login( user, err => {
 					if( err ) {
-						console.log( `ERROR: Login - Session Save, ${err}...` );
-						sendMsg.code = 'ESS';
-						sendMsg.err = err;
-					} else {
-						sendMsg.code = 'OK'
-						sendMsg.name = user.name;
-						sendMsg.id = user.id;
-						sendMsg.uid = users.loginIDList[ user.id ];
-						sendMsg.facebookID = user.facebookID;
-						sendMsg.admin = user.admin;
-					}
-
-					sendMsg.allUsers = users.getUserList();
-					sendMsg.allBeverages = beverages.allBeverages;
-					orders.getCurrentOrder( currentOrder => {
-						sendMsg.currentOrder = currentOrder;
+						sendMsg.code = 'ELOGIN';
+						sendMsg.err = convertError( err );
 						res.send( JSON.stringify( sendMsg ) );
+						return;
+					}
+					req.session.save( err => {
+						if( err ) {
+							console.log( `ERROR: Login - Session Save, ${err}...` );
+							sendMsg.code = 'ESS';
+							sendMsg.err = err;
+						} else {
+							sendMsg.code = 'OK'
+							sendMsg.name = user.name;
+							sendMsg.id = user.id;
+							sendMsg.uid = users.loginIDList[user.id];
+							sendMsg.facebookID = user.facebookID;
+							sendMsg.admin = user.admin;
+						}
+
+						sendMsg.allUsers = users.getUserList();
+						sendMsg.allBeverages = beverages.allBeverages;
+						orders.getCurrentOrder( currentOrder => {
+							sendMsg.currentOrder = currentOrder;
+							res.send( JSON.stringify( sendMsg ) );
+						} );
 					} );
 				} );
-			} );
-		} )( req, res, next );
-	} );
+			} )( req, res, next );
+		} );
+	}
 
 	router.get( '/login', function ( req, res ) {
 		//res.render( 'login' );

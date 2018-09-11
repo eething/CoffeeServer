@@ -20,7 +20,6 @@ module.exports = {
 			//profileFields: ['id', 'displayName', 'photos', 'email']
 			fb.profileFields = body.profileFields;
 		}
-		console.log( this.credentials );
 		this.saveFacebook( callback );
 	},
 
