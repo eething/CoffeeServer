@@ -20,6 +20,7 @@ module.exports = {
 	// user -> id -> uid -> user ...
 	allUsers: {}, // key: uid, value: user
 	loginIDList: {}, // key: id, value: uid
+	facebookIDList: {},
 
 	_initSuperAdmin() {
 		this.allUsers[0]			= this.allUsers[0] || {};

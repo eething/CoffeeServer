@@ -32,21 +32,16 @@ module.exports = {
 	},
 
 	loadFacebook() {
-		fs.readFile( 'data/admins/Facebook', ( err, data ) => {
-			if( err ) {
-				if( err.code === 'ENOENT' ) {
-					this.credentials.Facebook = {};
-					return;
-				}
-				throw err;
-			}
-			if( err ) {
-				code: 'ENOENT',
-				console.log( err );
-				throw err;
-			}
+		try {
+			const data = fs.readFileSync( 'data/admins/Facebook' );
 			this.credentials.Facebook = JSON.parse( data );
-		} );
+		} catch( err ) {
+			if( err && err.code === 'ENOENT' ) {
+				this.credentials.Facebook = {};
+				return;
+			}
+			throw err;
+		}
 	},
 
 	loadGoogle() {

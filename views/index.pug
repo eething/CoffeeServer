@@ -12,6 +12,7 @@ html
 		link(rel="stylesheet" type="text/css" href="/stylesheets/viewbeverage.css")
 		link(rel="stylesheet" type="text/css" href="/stylesheets/viewuser.css")
 		link(rel="stylesheet" type="text/css" href="/stylesheets/vieworder.css")
+		//link(rel="stylesheet" type="text/css" href="/stylesheets/viewadmin.css")
 		//link(rel="stylesheet" type="text/css" href="/stylesheets/viewall.css")
 
 		script(src="/evil-icons/evil-icons.js")
@@ -19,13 +20,14 @@ html
 		script(src="/javascripts/viewbeverage.js")
 		script(src="/javascripts/viewuser.js")
 		script(src="/javascripts/vieworder.js")
+		script(src="/javascripts/viewadmin.js")
 		script(src="/javascripts/viewall.js")
 		script.
 			function initAll() {
 				initOrderElem();
 				//initBeverageElem();
 				initUserElem( '#{loginType}', '#{loginName}', '#{loginID}', '#{loginUID}' );
-				initAllElem();
+				initAllElem( '#{loginType}' );
 				l2data.getAllList( l2all.cbAllList );
 			}
 

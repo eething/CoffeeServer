@@ -22,25 +22,15 @@ var routeOrder		= require( './routes/route-order' );
 var routeUser		= require( './routes/route-user' );
 var routeAdmin		= require( './routes/route-admin' );
 
-fs.mkdir( 'data', () => {
-
-	fs.mkdir( 'data/admins', () => {
-		admins.loadAdmins();
-	} );
-
-	fs.mkdir( 'data/users', () => {
-		users.loadUsers();
-	} );
-
-	fs.mkdir( 'data/beverages', () => {
-		beverages.loadBeverages();
-	} );
-
-	fs.mkdir( 'data/orders', () => {
-		orders.loadOrders();
-	} );
-
-} );
+try { fs.mkdirSync( 'data' ); } catch( err ) { }
+try { fs.mkdirSync( 'data/admins' ); } catch( err ) { }
+admins.loadAdmins();
+try { fs.mkdirSync( 'data/users' ); } catch( err ) { }
+users.loadUsers();
+try { fs.mkdirSync( 'data/beverages' ); } catch( err ) { }
+beverages.loadBeverages();
+try { fs.mkdirSync( 'data/orders' ); } catch( err ) { }
+orders.loadOrders();
 
 var app = express();
 
