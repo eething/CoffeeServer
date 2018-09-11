@@ -1,7 +1,7 @@
 ﻿div.cOuter#outerAdmin
 
 	form(onsubmit="return false;")
-		div.cNewUser
+		div
 			table
 				colgroup
 					col(width="90")
@@ -9,23 +9,28 @@
 				tr
 					td Admin
 					td
-						select#idSelect
+						select#config_admin(onchange="onSelectConfig(this);")
 							option Facebook
 							option Google
 							option Kakao
 							option Twitter
+						input(type="button" value="리셋"
+							onclick="onSelectConfig(this.form.config_admin);")
 				tr
 					td clientID
 					td
-						input.userWhite#clientID(type="text" autocomplete="off")
+						input.adminWhite#clientID(type="text" autocomplete="off"
+							onchange="checkAdminForm(this);")
 				tr
 					td clientSecret
 					td
-						input.userWhite#clientSecret(type="text" autocomplete="off")
+						input.adminWhite#clientSecret(type="text" autocomplete="off"
+							onchange="checkAdminForm(this);")
 				tr
 					td callbackURL
 					td
-						input.userWhite#callbackURL(type="text" autocomplete="off")
+						input.adminWhite#callbackURL(type="text" autocomplete="off"
+							onchange="checkAdminForm(this);")
 				tr
 					td(colspan="2" align="center")
 						input(type="button" value="변경/저장"

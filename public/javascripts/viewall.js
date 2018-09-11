@@ -5,8 +5,7 @@ l2data.view.all = true;
 l2all = {
 
 	cbAllList( data ) {
-		console.log( data.code );
-		if( data.code === 'EAUTH' ) {			
+		if( data.code === 'EAUTH' ) {
 			changePage( 'User' );
 		}
 	},
@@ -26,18 +25,30 @@ l2all = {
 	}
 }
 
-function initAllElem() {
-	elem.divOuterOrder = document.querySelector( 'div#outerOrder' );
-	elem.divOuterUser = document.querySelector( 'div#outerUser' );
-	elem.divOuterBeverage = document.querySelector( 'div#outerBeverage' );
+function initAllElem( loginType ) {
+	elem.divOuterOrder		= document.querySelector( 'div#outerOrder' );
+	elem.divOuterUser		= document.querySelector( 'div#outerUser' );
+	elem.divOuterBeverage	= document.querySelector( 'div#outerBeverage' );
+	elem.divOuterAdmin		= document.querySelector( 'div#outerAdmin' );
 
 	elem.outerList = [
 		elem.divOuterOrder,
 		elem.divOuterUser,
-		elem.divOuterBeverage
+		elem.divOuterBeverage,
+		elem.divOuterAdmin
 	];
 
+	if( loginType !== 'admin' ) {
+		showAdminMenu( false );
+	}
 	changePage( 'Order' );
+}
+
+function showAdminMenu( bShow ) {
+	if( !elem.divMenuAdmin ) {
+		elem.divMenuAdmin = document.querySelector( '#menu_admin' );
+	}
+	elem.divMenuAdmin.style.display = bShow ? 'inline-block' : 'none';
 }
 
 function changePage( page ) {

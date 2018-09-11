@@ -451,6 +451,7 @@ function changeLoginData( loginType, loginName, loginID, loginUID ) {
 		elem.spanAdmin.style.display	= 'none';
 		elem.spanLogout.style.display	= 'none';
 		changeUserPage( 'Login' );
+		showAdminMenu( false );
 	} else {
 		elem.spanLogin.style.display	= 'none';
 		elem.spanRegister.style.display	= 'none';
@@ -460,9 +461,11 @@ function changeLoginData( loginType, loginName, loginID, loginUID ) {
 		if( loginType === 'admin' ) {
 			elem.spanAdmin.style.display= 'inline-block';
 			changeUserPage( 'Admin' );
+			showAdminMenu( true );
 		} else {
 			elem.spanAdmin.style.display= 'none';
 			changeUserPage( 'MyInfo' );
+			showAdminMenu( false );
 		}
 	}
 	// Name

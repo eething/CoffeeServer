@@ -3,7 +3,7 @@
 //const users			= require( '../codes/user' );
 //const beverages		= require( '../codes/beverage' );
 //const orders		= require( '../codes/order' );
-const adminUser		= require( '../codes/admin' );
+const admins		= require( '../codes/admin' );
 const checkAuth		= require( '../lib/check-auth' );
 const convertError	= require( '../lib/convert-error' );
 const express		= require( 'express' );
@@ -40,26 +40,20 @@ function checkAuthAdmin( req, res ) {
 	}
 }
 
-/*
-router.post( '/adminUser', function ( req, res ) {
-
-	if( checkAuthAdmin( req, res ) ) {
-		return;
-	}
-}
-*/
-
 router.post( '/facebook', function ( req, res ) {
 	if( checkAuthAdmin( req, res ) ) {
 		return;
 	}
+	admins.setFacebook( req.body, sendMsg => {
+		res.send( JSON.stringify( sendMsg ) );
+	} );
 } );
 
 router.get( '/list', function ( req, res ) {
 	if( checkAuthAdmin( req, res ) ) {
 		return;
 	}
-	res.send( JSON.stringify( {} ) );
+	res.send( JSON.stringify( { code: 'OK', credentials: admins.credentials } ) );
 } );
 /*
 router.post( '/addUser', function ( req, res ) {

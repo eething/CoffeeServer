@@ -5,24 +5,22 @@ const fs = require( 'fs' );
 module.exports = {
 
 	credentials: {
-		facebook: {},
-		google: {},
-		kakao: {},
-		twitter: {},
+		Facebook: {},
+		Google: {},
+		Kakao: {},
+		Twitter: {},
 	},
 
-	setFacebookCredentials(	clientID,
-		 					clientSecret,
-							callbackURL,
-							profileFields,
-							callback ) {
-		this.credentials.facebook.clientID = clientID;
-		this.credentials.facebook.clientSecret = clientSecret;
-		this.credentials.facebook.callbackURL = callbackURL;
-		if( profileFields.length > 0 ) {
+	setFacebook( body, callback ) {
+		const fb = this.credentials.Facebook;
+		fb.clientID		= body.clientID;
+		fb.clientSecret	= body.clientSecret;
+		fb.callbackURL	= body.callbackURL;
+		if( body.profileFields && body.profileFields.length > 0 ) {
 			//profileFields: ['id', 'displayName', 'photos', 'email']
-			this.credentials.facebook.profileFields = profileFields;
+			fb.profileFields = body.profileFields;
 		}
+		console.log( this.credentials );
 		this.saveFacebook( callback );
 	},
 
@@ -34,10 +32,10 @@ module.exports = {
 	},
 
 	loadFacebook() {
-		fs.readFile( 'data/admins/facebook', ( err, data ) => {
+		fs.readFile( 'data/admins/Facebook', ( err, data ) => {
 			if( err ) {
 				if( err.code === 'ENOENT' ) {
-					this.credentials.facebook = {};
+					this.credentials.Facebook = {};
 					return;
 				}
 				throw err;
@@ -47,7 +45,7 @@ module.exports = {
 				console.log( err );
 				throw err;
 			}
-			this.credentials.facebook = JSON.parse( data );
+			this.credentials.Facebook = JSON.parse( data );
 		} );
 	},
 
@@ -64,8 +62,8 @@ module.exports = {
 	},
 
 	saveFacebook( callback ) {
-		const facebookString = JSON.stringify( this.credentials.facebook );
-		fs.writeFile( 'data/admins/facebook', facebookString, err => {
+		const facebookString = JSON.stringify( this.credentials.Facebook );
+		fs.writeFile( 'data/admins/Facebook', facebookString, err => {
 			if( err ) {
 				callback( {
 					code: 'EWRITE',

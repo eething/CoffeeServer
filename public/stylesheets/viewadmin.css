@@ -1,24 +1,19 @@
 ﻿
-input.userWhite {
+input.adminWhite {
 	width: 150px;
 }
 
-input.userRed {
+input.adminRed {
 	width: 150px;
 	background-color: red;
 }
 
-input.userGreen {
+input.adminGreen {
 	width: 150px;
 	background-color: lightgreen;
 }
 
-input.userYellow {
+input.adminYellow {
 	width: 150px;
 	background-color: yellow;
-}
-
-div.cUserMenu > span {
-	display: inline-block;
-	width: 33%
 }
