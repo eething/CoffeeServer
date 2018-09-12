@@ -12,44 +12,103 @@ const adam = {
 }
 Object.freeze( adam );
 
+/*
+allUsers = {
+	'1': { // uid
+		name: '홍길동',
+		admin: false,
+		deleted: false,
+		enabled: false,
+		favorite: { '아메리카노', ice, syrup },
+
+		localID: 'ithing',
+		facebookID: '10987654321',
+		googleID: '111122223333',
+		kakaoID: -1,
+		twitterID: undefined
+	}
+}
+allLocals = {
+	'ithing': {
+		uid: 1,
+		password: '$2b$10$abcde'
+	}
+}
+allFacebooks = {
+	'10987654321': {
+		uid: 1,
+		accessToken: 'asdf',
+		refreshToken: 'zxcv',
+		profile...?
+	}
+}
+*/
+
+
 module.exports = {
 
-	isLoaded: false,
+	isLoaded: {
+		user:		false,
+		local:		false,
+		facebook:	false
+//		google:		false
+	},
 	_maxUID: 0,
 
 	// user -> id -> uid -> user ...
 	allUsers: {}, // key: uid, value: user
-	loginIDList: {}, // key: id, value: uid
-	facebookIDList: {},
+	allLocals: {},
+	allFacebooks: {},
+	/*
+	allGoogles: {},
+	allKakaos: {},
+	allTwitters: {},
+	*/
 
 	_initSuperAdmin() {
-		this.allUsers[0]			= this.allUsers[0] || {};
-
-		this.allUsers[0].name		= adam.name;
-		this.allUsers[0].id			= adam.id;
-		this.allUsers[0].password	= adam.password;
-		this.allUsers[0].admin		= true;
-		this.allUsers[0].enabled	= false;
-
-		this.loginIDList[ 'admin' ]	= 0;
-	},
-
-	_loadFacebook() {
-		...
+		this.allUsers[0]				= this.allUsers[0] || {};
+		this.allLocals[adam.id]			= this.allLocals[adam.id] || {};
+		this.allLocals[adam.id].uid		= 0;
+		this.allLocals[adam.id].password= adam.password;
+		this.allUsers[0].name			= adam.name;
+		this.allUsers[0].admin			= true;
+//		this.allUsers[0].deleted		= false;
+		this.allUsers[0].enabled		= false;
 	},
 
 	loadUsers() {
-
-		this._initSuperAdmin();
+		fs.mkdir( 'data/users', () => {
+			this._initSuperAdmin();
+			this._loadUsers();
+			fs.mkdir( 'data/users/local', () => {
+				this._loadLocals();
+			} );
+			fs.mkdir( 'data/users/facebook', () => {
+				this._loadFacebooks();
+			} );
+			/*
+			fs.mkdir( 'data/users/google', () => {
+				this._loadGoogle();
+			} );
+			fs.mkdir( 'data/users/kakao', () => {
+				this._loadKakao();
+			} );
+			fs.mkdir( 'data/users/twitter', () => {
+				this._loadTwitter();
+			} );
+			*/
+		} );
+	},
+	_loadUsers() {
 
 		fs.readdir( 'data/users', ( err, files ) => {
 			let len = files.length;
 			if( len === 0 ) {
-				this.isLoaded = true;
+				this.isLoaded.user = true;
 				return;
 			}
 
-			files.forEach( ( file ) => {
+			files.forEach( file => {
 				const filePath = `data/users/${file}`;
 				fs.readFile( filePath, ( err, data ) => {
 					--len;
@@ -62,25 +121,97 @@ module.exports = {
 
 					const uid = file;
 					const value = JSON.parse( data );
-
 					this.allUsers[ uid ] = value;
-					this.loginIDList[ value.id ] = uid;
 
 					if( uid > this._maxUID ) {
 						this._maxUID = uid;
 					}
 
 					if( len === 0 ) {
-						this.isLoaded = true;
+						this.isLoaded.user = true;
 					}
 				} );
 			} );
 		} );
 	},
+	_loadLocals() {
+
+		fs.readdir( 'data/users/local', ( err, files ) => {
+			let len = files.length;
+			if( len === 0 ) {
+				this.isLoaded.local = true;
+				return;
+			}
+
+			files.forEach( file => {
+				const filePath = `data/users/local/${file}`;
+				fs.readFile( filePath, ( err, data ) => {
+					--len;
+					if( err ) {
+						if( err.code === 'EISDIR' ) {
+							return;
+						}
+						throw err;
+					}
+
+					const id = file;
+					const value = JSON.parse( data );
+					this.allLocals[ id ] = value;
+
+					if( len === 0 ) {
+						this.isLoaded.local = true;
+					}
+				} );
+			} );
+		} );
+	},
+	_loadFacebooks() {
+
+		fs.readdir( 'data/users/facebook', ( err, files ) => {
+			let len = files.length;
+			if( len === 0 ) {
+				this.isLoaded.facebook = true;
+				return;
+			}
+
+			files.forEach( file => {
+				const filePath = `data/users/facebook/${file}`;
+				fs.readFile( filePath, ( err, data ) => {
+					--len;
+					if( err ) {
+						if( err.code === 'EISDIR' ) {
+							return;
+						}
+						throw err;
+					}
+
+					const facebookID = file;
+					const value = JSON.parse( data );
+					this.allFacebooks[ facebookID ] = value;
+
+					if( len === 0 ) {
+						this.isLoaded.facebook = true;
+					}
+				} );
+			} );
+		} );
+	},
+	/*
+	_loadGoogle() {
+
+	},
+	_loadKakao() {
+
+	},
+	_loadTwitter() {
+
+	},
+	*/
 
 	_getUser( uid, callback ) {
 
-		if( !this.isLoaded ) {
+		//if( !this.isLoaded ) {
+		if( Object.values( this.isLoaded ).includes( false ) ) {
 			callback( {
 				code: 'ELOAD',
 				err: 'User Not Loaded'
@@ -108,6 +239,7 @@ module.exports = {
 		return user;
 	},
 
+	// Local...
 	_writeUser( uid, user, callback, success ) {
 
 		if( typeof user === 'function' ) {
@@ -140,7 +272,7 @@ module.exports = {
 
 	haveDuplicatedID( id ) {
 		let sendMsg = {};
-		if( this.loginIDList[ id ] === undefined ) {
+		if( this.allLocals[ id ] === undefined ) {
 			sendMsg.code = 'OK';
 		} else {
 			sendMsg.code = 'EUSERID';
@@ -157,6 +289,7 @@ module.exports = {
 			return;
 		}
 
+		/*
 		let user = {};
 		let changePassword = false;
 		for( let key in body ) {
@@ -177,46 +310,42 @@ module.exports = {
 
 			user[ key ] = value;
 		}
-
-		const uid = ++this._maxUID;
-
-		/*
-		const _finalize = () => {
-			let userString = JSON.stringify( user );
-			const filePath = `data/users/${uid}`;
-			fs.writeFile( filePath, userString, err => {
-				if( err ) {
-					callback( {
-						code: 'EWRITE',
-						err: err,
-						msg: `uid=${uid}, userString=${userString}.`
-					} );
-				} else {
-					this.allUsers[ uid ] = user;
-					callback( {
-						code: 'OK',
-						uid: uid
-					} );
-				}
-			} );
-		}
 		*/
+		const uid = ++this._maxUID;
+		allUsers[uid] = {
+			uid,
+			name: body.name,
+			localID: body.id
+		}
 
-		if( changePassword ) {
-			bcrypt.hash( user.password, 10, ( err, hash ) => {
-				user.password = hash;
-				//_finalize();
-				this._writeUser( uid, user, callback, () => {
-					this.allUsers[ uid ] = user;
-					this.loginIDList[ user.id ] = uid;
+		let local = {
+			uid,
+			id: body.id
+		};
+		allLocals[ body.id ] = local;
+
+		bcrypt.hash( user.password, 10, ( err, hash ) => {
+			local.password = hash;
+			this._writeUser( uid, msg => {
+				if( msg.code !== 'OK' ) {
+					callback( msg );
+					return;
+				}
+				const localString = JSON.stringify( local );
+				const filePath = `data/users/local/${local.id}`;
+				fs.writeFile( filePath, localString, err => {
+					if( err ) {
+						callback( {
+							code: 'EWRITE',
+							err: convertError( err ),
+							msg: `id=${id}, localString=${localString}`
+						} );
+					} else {
+						callback( { code: 'OK' } );
+					}
 				} );
 			} );
-		} else {
-			callback( {
-				code: 'EPASSWORD',
-				err: 'Password Not Exists.'
-			} );
-		}
+		} );
 	},
 
 	editUser( uid, body, callback ) {

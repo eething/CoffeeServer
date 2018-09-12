@@ -22,21 +22,24 @@ var routeOrder		= require( './routes/route-order' );
 var routeUser		= require( './routes/route-user' );
 var routeAdmin		= require( './routes/route-admin' );
 
-// Initialize Directory and Load... Sync
+
+
+// Initialize Directory and Load...
+// 인증쪽 clientID, clientSecret 등이 필요해서 Admin 만 Sync 로
 try { fs.mkdirSync( 'data' ); } catch( err ) { }
 try { fs.mkdirSync( 'data/admins' ); } catch( err ) { }
 admins.loadAdmins();
-try { fs.mkdirSync( 'data/users' ); } catch( err ) { }
-try { fs.mkdirSync( 'data/users/facebook' ); } catch( err ) { }
-try { fs.mkdirSync( 'data/users/google' ); } catch( err ) { }
-try { fs.mkdirSync( 'data/users/kakao' ); } catch( err ) { }
-try { fs.mkdirSync( 'data/users/twitter' ); } catch( err ) { }
-users.loadUsers(); // TODO - change to Sync
-try { fs.mkdirSync( 'data/beverages' ); } catch( err ) { }
-beverages.loadBeverages(); // TODO - change to Sync
-try { fs.mkdirSync( 'data/orders' ); } catch( err ) { }
-orders.loadOrders(); // TODO - change to Sync
-//
+
+users.loadUsers();
+
+fs.mkdir( 'data/beverages', () => {
+	beverages.loadBeverages();
+} );
+fs.mkdir( 'data/orders', () => {
+	orders.loadOrders();
+} );
+
+
 
 var app = express();
 
