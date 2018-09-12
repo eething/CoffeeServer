@@ -7,6 +7,7 @@ const admins	= require( './admin' );
 
 const convertError = require( '../lib/convert-error' );
 
+const fs				= require( 'fs' );
 const passport			= require( 'passport' );
 const LocalStrategy		= require( 'passport-local' ).Strategy;
 const FacebookStrategy	= require( 'passport-facebook' ).Strategy;
@@ -79,9 +80,7 @@ module.exports = function ( app ) {
 				enableProof: true
 			},
 			function ( accessToken, refreshToken, profile, done ) {
-				const uid = users.facebookIDList[profile.id];
-				const user = users.allUsers[uid];
-				done( null, user, { code: 'FACEBOOK', facebookID: profile.id } );
+				users.setFacebook( accessToken, refreshToken, profile, done );
 			}
 		) );
 
@@ -98,30 +97,15 @@ module.exports = function ( app ) {
 				}
 
 				if( req.user ) {
-					if( !req.user.facebookID ) {
-						req.user.facebookID = info.facebookID;
-						res.send( JSON.stringify( {
-							code: 'OK',
-							msg: 'New FacebookID',
-							uid: users.loginIDList[ user.id ],
-							facebookID: info.facebookID
-						} ) );
-					} else if( req.user.facebookID != info.facebookID ) {
-						const oldID = req.user.facebookID;
-						req.user.facebookID = info.facebookID;
-						res.send( JSON.stringify( {
-							code: 'OK',
-							msg: 'Change FacebookID',
-							uid: users.loginIDList[ user.id ],
-							facebookID: info.facebookID,
-							oldID: oldID
-						} ) );
-					}
+					users.associateFacebook( req.user, info.facebookID, sendMsg => {
+						res.send( JSON.stringify( sendMsg ) );
+					} );
 					return;
 				}
 
 				let sendMsg = { info };
 
+// TODO - 새로 로그인... 리팩토링... 함수화...
 				if( !user ) {
 					sendMsg.code = info.code || 'ETC';
 					res.send( JSON.stringify( sendMsg ) );

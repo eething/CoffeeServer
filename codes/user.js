@@ -34,6 +34,10 @@ module.exports = {
 		this.loginIDList[ 'admin' ]	= 0;
 	},
 
+	_loadFacebook() {
+		...
+	},
+
 	loadUsers() {
 
 		this._initSuperAdmin();
@@ -119,7 +123,7 @@ module.exports = {
 			if( err ) {
 				callback( {
 					code: 'EWRITE',
-					err: err,
+					err: convertError( err ),
 					msg: `uid=${uid}, userString=${userString}`
 				} );
 			} else {
@@ -432,5 +436,83 @@ module.exports = {
 
 	setFavorite( body, callback ) {
 
+	},
+
+
+	setFacebook( accessToken, refreshToken, profile, done ) {
+		const uid = this.facebookIDList[ profile.id ];
+		const user = this.allUsers[ uid ];
+
+		const facebookString = JSON.stringify( {
+			accessToken,
+			refreshToken,
+			id: profile.id,
+			name: profile.displayName,
+			//photo? picture?
+			uid
+		} );
+		const filePath = `data/users/facebook/${profile.id}`;
+		fs.writeFile( filePath, facebookString, err => {
+			if( err ) {
+				done( err, false );
+			} else {
+				done( null, user, { code: 'FACEBOOK', facebookID: profile.id } );
+			}
+		} );
+	},
+
+	associateFacebook( currentUser, facebookID, callback ) {
+		const olduid = this.facebookIDList[ profile.id ];
+		const newuid = this.loginIDList[ currentUser.id ];
+
+		sendMsg = { uid: newuid, facebookID: profile.id };
+
+		if( olduid === undefined ) {
+			sendMsg.msg = 'New User';
+		} else if( olduid != newuid) {
+			var oldUser = this.allUsers[olduid];
+			delete oldUser.facebookID;
+			sendMsg.olduid = olduid;
+			sendMsg.msg = 'Change User';
+		} else {
+			sendMsg.msg = 'Same User'
+		}
+		currentUser.facebookID = facebookID;
+		this.facebookIDList[ profile.id ] = newuid;
+
+		function _writeNewUser( uid, callback ) {
+			this._writeUser( uid, msg => {
+				if( msg.code !== 'OK' ) {
+					callback( msg );
+					return;
+				}
+				const facebookString = JSON.stringify( user );
+				const filePath = `data/users/facebook/${profile.id}`;
+				fs.writeFile( filePath, facebookString, err => {
+					if( err ) {
+						callback( {
+							code: 'EWRITE',
+							err: convertError( err ),
+							msg: `facebookID=${profile.id}, facebookString=${facebookString}`
+						} );
+						return;
+					}
+					sendMsg.code = 'OK';
+					callback( sendMsg );
+				} );
+			} );
+		} );
+
+		if( olduid ) {
+			_writeUser( olduid, msg => {
+				if( msg.code !== 'OK' ) {
+					callback( msg );
+					return;
+				}
+				_writeNewUser( newuid, callback );
+			} );
+		} else {
+			_writeNewUser( newuid, callback );
+		}
 	}
 }

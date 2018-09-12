@@ -22,15 +22,21 @@ var routeOrder		= require( './routes/route-order' );
 var routeUser		= require( './routes/route-user' );
 var routeAdmin		= require( './routes/route-admin' );
 
+// Initialize Directory and Load... Sync
 try { fs.mkdirSync( 'data' ); } catch( err ) { }
 try { fs.mkdirSync( 'data/admins' ); } catch( err ) { }
 admins.loadAdmins();
 try { fs.mkdirSync( 'data/users' ); } catch( err ) { }
-users.loadUsers();
+try { fs.mkdirSync( 'data/users/facebook' ); } catch( err ) { }
+try { fs.mkdirSync( 'data/users/google' ); } catch( err ) { }
+try { fs.mkdirSync( 'data/users/kakao' ); } catch( err ) { }
+try { fs.mkdirSync( 'data/users/twitter' ); } catch( err ) { }
+users.loadUsers(); // TODO - change to Sync
 try { fs.mkdirSync( 'data/beverages' ); } catch( err ) { }
-beverages.loadBeverages();
+beverages.loadBeverages(); // TODO - change to Sync
 try { fs.mkdirSync( 'data/orders' ); } catch( err ) { }
-orders.loadOrders();
+orders.loadOrders(); // TODO - change to Sync
+//
 
 var app = express();
 
