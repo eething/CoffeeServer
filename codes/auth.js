@@ -80,7 +80,17 @@ module.exports = function ( app ) {
 				enableProof: true
 			},
 			function ( accessToken, refreshToken, profile, done ) {
-				users.setFacebook( accessToken, refreshToken, profile, done );
+				const facebookID = profile.id;
+				const facebook = users.allFacebooks[ facebookID ];
+				const uid = facebook ? facebook.uid : -1;
+				const user = (uid >= 0) ? users.allUsers[ uid ] : null;
+				done( null, user, {
+						code: user ? 'OK' : 'NEW',
+						facebookID,
+						accessToken,
+						refreshToken,
+						profile,
+				} );
 			}
 		) );
 
@@ -97,7 +107,7 @@ module.exports = function ( app ) {
 				}
 
 				if( req.user ) {
-					users.associateFacebook( req.user, info.facebookID, sendMsg => {
+					users.associateFacebook( req.user, info, sendMsg => {
 						res.send( JSON.stringify( sendMsg ) );
 					} );
 					return;
