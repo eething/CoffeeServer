@@ -41,8 +41,8 @@ router.get( '/', function ( req, res ) {
 	let params = {};
 	if( req.user ) {
 		params.loginName = req.user.name;
-		params.loginID = req.user.id;
-		params.loginUID = users.loginIDList[ req.user.id ];
+		params.loginUID = req.user.uid;
+		params.loginID = users.authTable[ req.user.uid ].local;
 		if( req.user.admin ) {
 			params.loginType = 'admin';
 		} else {

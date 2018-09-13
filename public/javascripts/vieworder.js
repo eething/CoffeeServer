@@ -41,11 +41,11 @@ l2order = {
 
 		for( const uid in l2data.allUsers ) {
 			const user = l2data.allUsers[ uid ];
-			if( user.deleted || !user.enabled ) {
+			if( user.user.deleted || !user.user.enabled ) {
 				continue;
 			}
 			let option = addElement( select, 'option', '',
-				user.name || user.id || `* ${uid}` );
+				user.user.name || user.auth.local || `* ${uid}` );
 			option.value = uid;
 		}
 
@@ -122,15 +122,8 @@ l2order = {
 			removeChildAll( elem.divPopup );
 			addElement( elem.divPopup, 'p', '', k );
 			addElement( elem.divPopup, 'p', '', optionStr );
-			v.orderBys.forEach( o => {
-				let inner = '';
-				const user = l2data.allUsers[o];
-				if( user ) {
-					inner = user.name ? user.name : user.id;
-				} else {
-					inner = `* ${o}`
-				}
-				addElement( elem.divPopup, 'p', '', inner );
+			v.orderByDNs.forEach( oDN => {
+				addElement( elem.divPopup, 'p', '', oDN );
 			} );
 
 			let input = addElement( elem.divPopup, 'input', 'cNadoNado', '' );

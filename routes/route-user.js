@@ -13,8 +13,8 @@ router.get( '/', function ( req, res ) {
 	let params = {};
 	if( req.user ) {
 		params.loginName = req.user.name;
-		params.loginID = req.user.id;
-		params.loginUID = users.loginIDList[ req.user.id ];
+		params.loginUID = req.user.uid;
+		params.loginID = users.authTable[ req.user.uid ].local;
 		if( req.user.admin ) {
 			params.loginType = 'admin';
 		} else {
@@ -44,7 +44,7 @@ router.post( '/addUser', function ( req, res ) {
 			return;
 		}
 
-		const user = users.allUsers[sendMsg.uid];
+		const user = users.allUsers[ sendMsg.uid ];
 		req.login( user, error => {
 			if( error ) {
 				sendMsg.code = 'ELOGIN';
@@ -72,20 +72,31 @@ router.post( '/addUser', function ( req, res ) {
 	} ); // addUser
 } );
 
+function getDisplayName( user ) {
+	if( user.name ) {
+		return user.name;
+	} else {
+		const auth = users.authTable[user.uid];
+		if( auth && auth.local ) {
+			return auth.local;
+		}
+	}
+	return `* {user.uid}`;
+}
+
 router.post( '/editUser', function ( req, res ) {
 
 	if( checkAuth( req, res ) ) {
 		return false;
 	}
 
-	const uid = users.loginIDList[ req.user.id ];
-	const user = users.allUsers[ uid ];
-	const oldDisplayName = user.name || user.ID || `* ${uid}`;
+	const oldDisplayName = getDisplayName( req.user );
 
-	users.editUser( uid, req.body, sendMsg => {
-		const newDisplayName = user.name || user.ID || `* ${uid}`;
+	users.editUser( req.user.uid, req.body, sendMsg => {
+		const newDisplayName = getDisplayName( req.user );
+
 		if( oldDisplayName != newDisplayName ) {
-			orders.changeDisplayName( uid, newDisplayName );
+			orders.changeDisplayName( req.user.uid, newDisplayName );
 		}
 		sendMsg.allUsers = users.getUserList();
 		res.send( JSON.stringify( sendMsg ) );
@@ -113,10 +124,10 @@ router.post( '/adminUser', function ( req, res ) {
 
 	const uid = req.body.uid;
 	const user = users.allUsers[ uid ];
-	const oldDisplayName = user.name || user.ID || `* ${uid}`;
+	const oldDisplayName = getDisplayName( user );
 
 	users.editUser( uid, req.body, sendMsg => {
-		const newDisplayName = user.name || user.ID || `* ${uid}`;
+		const newDisplayName = getDisplayName( user );
 		if( oldDisplayName != newDisplayName ) {
 			orders.changeDisplayName( uid, newDisplayName );
 		}

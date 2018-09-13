@@ -5,11 +5,15 @@ const bcrypt = require( 'bcrypt' );
 const convertError = require( '../lib/convert-error' );
 
 const adam = {
-	name: '관리자',
+//	uid: 0,
+	name: '관리자',	
+//	admin: true,
+//	deleted: false,
+//	enabled: false
+
+	// for local
 	id: 'admin',
 	password: '$2b$10$j4gB9lgzNoKvyEN5ZpV6SOkaGUKSrf8s0CvSQA4bq4ZLwBCrIUC8e', //qwer
-	// admin: true,
-	// enabled: false
 }
 Object.freeze( adam );
 
@@ -71,13 +75,13 @@ module.exports = {
 	_initSuperAdmin() {
 		this.allUsers[0] = this.allUsers[0] || {};
 		const user = this.allUsers[0];
+		user.uid		= 0;
 		user.name		= adam.name;
 		user.admin		= true;
 //		user.deleted	= false;
 //		user.enabled	= false;
 		delete user.deleted;
 		delete user.enabled;
-
 
 		this.allLocals[adam.id] = this.allLocals[adam.id] || {};
 		const local = this.allLocals[adam.id];
@@ -168,6 +172,7 @@ module.exports = {
 
 					const value = JSON.parse( data );
 					this.allLocals[ localID ] = value;
+					this.authTable[ value.uid ] = this.authTable[ value.uid ] || {};
 					this.authTable[ value.uid ].local = localID;
 
 					if( len === 0 ) {
@@ -198,7 +203,8 @@ module.exports = {
 					}
 
 					const value = JSON.parse( data );
-					this.allFacebooks[ facebookID ] = value;
+					this.allFacebooks[facebookID] = value;
+					this.authTable[ value.uid ] = this.authTable[ value.uid ] || {};
 					this.authTable[ value.uid ].facebook = facebookID;
 
 					if( len === 0 ) {
@@ -222,11 +228,11 @@ module.exports = {
 
 	_getUser( uid, callback ) {
 
-		//if( !this.isLoaded ) {
 		if( Object.values( this.isLoaded ).includes( false ) ) {
 			callback( {
 				code: 'ELOAD',
-				err: 'User Not Loaded'
+				err: 'User Not Loaded',
+				isLoaded: this.isLoaded
 			} );
 			return false;
 		}
@@ -283,7 +289,11 @@ module.exports = {
 					msg: `localID=${localID}, localString=${localString}`
 				} );
 			} else {
-				callback( { code: 'OK' } ); // send uid, localID ?
+				callback( {
+					code: 'OK',
+					uid: local.uid,
+					id: local.id
+				} );
 			}
 		} );
 	},
@@ -354,7 +364,8 @@ module.exports = {
 		}
 		this.authTable[ uid ] = {};
 
-		const localID = body.id;
+		let local = { uid };
+		const localID = body.id;		
 		if( localID ) {
 			// id - password 는 둘다 있든지 둘다 없든지
 			if( !body.password ) {
@@ -365,10 +376,7 @@ module.exports = {
 				return;
 			}
 
-			let local = {
-				uid,
-				id: localID
-			};
+			local.id = localID;
 			this.allLocals[ localID ] = local;
 			this.authTable[ uid ].local = localID;
 		}
@@ -378,13 +386,20 @@ module.exports = {
 		} else {
 			// TODO - writeFile 실패해도 강제로 다음꺼 실행 후 에러를 통합해서 보여주기?
 			this._writeUser( uid, msg => {
-				if( msg.code !== 'OK' ) {
-					callback( msg );
-					return;
-				}
+
 				bcrypt.hash( body.password, 10, ( err, hash ) => {
 					local.password = hash;
-					this._writeLocal( localID, callback );
+					this._writeLocal( localID, sendMsg => {
+
+						if( sendMsg.code === 'OK' ) {
+							sendMsg.code = msg.code;
+							sendMsg.err = msg.err;
+						} else {
+							sendMsg.code2 = msg.code;
+							sendMsg.err2 = msg.err;
+						}
+						callback( sendMsg );
+					} );
 				} );
 			} );
 		}
@@ -456,14 +471,6 @@ module.exports = {
 					return;
 				}
 
-				const localID = this.authTable[ uid ].local; // body.id ?
-				if( !localID ) {
-					callback( {
-						code: 'ELOCALID',
-						err: `local NOT Exists in authTable[ ${uid} ]`
-					} );
-					return;
-				}
 				// user가 고아가 되서 없는 경우가 생길 수 있음
 				// 이때 admin 기능으로 password 를 추가해 줄 수 있음
 				this.authTable[ uid ] = this.authTable[ uid ] || {};

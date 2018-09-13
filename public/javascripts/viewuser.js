@@ -36,9 +36,9 @@ l2user = {
 			if( uid == 0 ) {
 				continue;
 			}
-			const user = l2data.allUsers[uid];
-			const username = user.name || user.id || `* ${uid}`;
-			let option = addElement( select, 'option', '', username );
+			const u = l2data.allUsers[uid];
+			const userName = u.user.name || u.auth.local || `* ${uid}`;
+			let option = addElement( select, 'option', '', userName );
 			option.value = uid;
 		}
 
@@ -260,7 +260,7 @@ function editUser( self ) {
 	}
 	submitUser( 'editUser', input, () => {
 		if( editMe ) {
-			const user = l2data.allUsers[ l2data.login.uid ];
+			const user = l2data.allUsers[ l2data.login.uid ].user;
 			user.name = l2data.login.name = newName;
 			//user.id = l2data.login.ID = newID;
 		}
@@ -308,7 +308,7 @@ function checkAdminForm( self, getMsg ) {
 	const uid = f.idSelect.value;
 	let orgName = '';
 	if( uid > 0 ) {
-		const user = l2data.allUsers[uid];
+		const user = l2data.allUsers[uid].user;
 		orgName = user.name;
 		var changeDel = f.del_admin.checked != user.deleted;
 		var changeEnable = f.enable_admin.checked != user.enabled;
@@ -362,7 +362,7 @@ function adminUser( self ) {
 	}
 	submitUser( 'adminUser', input, () => {
 		if( editMe ) {
-			const user = l2data.allUsers[ l2data.login.uid ];
+			const user = l2data.allUsers[ l2data.login.uid ].user;
 			user.name = l2data.login.name = newName;
 			//user.id = l2data.login.ID = newID;
 		}
@@ -417,14 +417,18 @@ function submitUser( mode, input, cb ) {
 function onSelectUser( self ) {
 	const f = self.form;
 	const uid = self.value;
-	const user = l2data.allUsers[ uid ];
+	let user = l2data.allUsers[ uid ];
 	if( !user ) {
 		disableAdminForm( f, true );
 		return;
 	}
+
+	const auth = user.auth;
+	user = user.user;
+
 	disableAdminForm( f, false );
 	document.querySelector( '#uid_admin' ).innerHTML = uid;
-	document.querySelector( '#id_admin' ).innerHTML = user.id;
+	document.querySelector( '#id_admin' ).innerHTML = auth.local;
 	document.querySelector( '#name_admin' ).value = user.name;
 	document.querySelector( '#del_admin' ).checked = user.deleted ? true : false;
 	document.querySelector( '#enable_admin' ).checked = user.enabled ? true : false;
@@ -438,6 +442,10 @@ function changeUserPage( page ) {
 			o.style.display = 'none'
 		}
 	} );
+}
+
+if( typeof showAdminMenu === 'undefined' ) {
+	var showAdminMenu = function () { };
 }
 
 function changeLoginData( loginType, loginName, loginID, loginUID ) {

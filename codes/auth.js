@@ -35,7 +35,7 @@ module.exports = function ( app ) {
 	app.use( passport.session() );
 
 	passport.serializeUser( function ( user, done ) {
-		done( null, users.loginIDList[ user.id ] );
+		done( null, user.uid );
 	} );
 
 	passport.deserializeUser( function ( uid, done ) {
@@ -52,7 +52,8 @@ module.exports = function ( app ) {
 			passwordField: 'password'
 		},
 		function ( id, pwd, done ) {
-			const uid = users.loginIDList[ id ];
+			const local = users.allLocals[ id ];
+			const uid = local ? local.uid : -1;
 			const user = users.allUsers[ uid ];
 			if( !user ) {
 				return done( null, false, { code:'ENOUSER', message: 'Incorrect username.' } );
@@ -60,7 +61,7 @@ module.exports = function ( app ) {
 			if( user.deleted ) {
 				return done( null, false, { code: 'EDELETED', message: 'Deleted User. Ask admin.' } );
 			}
-			bcrypt.compare( pwd, user.password, ( err, result ) => {
+			bcrypt.compare( pwd, local.password, ( err, result ) => {
 				if( result ) {
 					return done( null, user, { code: 'OK' } );
 				} else {
@@ -202,13 +203,13 @@ module.exports = function ( app ) {
 					if( err ) {
 						console.log( `ERROR: Login - Session Save, ${err}...` );
 						sendMsg.code = 'ESS';
-						sendMsg.err = err;
+						sendMsg.err = convertError( err );
 					} else {
 						sendMsg.code = 'OK'
+						sendMsg.uid = user.uid;
 						sendMsg.name = user.name;
-						sendMsg.id = user.id;
-						sendMsg.uid = users.loginIDList[ user.id ];
 						sendMsg.admin = user.admin;
+						sendMsg.id = users.authTable[ user.uid ].local;
 					}
 
 					sendMsg.allUsers = users.getUserList();
