@@ -78,7 +78,7 @@ module.exports = function ( app ) {
 				clientID: fb.clientID,
 				clientSecret: fb.clientSecret,
 				callbackURL: fb.callbackURL,
-				enableProof: true
+				profileURL: 'https://graph.facebook.com/me?locale=ko_KR'
 			},
 			function ( accessToken, refreshToken, profile, done ) {
 				const facebookID = profile.id;
@@ -135,12 +135,13 @@ module.exports = function ( app ) {
 							sendMsg.code = 'ESS';
 							sendMsg.err = err;
 						} else {
-							sendMsg.code = 'OK'
-							sendMsg.name = user.name;
-							sendMsg.id = user.id;
-							sendMsg.uid = users.loginIDList[user.id];
-							sendMsg.facebookID = user.facebookID;
-							sendMsg.admin = user.admin;
+							sendMsg.code		= 'OK'
+							sendMsg.name		= user.name;
+							sendMsg.uid			= user.uid;
+							sendMsg.admin		= user.admin;
+							const auth = users.authTable[ user.uid ];
+							sendMsg.id			= auth.local;
+							sendMsg.facebookID	= auth.facebook;
 						}
 
 						sendMsg.allUsers = users.getUserList();

@@ -73,6 +73,8 @@ let l2data = {
 				l2all.cbUserList();
 			} else if( this.view.user ) {
 				l2user.cbUserList();
+			} else if( this.view.order ) {
+				l2order.cbUserList();
 			}
 		}
 
@@ -82,6 +84,8 @@ let l2data = {
 				l2all.cbBeverageList();
 			} else if( this.view.beverage ){
 				l2beverage.cbBeverageList();
+			} else if( this.view.order ) {
+				l2order.cbBeverageList();
 			}
 		}
 

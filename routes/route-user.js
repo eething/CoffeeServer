@@ -58,8 +58,6 @@ router.post( '/addUser', function ( req, res ) {
 					sendMsg.err = convertError( err );
 					res.send( JSON.stringify( sendMsg ) );
 				} else {
-					sendMsg.name = user.name;
-					sendMsg.id = user.id;
 					sendMsg.allUsers = users.getUserList();
 					sendMsg.allBeverages = beverages.allBeverages;
 					orders.getCurrentOrder( currentOrder => {
@@ -76,7 +74,7 @@ function getDisplayName( user ) {
 	if( user.name ) {
 		return user.name;
 	} else {
-		const auth = users.authTable[user.uid];
+		const auth = users.authTable[ user.uid ];
 		if( auth && auth.local ) {
 			return auth.local;
 		}
@@ -147,8 +145,7 @@ router.post( '/delUser', function ( req, res ) {
 
 	users.deleteUser( uid, req.body, sendMsg => {
 
-		if( sendMsg.code !== 'OK' ||
-			uid != users.loginIDList[req.user.id] ) {
+		if( sendMsg.code !== 'OK' || uid != req.user.uid ) {
 			sendMsg.allUsers = users.getUserList();
 			res.send( JSON.stringify( sendMsg ) );
 			return;

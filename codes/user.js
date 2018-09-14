@@ -6,7 +6,7 @@ const convertError = require( '../lib/convert-error' );
 
 const adam = {
 //	uid: 0,
-	name: '관리자',	
+	name: '관리자',
 //	admin: true,
 //	deleted: false,
 //	enabled: false
@@ -116,19 +116,23 @@ module.exports = {
 		} );
 	},
 	_loadUsers() {
-
-		fs.readdir( 'data/users', ( err, files ) => {
-			let len = files.length;
+		let len;
+		const checkLen = () => {
 			if( len === 0 ) {
 				this.isLoaded.user = true;
 				return;
 			}
+		}
+		fs.readdir( 'data/users', ( err, files ) => {
+			len = files.length;
+			checkLen();
 
 			files.forEach( file => {
 				const filePath = `data/users/${file}`;
 				fs.readFile( filePath, ( err, data ) => {
 					--len;
 					if( err ) {
+						checkLen();
 						if( err.code === 'EISDIR' ) {
 							return;
 						}
@@ -143,27 +147,29 @@ module.exports = {
 						this._maxUID = uid;
 					}
 
-					if( len === 0 ) {
-						this.isLoaded.user = true;
-					}
+					checkLen();
 				} );
 			} );
 		} );
 	},
 	_loadLocals() {
-
-		fs.readdir( 'data/users/local', ( err, files ) => {
-			let len = files.length;
+		let len;
+		const checkLen = () => {
 			if( len === 0 ) {
 				this.isLoaded.local = true;
 				return;
 			}
+		}
+		fs.readdir( 'data/users/local', ( err, files ) => {
+			len = files.length;
+			checkLen();
 
 			files.forEach( localID => {
 				const filePath = `data/users/local/${localID}`;
 				fs.readFile( filePath, ( err, data ) => {
 					--len;
 					if( err ) {
+						checkLen();
 						if( err.code === 'EISDIR' ) {
 							return;
 						}
@@ -175,27 +181,29 @@ module.exports = {
 					this.authTable[ value.uid ] = this.authTable[ value.uid ] || {};
 					this.authTable[ value.uid ].local = localID;
 
-					if( len === 0 ) {
-						this.isLoaded.local = true;
-					}
+					checkLen();
 				} );
 			} );
 		} );
 	},
 	_loadFacebooks() {
-
-		fs.readdir( 'data/users/facebook', ( err, files ) => {
-			let len = files.length;
+		let len;
+		const checkLen = () => {
 			if( len === 0 ) {
 				this.isLoaded.facebook = true;
 				return;
 			}
+		}
+		fs.readdir( 'data/users/facebook', ( err, files ) => {
+			len = files.length;
+			checkLen();
 
 			files.forEach( facebookID => {
 				const filePath = `data/users/facebook/${facebookID}`;
 				fs.readFile( filePath, ( err, data ) => {
 					--len;
 					if( err ) {
+						checkLen();
 						if( err.code === 'EISDIR' ) {
 							return;
 						}
@@ -207,9 +215,7 @@ module.exports = {
 					this.authTable[ value.uid ] = this.authTable[ value.uid ] || {};
 					this.authTable[ value.uid ].facebook = facebookID;
 
-					if( len === 0 ) {
-						this.isLoaded.facebook = true;
-					}
+					checkLen();
 				} );
 			} );
 		} );
@@ -270,10 +276,7 @@ module.exports = {
 					msg: `uid=${uid}, userString=${userString}`
 				} );
 			} else {
-				callback( {
-					code: 'OK',
-					uid: uid
-				} );
+				callback( { code: 'OK' } );
 			}
 		} );
 	},
@@ -289,16 +292,12 @@ module.exports = {
 					msg: `localID=${localID}, localString=${localString}`
 				} );
 			} else {
-				callback( {
-					code: 'OK',
-					uid: local.uid,
-					id: local.id
-				} );
+				callback( { code: 'OK' } );
 			}
 		} );
 	},
 	_writeFacebook( facebookID, callback ) {
-		const facebook = this.allFacebook[ facebookID ];
+		const facebook = this.allFacebooks[ facebookID ];
 		const facebookString = JSON.stringify( facebook );
 		const filePath = `data/users/facebook/${facebookID}`;
 		fs.writeFile( filePath, facebookString, err => {
@@ -310,7 +309,7 @@ module.exports = {
 				} );
 				return;
 			}
-			callback( sendMsg );
+			callback( { code: 'OK' } );
 		} );
 	},
 
@@ -365,7 +364,7 @@ module.exports = {
 		this.authTable[ uid ] = {};
 
 		let local = { uid };
-		const localID = body.id;		
+		const localID = body.id;
 		if( localID ) {
 			// id - password 는 둘다 있든지 둘다 없든지
 			if( !body.password ) {
@@ -384,9 +383,7 @@ module.exports = {
 		if( !localID ) {
 			this._writeUser( uid, callback );
 		} else {
-			// TODO - writeFile 실패해도 강제로 다음꺼 실행 후 에러를 통합해서 보여주기?
 			this._writeUser( uid, msg => {
-
 				bcrypt.hash( body.password, 10, ( err, hash ) => {
 					local.password = hash;
 					this._writeLocal( localID, sendMsg => {
@@ -398,6 +395,9 @@ module.exports = {
 							sendMsg.code2 = msg.code;
 							sendMsg.err2 = msg.err;
 						}
+						sendMsg.uid = uid;
+						sendMsg.id = localID;
+						sendMsg.name = this.allUsers[ uid ].name;
 						callback( sendMsg );
 					} );
 				} );
@@ -456,33 +456,39 @@ module.exports = {
 			user[ key ] = body[ key ];
 		}
 		/* localID 가 바뀌는 경우에 대한 처리는 추후에 다시...
-		if( user.id != oldID ) {
-			delete loginIDList[oldID];
-			loginIDList[user.id] = uid;
+		if( newLocalID !== oldLocalID ) {
+			this.authTable[ uid ].local = newLocalID;
+
+			delete this.allLocals[ oldLocalD ];
+			unlink( `data/users/local/${oldLocalID}`, ()= > { ... } );
+
+			local = this.allLocals[ newLocalID ] = { uid: newUID }
+			this._writeLocal( newLocalID, () => { ... } );
 		}
 		*/
 
 		if( !tempPassword ) {
 			this._writeUser( uid, callback );
 		} else {
+			// user가 고아가 되서 authTable에 없는 경우,
+			// admin 기능으로 password 를 추가해 줄 수 있음
+			const auth = this.authTable[ uid ] = this.authTable[ uid ] || {};
+			const localID = auth.local || body.id;
+			auth.local = localID;
+			const local = this.allLocals[ localID ] = this.allLocals[ localID ] || { uid };
 			this._writeUser( uid, msg => {
-				if( msg.code !== 'OK' ) {
-					callback( msg );
-					return;
-				}
-
-				// user가 고아가 되서 없는 경우가 생길 수 있음
-				// 이때 admin 기능으로 password 를 추가해 줄 수 있음
-				this.authTable[ uid ] = this.authTable[ uid ] || {};
-				const localID = this.authTable[ uid ].local || body.id;
-				this.authTable[ uid ].local = localID;
-
-				this.allLocals[ localID ] = this.allLocals[ localID ] || { uid };
-				const local = this.allLocals[ localID ];
-
 				bcrypt.hash( tempPassword, 10, ( err, hash ) => {
 					local.password = hash;
-					this._writeLocal( localID, callback );
+					this._writeLocal( localID, sendMsg => {
+						if( sendMsg.code === 'OK' ) {
+							sendMsg.code = msg.code;
+							sendMsg.err = msg.err;
+						} else {
+							sendMsg.code2 = msg.code;
+							sendMsg.err2 = msg.err;
+						}
+						callback( sendMsg );
+					} );
 				}  );
 			} );
 		}
@@ -558,7 +564,7 @@ module.exports = {
 
 	associateFacebook( currentUser, info, callback ) {
 
-		sendMsg = {
+		let sendMsg = {
 			code: 'OK',
 			uid: currentUser.uid,
 			facebookID: info.facebookID
@@ -605,7 +611,7 @@ module.exports = {
 		facebook.refreshToken	= info.refreshToken;
 		facebook.profile		= info.profile;
 
-		_writeFacebook( info.facebookID, callback );
+		this._writeFacebook( info.facebookID, callback );
 	},
 
 

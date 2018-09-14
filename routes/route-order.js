@@ -28,7 +28,17 @@ router.post( '/', function ( req, res ) {
 		} );
 		return;
 	}
-	req.body.orderByDN = user.name || user.ID;
+
+	let displayName = user.name;
+	if( !displayName ) {
+		const auth = users.authTable[ user.uid ];
+		if( auth && auth.local ) {
+			displayName = auth.local;
+		} else {
+			displayName =  `* {user.uid}`;
+		}
+	}
+	req.body.orderByDN = displayName;
 
 	orders.addOrder( req.body, sendMsg => {
 		res.send( sendMsg );
