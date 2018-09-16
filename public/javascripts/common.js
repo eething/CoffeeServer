@@ -146,7 +146,7 @@ let l2data = {
 			}
 
 			let optionKeys = Object.keys( co )
-				.filter( b => ( b !== 'orderBy' && b !== 'orderByDN' && b !== 'beverage' ) )
+				.filter( b => b !== 'orderBy' && b !== 'orderByDN' && b !== 'beverage' )
 				.sort();
 			let options = {};
 			for( const k of optionKeys ) {
@@ -167,13 +167,13 @@ let l2data = {
 			this.currentBuy[k].forEach( b => {
 				//b.orderBys.sort();
 				b.orderByDNs.sort();
-			} )
+			} );
 		}
 
 		// 옵션별 정렬 : options 짧은거 -> 주문자 수
 		for( const k in this.currentBuy ) {
 			this.currentBuy[k].sort( ( a, b ) => {
-				const c1 = a.options.length - b.options.length
+				const c1 = a.options.length - b.options.length;
 				if( c1 !== 0 ) {
 					return c1;
 				}

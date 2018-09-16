@@ -8,14 +8,14 @@ module.exports = {
 		Facebook: {},
 		Google: {},
 		Kakao: {},
-		Twitter: {},
+		Twitter: {}
 	},
 
 	setFacebook( body, callback ) {
 		const fb = this.credentials.Facebook;
-		fb.clientID		= body.clientID;
-		fb.clientSecret	= body.clientSecret;
-		fb.callbackURL	= body.callbackURL;
+		fb.clientID = body.clientID;
+		fb.clientSecret = body.clientSecret;
+		fb.callbackURL = body.callbackURL;
 		if( body.profileFields && body.profileFields.length > 0 ) {
 			//profileFields: ['id', 'displayName', 'photos', 'email']
 			fb.profileFields = body.profileFields;
@@ -66,7 +66,7 @@ module.exports = {
 				} );
 			} else {
 				callback( {
-					code: 'OK',
+					code: 'OK'
 				} );
 			}
 		} );
@@ -82,5 +82,5 @@ module.exports = {
 
 	saveTwitter() {
 
-	},
-}
+	}
+};

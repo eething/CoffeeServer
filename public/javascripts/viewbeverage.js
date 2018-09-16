@@ -9,14 +9,14 @@ l2beverage = {
 		removeChildAll( select );
 
 		for( const bKey in l2data.allBeverages ) {
-			let beverage = l2data.allBeverages[ bKey ];
+			let beverage = l2data.allBeverages[bKey];
 			let option = document.createElement( 'option' );
 			option.text = `${beverage.name}`;
 			option.value = `${beverage.name}`;
 			select.appendChild( option );
 		}
 	}
-}
+};
 
 function addBeverage( self ) {
 	const f = self.form;
@@ -25,21 +25,21 @@ function addBeverage( self ) {
 		return;
 	}
 
-	const data = {
-		name: f.name.value,
-	}
+	const input = {
+		name: f.name.value
+	};
 	if( f.iceable.checked ) {
-		data.iceable = true;
+		input.iceable = true;
 	}
 	if( f.hotable.checked ) {
-		data.hotable = true;
+		input.hotable = true;
 	}
 	if( f.syrupable.checked ) {
-		data.syrupable = true;
+		input.syrupable = true;
 	}
 
-	fetchHelper( '/beverage/add', data, 'addBeverage', data => {
-		if( data.code == 'OK' ) {
+	fetchHelper( '/beverage/add', input, 'addBeverage', data => {
+		if( data.code === 'OK' ) {
 			l2data.setData( data );
 		} else {
 			throw new MyError( 500, data );
@@ -88,7 +88,7 @@ function addDelete( self ) {
 		}
 	}
 
-	let p = addElement( divDeleteList, 'p', '' )
+	let p = addElement( divDeleteList, 'p', '' );
 	let input = addElement( p, 'input', 'delchk' );
 	input.type = 'checkbox';
 	input.id = input.name = value;

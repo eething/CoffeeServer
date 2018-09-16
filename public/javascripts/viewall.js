@@ -23,7 +23,7 @@ l2all = {
 	cbOrderList() {
 		l2order.cbOrderList();
 	}
-}
+};
 
 function initAllElem( loginType ) {
 	elem.divOuterOrder		= document.querySelector( 'div#outerOrder' );
@@ -54,9 +54,9 @@ function showAdminMenu( bShow ) {
 function changePage( page ) {
 	elem.outerList.forEach( o => {
 		if( o.id.substr( 5 ) === page ) {
-			o.style.display = 'block'
+			o.style.display = 'block';
 		} else {
-			o.style.display = 'none'
+			o.style.display = 'none';
 		}
 	} );
 }

@@ -34,8 +34,8 @@ let getIconCache = ( function () {
 			} );
 		}
 		return data;
-	}
-} )();
+	};
+} ) ( );
 
 router.get( '/', function ( req, res ) {
 	let params = {};

@@ -26,8 +26,8 @@ var routeAdmin		= require( './routes/route-admin' );
 
 // Initialize Directory and Load...
 // 인증쪽 clientID, clientSecret 등이 필요해서 Admin 만 Sync 로
-try { fs.mkdirSync( 'data' ); } catch( err ) { }
-try { fs.mkdirSync( 'data/admins' ); } catch( err ) { }
+try { fs.mkdirSync( 'data' ); } catch { /*do nothing*/ }
+try { fs.mkdirSync( 'data/admins' ); } catch { /*for suppress eslint*/ }
 admins.loadAdmins();
 
 users.loadUsers();
@@ -103,12 +103,14 @@ app.use( function (err, req, res, next) {
 		res.render('error', {
 			message: err.message,
 			error: {}
-    	} );
+		} );
 	}
 } );
 
 app.set( 'port', process.env.PORT || 3000 );
 
 var server = app.listen( app.get( 'port' ), function () {
-    debug( 'Express server listening on port ' + server.address().port );
+	const msg = 'Express server listening on port ' + server.address().port;
+	console.log( msg );
+	//debug( msg );
 } );

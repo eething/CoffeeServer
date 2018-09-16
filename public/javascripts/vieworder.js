@@ -40,7 +40,7 @@ l2order = {
 		removeChildAll( select );
 
 		for( const uid in l2data.allUsers ) {
-			const user = l2data.allUsers[ uid ];
+			const user = l2data.allUsers[uid];
 			if( user.user.deleted || !user.user.enabled ) {
 				continue;
 			}
@@ -59,14 +59,14 @@ l2order = {
 		let optionStr = '';
 		for( const k in option ) {
 			if( k === 'icehot' ) {
-				const icehot = (( option[k] === 'ice' ) ? '아이스' :
-								( option[k] === 'hot' ) ? '따뜻' : '' );
+				const icehot = ( ( option[k] === 'ice' ) ? '아이스' :
+					( option[k] === 'hot' ) ? '따뜻' : '' );
 				optionStr = icehot +
-							( ( icehot && optionStr ) ? '/' : '' ) +
-							optionStr;
+					( ( icehot && optionStr ) ? '/' : '' ) +
+					optionStr;
 			} else if( k === 'syrup' ) {
 				optionStr += ( optionStr ? '/' : '' ) +
-							( option[k] === 'minus' ? '시럽빼고' : '' );
+					( option[k] === 'minus' ? '시럽빼고' : '' );
 			}
 		}
 		return optionStr;
@@ -157,7 +157,7 @@ l2order = {
 		l2order._makeTableOrderO();
 		l2order._makeTableOrderB();
 		l2order._setTotalForOrderB();
-	},
+	}
 	/*
 	cbOrderOne( order ) {
 		l2order._addTableOrderO( order );
@@ -165,7 +165,7 @@ l2order = {
 		l2order._setTotalForOrderB();
 	}
 	*/
-}
+};
 
 function swapOrderList( self ) {
 	if( elem.tableOrderB.style.display === 'none' ) {
@@ -207,8 +207,8 @@ function addOrder( self ) {
 
 	const input = {
 		orderBy: f.orderBy.value,
-		beverage: f.beverage.value,
-	}
+		beverage: f.beverage.value
+	};
 	f.beverage.value = '';
 	if( f.icehot.value ) {
 		input.icehot = f.icehot.value;
@@ -266,7 +266,7 @@ function showBeverageOptions( beverage ) {
 	}
 }
 function showPopup( start ) {
-	let visMode = 'hidden'
+	let visMode = 'hidden';
 	if( start ) {
 		visMode = 'visible';
 	}
@@ -308,7 +308,7 @@ function changeBeverage( f, value ) {
 		if( bFound ) {
 			let p = document.createElement( 'p' );
 			p.className = 'ctxt';
-			p.innerHTML = '음료를 선택해주세요'
+			p.innerHTML = '음료를 선택해주세요';
 			elem.divPopup.prepend( p );
 			showPopup( true );
 		} else {
@@ -322,9 +322,9 @@ function changeBeverage( f, value ) {
 		f.beverage.style.backgroundColor = 'lightgreen';
 	} else {
 		elem.divOrderList.style.display = 'block';
-		elem.divIce.style.display = 'none'
-		elem.divHot.style.display = 'none'
-		elem.divSyrup.style.display = 'none'
+		elem.divIce.style.display = 'none';
+		elem.divHot.style.display = 'none';
+		elem.divSyrup.style.display = 'none';
 	}
 }
 

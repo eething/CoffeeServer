@@ -3,9 +3,8 @@
 l2data.view.admin = true;
 
 function initAdminElem() {
-	elem.selectConfigAdmin = document.querySelector( '#config_admin' )
+	elem.selectConfigAdmin = document.querySelector( '#config_admin' );
 	checkAdminForm( elem.selectConfigAdmin );
-
 
 	fetchHelper( '/admin/list', null, 'adminList', l2admin.cbAdminList );
 }
@@ -21,7 +20,7 @@ l2admin = {
 		},
 		Google: {},
 		Kakao: {},
-		Twitter: {},
+		Twitter: {}
 	},
 
 	cbAdminList( data ) {
@@ -31,7 +30,7 @@ l2admin = {
 		l2admin.credentials = data.credentials;
 		onSelectConfig( elem.selectConfigAdmin );
 	}
-}
+};
 
 function checkAdminForm( self, getMsg ) {
 	const f = self.form;
@@ -42,26 +41,26 @@ function checkAdminForm( self, getMsg ) {
 
 	const fb = l2admin.credentials.Facebook;
 
-	const cID		=(!f.clientID.value) ? 2 :
-					(f.clientID.value === fb.clientID) ? 1 : 0;
-	const cSecret	=(!f.clientSecret.value) ? 2 :
-					(f.clientSecret.value === fb.clientSecret) ? 1 : 0;
-	const cURL		=(!f.callbackURL.value) ? 2 :
-					(f.callbackURL.value === fb.callbackURL) ? 1 : 0;
+	const cID		=	!f.clientID.value ? 2 :
+						f.clientID.value === fb.clientID ? 1 : 0;
+	const cSecret	=	!f.clientSecret.value ? 2 :
+						f.clientSecret.value === fb.clientSecret ? 1 : 0;
+	const cURL		=	!f.callbackURL.value ? 2 :
+						f.callbackURL.value === fb.callbackURL ? 1 : 0;
 
 	f.clientID.className
-		= (cID === 2) ? 'adminRed' : (cID === 1) ? 'adminWhite' : 'adminGreen';
+		= cID === 2 ? 'adminRed' : cID === 1 ? 'adminWhite' : 'adminGreen';
 	f.clientSecret.className
-		= (cSecret === 2) ? 'adminRed' : (cSecret === 1) ? 'adminWhite' : 'adminGreen';
+		= cSecret === 2 ? 'adminRed' : cSecret === 1 ? 'adminWhite' : 'adminGreen';
 	f.callbackURL.className
-		= (cURL === 2) ? 'adminRed' : (cURL === 1) ? 'adminWhite' : 'adminGreen';
+		= cURL === 2 ? 'adminRed' : cURL === 1 ? 'adminWhite' : 'adminGreen';
 
 	if( !getMsg ) {
 		return;
 	}
 
 	let msg = '';
- 	if( cID === 2 ) {
+	if( cID === 2 ) {
 		msg = 'clientID';
 	}
 	if( cSecret === 2 ) {
@@ -71,9 +70,9 @@ function checkAdminForm( self, getMsg ) {
 		msg = `${msg ? `${msg}, ` : ''}callbackURL`;
 	}
 	if( msg ) {
-		return (msg + ' 를 입력해 주세요.');
+		return msg + ' 를 입력해 주세요.';
 	}
-	if( (cID * cSecret * cURL) === 1 ) {
+	if( cID * cSecret * cURL === 1 ) {
 		return '변경사항이 없습니다.';
 	}
 }
@@ -108,7 +107,7 @@ function changeAdminConfig( self ) {
 	}
 
 	fetchHelper( `/admin/${config}`, input, config, data => {
-		if( data.code == 'OK' ) {
+		if( data.code === 'OK' ) {
 			l2admin.cbAdminList( data );
 		} else {
 			throw new MyError( 500, data );

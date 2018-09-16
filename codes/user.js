@@ -13,8 +13,8 @@ const adam = {
 
 	// for local
 	id: 'admin',
-	password: '$2b$10$j4gB9lgzNoKvyEN5ZpV6SOkaGUKSrf8s0CvSQA4bq4ZLwBCrIUC8e', //qwer
-}
+	password: '$2b$10$j4gB9lgzNoKvyEN5ZpV6SOkaGUKSrf8s0CvSQA4bq4ZLwBCrIUC8e' //qwer
+};
 Object.freeze( adam );
 
 /*
@@ -122,7 +122,7 @@ module.exports = {
 				this.isLoaded.user = true;
 				return;
 			}
-		}
+		};
 		fs.readdir( 'data/users', ( err, files ) => {
 			len = files.length;
 			checkLen();
@@ -159,7 +159,7 @@ module.exports = {
 				this.isLoaded.local = true;
 				return;
 			}
-		}
+		};
 		fs.readdir( 'data/users/local', ( err, files ) => {
 			len = files.length;
 			checkLen();
@@ -193,7 +193,7 @@ module.exports = {
 				this.isLoaded.facebook = true;
 				return;
 			}
-		}
+		};
 		fs.readdir( 'data/users/facebook', ( err, files ) => {
 			len = files.length;
 			checkLen();
@@ -231,6 +231,21 @@ module.exports = {
 
 	},
 	*/
+
+	setAuthID( type, u, newID ) {
+		if( typeof u === 'object' ) {
+			u = u.uid;
+		}
+		this.authTable[ u ] = this.authTable[ u ] || {};
+		this.authTable[ u ][ type ] = newID;
+	},
+	getAuthID( type, u ) {
+		if( typeof u === 'object' ) {
+			u = u.uid;
+		}
+		const auth = this.authTable[ u ];
+		return auth ? auth[ type ] : undefined;
+	},
 
 	_getUser( uid, callback ) {
 
@@ -359,8 +374,8 @@ module.exports = {
 		const uid = ++this._maxUID;
 		this.allUsers[ uid ] = {
 			uid,
-			name: body.name,
-		}
+			name: body.name
+		};
 		this.authTable[ uid ] = {};
 
 		let local = { uid };
@@ -381,7 +396,10 @@ module.exports = {
 		}
 
 		if( !localID ) {
-			this._writeUser( uid, callback );
+			this._writeUser( uid, msg => {
+				msg.uid = uid;
+				callback( msg );
+			} );
 		} else {
 			this._writeUser( uid, msg => {
 				bcrypt.hash( body.password, 10, ( err, hash ) => {
@@ -494,6 +512,7 @@ module.exports = {
 		}
 	},
 
+	// TODO - body 지울 것
 	deleteUser( uid, body, callback ) {
 
 		const user = this._getUser( uid, callback );
@@ -510,6 +529,7 @@ module.exports = {
 		this._writeUser( uid, callback );
 	},
 
+	// TODO - body 대신 uid
 	enableUser( body, callback ) {
 
 		const user = this._getUser( body.uid, callback );
@@ -521,7 +541,7 @@ module.exports = {
 
 		this._writeUser( body.uid, callback );
 	},
-
+	// TODO - body 대신 uid
 	disableUser( body, callback ) {
 
 		const user = this._getUser( body.uid, callback );
@@ -562,72 +582,179 @@ module.exports = {
 //	setFacebook( accessToken, refreshToken, profile, done ) {
 //	},
 
-	associateFacebook( currentUser, info, callback ) {
+	/*
+	req.user.uid = 3, newFacebookID = 44444 를 연동하면
+		authTable
+			4: 44444 ~~> 다른인증수단이 있는지 체크
+						 있으면 undefined
+						 없으면 ASK 후 delete 처리
+			3: 33333 ~~> 44444
 
+		allFacebooks
+			33333: 3 ~~> unlink
+			44444: 4 ~~> 3
+	*/
+/*
+	hasAuthInfo( newFacebookID ) {
+
+		const newFacebook = allFacebooks[ newFacebookID ]; // 44444
+		if( !newFacebook ) {
+			// do authenticate
+			callback( { code: 'AUTHENTICATE' } );
+			return;
+		}
+	},
+*/
+
+/*
 		let sendMsg = {
-			code: 'OK',
 			uid: currentUser.uid,
-			facebookID: info.facebookID
+			newFacebookID
 		};
 
-		let oldFacebookID;
-		if( this.authTable[ currentUser.uid] ) {
-			oldFacebookID = this.authTable[ currentUser.uid ].facebook;
+	if( currentUser.uid != newFacebook.uid ) {
+*/
+	getDisplayName( u ) {
+		let user, uid;
+		if( typeof u === 'object' ) {
+			user = u;
+			uid = user.uid;
 		} else {
-			this.authTable[ currentUser.uid ] = {};
-		}
-		this.authTable[ currentUser.uid ].facebook = info.facebookID;
-		if( oldFacebookID != info.faceboookID ) {
-			sendMsg.authChanged = true;
-			sendMsg.oldFacebookID = oldFacebookID;
-			//sendMsg.newFacebookID = info.facebookID;
+			uid = u;
+			user = this.allUsers[ uid ];
 		}
 
-		let olduid;
-		if( this.allFacebooks[ info.facebookID ] ) {
-			olduid = this.allFacebooks[ info.facebookID ].uid;
+		if( user.name ) {
+			return user.name;
 		} else {
-			this.allFacebooks[ info.facebookID ] = {};
+			const auth = users.authTable[ uid ];
+			if( auth && auth.local ) {
+				return auth.local;
+			}
 		}
-		this.allFacebooks[ info.facebookID ].uid = currentUser.uid;
-		if( olduid != currentUser.uid ) {
-			sendMsg.uidChanged = true;
-			sendMsg.olduid = olduid;
-			//sendMsg.newuid = currentUser.uid;
+		return `* {user.uid}`;
+	},
+
+	checkFacebook( type, currentUser, newFacebookID, callback ) {
+		const newFacebook = this.allFacebooks[ newFacebookID ]; // 44444
+		const oldFacebookID = this.getAuthID( 'facebook', currentUser ); // 3.33333
+		if( currentUser.uid === newFacebook.uid && oldFacebookID === newFacebookID ) {
+			return callback( { code: 'OK', msg: 'Same User' } );
 		}
 
-		/*
-		// 삭제하지 말고 냅둬보자
-		// 여러 페북 ID 로 한 uid 에 로그인 가능, vice versa
-		if( sendMsg.authChanged && oldFacebookID != undefined ) {
-			delete this.allFacebooks[ oldFacebookID ];
-		}
-		if( sendMsg.uidChanged && olduid != undefined ) {
-			delete this.authTable[ olduid ].facebook;
-		}
-		*/
-		const facebook = this.allFacebooks[ info.facebookID ];
-		facebook.accessToken	= info.accessToken;
-		facebook.refreshToken	= info.refreshToken;
-		facebook.profile		= info.profile;
+		const sendMsg = { code: 'ASK' };
 
-		this._writeFacebook( info.facebookID, callback );
+		const deleteUID = newFacebook.uid; // 44444.4
+		const deleteAuth = this.authTable[ deleteUID ]; // 4
+
+		const askKey = `ask${type}`;
+		sendMsg[ askKey ] = deleteAuth[ askKey ] = Math.random();
+		sendMsg.newFacebookID = newFacebookID;
+
+		// TODO - getDisplayName
+		const deleteUser = this.allUsers[ deleteUID ];
+		sendMsg.facebookName = newFacebook.profile.displayName;
+		sendMsg.currentName = this.getDisplayName( currentUser );
+		sendMsg.deleteName = this.getDisplayName( deleteUser );
+
+		if( this.authNoMoreExist( deleteAuth, type ) ) {
+			sendMsg.askDelete = true;
+		}
+		callback( sendMsg );
+	},
+
+	authNoMoreExist( deleteAuth, except ) {
+		const checkKeys = ['local', 'facebook', 'google', 'kakao', 'twitter'];
+		return checkKeys.every( key => {
+			if( key === except ) {
+				return true;
+			}
+			if( !deleteAuth[ key ] ) {
+				return true;
+			}
+			return false;
+		} );
+	},
+
+	associateFacebook( type, currentUser, body, callback ) {
+
+		const askKey = `ask${type}`;
+		const newFacebookID = body.newFacebookID;
+		const newFacebook = this.allFacebooks[ newFacebookID ];
+		const deleteUID = newFacebook.uid;
+		const deleteAuth = this.authTable[ deleteUID ]; // 4
+		const askValue = deleteAuth[ askKey ];
+		delete deletAuth[ askKey ];
+
+		if( !body.bYes ) {
+			return callback( {
+				code: 'OK',
+				msg: 'You select No...'
+			} );
+		}
+
+		if( !body[ askKey ] || body[ askKey ] !== askValue ) {
+			return callback( {
+				code: 'ASKKEY',
+				err: `${askKey} is not valid`
+			} );
+		}
+
+		sendMsg = { code: 'OK' };
+
+		delete deleteAuth.facebook; // 4.44444 ~~> delete
+		//sendMsg.authDeleted = true;
+
+		const oldFacebookID = this.getAuthID( type, currentUser ); // 3.33333
+		//sendMsg.oldFacebookID = oldFacebookID;
+
+		this.setAuthID( type, currentUser, newFacebookID ); // 3.33333 ~~> 44444
+		newFacebook.uid = currentUser.uid; // 44444.4 ~~> 3
+
+		this._writeFacebook( newFacebookID, msg => {
+			if( msg.code !== 'OK' ) {
+				callback( msg );
+				return;
+			}
+			if( this.allFacebooks[ oldFacebookID ] ) {
+				//sendMsg.facebookDeleted = true;
+				delete this.allFacebooks[ oldFacebookID ]; // 33333.3 ~~> unlink
+				fs.unlink( `data/users/facebook/${oldFacebookID}`, () => { } ); //에러처리안함
+			}
+
+			callback( sendMsg );
+		} );
+	},
+
+	saveFacebook( facebookID, done ) {
+		this._writeFacebook( facebookID, sendMsg => {
+			if( sendMsg.code !== 'OK' ) {
+				done( err, false );
+			}
+			const uid = this.allFacebooks[ facebookID ].uid;
+			const user = this.allUsers[ uid ];
+			done( null, user, { facebookID } );
+		} );		
 	},
 
 
-	addFacebookUser( info, callback ) {
-		const body = { name: info.profile.displayName };
+	addFacebookUser( facebookID, callback ) {
+		const facebook = this.allFacebooks[ facebookID ];
+		if( !facebook ) {
+			callback( {
+				code: 'EFACEBOOK',
+				err: `facebook ${facebookID} not Exist`
+			} );
+		}
+
+		const body = { name: facebook.profile.displayName };
 		this._addUser( body, msg => {
 			if( msg.code !== 'OK' ) {
 				callback( msg );
 				return;
 			}
-			const facebook = this.allFacebooks[ info.facebookID ] = {};
-			facebook.accessToken	= info.accessToken;
-			facebook.refreshToken	= info.refreshToken;
-			facebook.profile		= info.profile;
-
-			_writeFacebook( info.facebookID, callback );
+			facebook.uid = msg.uid;
+			this._writeFacebook( facebookID, callback );
 		} );
-	},
-}
+	}
+};

@@ -50,7 +50,7 @@ module.exports = {
 			// orderBy 가 undefined 이면 true 가 되는 문제가 있지만, 일단 넘어가자
 			if( co.orderBy === order.orderBy ) {
 				isNewOrder = false;
-				this.currentOrderList[ i ] = order;
+				this.currentOrderList[i] = order;
 			}
 		} );
 
@@ -62,7 +62,7 @@ module.exports = {
 	_loadTodayOrder( _callback ) {
 
 		const key = this.todayString;
-		if( this.allOrders[ key ] ) {
+		if( this.allOrders[key] ) {
 			_callback();
 			return;
 		}
@@ -70,10 +70,10 @@ module.exports = {
 		const filePath = `data/orders/${key}`;
 		fs.readFile( filePath, ( err, data ) => {
 			if( err ) {
-				this.allOrders[ key ] = [];
+				this.allOrders[key] = [];
 			} else {
 				const value = JSON.parse( data );
-				this.allOrders[ key ] = value;
+				this.allOrders[key] = value;
 
 				for( const order of value ) {
 					this._addCurrentOrderList( order );
@@ -90,13 +90,13 @@ module.exports = {
 			// 그냥 때려박으면 별로 의미가 없나-_-
 			let order = {};
 			for( let k in body ) {
-				order[ k ] = body[ k ];
+				order[k] = body[k];
 			}
 
 			this._addCurrentOrderList( order );
 
 			const key = this.todayString;
-			let todayOrder = this.allOrders[ key ];
+			let todayOrder = this.allOrders[key];
 			todayOrder.push( order );
 
 			let orderString = JSON.stringify( todayOrder );
@@ -128,7 +128,7 @@ module.exports = {
 	getTodayOrder( callback ) {
 		this._initOrderSetting( false );
 		this._loadTodayOrder( () => {
-			callback( this.allOrders[ this.todayString ] );
+			callback( this.allOrders[this.todayString] );
 		} );
 	},
 
@@ -160,7 +160,7 @@ module.exports = {
 
 					const value = JSON.parse( data );
 					const key = file;
-					this.allOrders[ key ] = value;
+					this.allOrders[key] = value;
 
 					if( key === this.todayString ) {
 						for( const order of value ) {
@@ -175,5 +175,5 @@ module.exports = {
 				} );
 			} );
 		} );
-	},
-}
+	}
+};

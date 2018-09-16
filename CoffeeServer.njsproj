@@ -6,6 +6,7 @@
     <Name>CoffeeServer</Name>
     <RootNamespace>CoffeeServer</RootNamespace>
     <NameOfLastUsedPublishProfile>L2Coffee - Web Deploy</NameOfLastUsedPublishProfile>
+    <LastActiveSolutionConfig>Debug|Any CPU</LastActiveSolutionConfig>
   </PropertyGroup>
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
@@ -32,6 +33,12 @@
   <ItemGroup>
     <Compile Include="app.js" />
     <Compile Include="codes\admin.js" />
+    <Compile Include="codes\auth-common.js" />
+    <Compile Include="codes\auth-local.js" />
+    <Compile Include="codes\auth-facebook.js" />
+    <Compile Include="codes\auth-google.js" />
+    <Compile Include="codes\auth-kakao.js" />
+    <Compile Include="codes\auth-twitter.js" />
     <Compile Include="codes\auth.js" />
     <Compile Include="codes\beverage.js" />
     <Compile Include="codes\order.js" />

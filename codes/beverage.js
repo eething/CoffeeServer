@@ -29,7 +29,7 @@ module.exports = {
 	},
 
 	addBeverage( body, callback ) {
-		let beverage = {}
+		let beverage = {};
 		for( let key in body ) {
 			let value = body[ key ];
 			if( key.substr( -4 ) == "able" && value == "on" ) {
@@ -71,7 +71,7 @@ module.exports = {
 			code: 'OK',
 			errList: [],
 			delList: []
-		}
+		};
 
 		for( let key in body ) {
 			//console.log( key + ' : ' + this.allBeverages[key] );
@@ -111,4 +111,4 @@ module.exports = {
 			}
 		}
 	}
-}
+};
