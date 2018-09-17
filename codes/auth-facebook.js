@@ -16,32 +16,31 @@ module.exports = {
 	},
 
 	registerRouter( passport, router ) {
-
+		//
 		router.get( '/facebook', passport.authenticate( 'facebook' ) );
 
 		router.get( '/facebook/callback', ( req, res, next ) => {
 			passport.authenticate( 'facebook', ( err, user, info ) => {
 				if ( err ) {
-					return res.send( JSON.stringify( {
+					res.send( JSON.stringify( {
 						code: 'EAUTH_F',
 						err: convertError( err ),
 					} ) );
+					return;
 				}
 
 				if ( !req.user ) {
 					if ( user ) {
-						console.log( 'LOGIN~~~', user.uid );
 						authCommon.processLogin( req, res, user );
 					} else {
-						console.log( 'NEW USER' );
-						users.addFacebookUser( info.facebookID, ( sendMsg ) => {
-							res.send( JSON.stringify( sendMsg ) );
+						users.addProviderUser( 'facebook', info.facebookID, ( sendMsg ) => {
+							// res.send( JSON.stringify( sendMsg ) ); // 가 아니라 로그인 시켜줘야???
+							authCommon.processLogin( req, res, user );
 						} );
 					}
 					return;
 				}
 
-				console.log( 'CHECK-ASSCIATE ?' );
 				users.checkFacebook( 'facebook', req.user, info.facebookID, ( sendMsg ) => {
 					res.send( JSON.stringify( sendMsg ) );
 				} );
@@ -50,10 +49,11 @@ module.exports = {
 
 		router.post( '/facebook/associate', ( req, res ) => {
 			if ( !req.user ) {
-				return res.send( JSON.stringify( {
+				res.send( JSON.stringify( {
 					code: 'EAUTH',
 					err: 'You must login.',
 				} ) );
+				return;
 			}
 
 			users.associateFacebook( 'facebook', req.user, req.body, ( sendMsg ) => {
@@ -81,7 +81,7 @@ module.exports = {
 				facebook.accessToken = accessToken;
 				facebook.refreshToken = refreshToken;
 				facebook.profile = profile;
-				users.saveFacebook( facebookID, done );
+				users.saveProvider( 'Facebook', facebookID, done );
 			} else {
 				// facebook =
 				users.allFacebooks[facebookID] = {

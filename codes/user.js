@@ -28,11 +28,11 @@ allUsers = {
 }
 authTable = {
 	'1': {
-		local: 'ithing',
-		facebook: '10987654321',
-		google: '111122223333',
-		kakao: -1,
-		twitter: undefined
+		Local: 'ithing',
+		Facebook: '10987654321',
+		Google: '111122223333',
+		Kakao: -1,
+		Twitter: undefined
 	}
 }
 allLocals = {
@@ -55,10 +55,10 @@ allFacebooks = {
 module.exports = {
 
 	isLoaded: {
-		user:		false,
-		local:		false,
-		facebook:	false
-//		google:		false
+		User:		false,
+		Local:		false,
+		Facebook:	false
+//		Google:		false
 	},
 	_maxUID: 0,
 	allUsers: {},
@@ -89,7 +89,7 @@ module.exports = {
 		local.password	= adam.password;
 
 		this.authTable[0] = this.authTable[0] || {};
-		this.authTable[0].local = adam.id;
+		this.authTable[0].Local = adam.id;
 	},
 
 	loadUsers() {
@@ -118,22 +118,22 @@ module.exports = {
 	_loadUsers() {
 		let len;
 		const checkLen = () => {
-			if( len === 0 ) {
-				this.isLoaded.user = true;
+			if ( len === 0 ) {
+				this.isLoaded.User = true;
 				return;
 			}
 		};
-		fs.readdir( 'data/users', ( err, files ) => {
+		fs.readdir( 'data/users', ( error, files ) => {
 			len = files.length;
 			checkLen();
 
-			files.forEach( file => {
+			files.forEach( ( file ) => {
 				const filePath = `data/users/${file}`;
 				fs.readFile( filePath, ( err, data ) => {
 					--len;
-					if( err ) {
+					if ( err ) {
 						checkLen();
-						if( err.code === 'EISDIR' ) {
+						if ( err.code === 'EISDIR' ) {
 							return;
 						}
 						throw err;
@@ -141,7 +141,7 @@ module.exports = {
 
 					const uid = file;
 					const value = JSON.parse( data );
-					this.allUsers[ uid ] = value;
+					this.allUsers[uid] = value;
 
 					if( uid > this._maxUID ) {
 						this._maxUID = uid;
@@ -155,31 +155,31 @@ module.exports = {
 	_loadLocals() {
 		let len;
 		const checkLen = () => {
-			if( len === 0 ) {
-				this.isLoaded.local = true;
+			if ( len === 0 ) {
+				this.isLoaded.Local = true;
 				return;
 			}
 		};
-		fs.readdir( 'data/users/local', ( err, files ) => {
+		fs.readdir( 'data/users/local', ( error, files ) => {
 			len = files.length;
 			checkLen();
 
-			files.forEach( localID => {
+			files.forEach( ( localID ) => {
 				const filePath = `data/users/local/${localID}`;
 				fs.readFile( filePath, ( err, data ) => {
 					--len;
-					if( err ) {
+					if ( err ) {
 						checkLen();
-						if( err.code === 'EISDIR' ) {
+						if ( err.code === 'EISDIR' ) {
 							return;
 						}
 						throw err;
 					}
 
 					const value = JSON.parse( data );
-					this.allLocals[ localID ] = value;
-					this.authTable[ value.uid ] = this.authTable[ value.uid ] || {};
-					this.authTable[ value.uid ].local = localID;
+					this.allLocals[localID] = value;
+					this.authTable[value.uid] = this.authTable[ value.uid ] || {};
+					this.authTable[value.uid].Local = localID;
 
 					checkLen();
 				} );
@@ -189,22 +189,22 @@ module.exports = {
 	_loadFacebooks() {
 		let len;
 		const checkLen = () => {
-			if( len === 0 ) {
-				this.isLoaded.facebook = true;
+			if ( len === 0 ) {
+				this.isLoaded.Facebook = true;
 				return;
 			}
 		};
-		fs.readdir( 'data/users/facebook', ( err, files ) => {
+		fs.readdir( 'data/users/facebook', ( error, files ) => {
 			len = files.length;
 			checkLen();
 
-			files.forEach( facebookID => {
+			files.forEach( ( facebookID ) => {
 				const filePath = `data/users/facebook/${facebookID}`;
 				fs.readFile( filePath, ( err, data ) => {
 					--len;
-					if( err ) {
+					if ( err ) {
 						checkLen();
-						if( err.code === 'EISDIR' ) {
+						if ( err.code === 'EISDIR' ) {
 							return;
 						}
 						throw err;
@@ -212,8 +212,8 @@ module.exports = {
 
 					const value = JSON.parse( data );
 					this.allFacebooks[facebookID] = value;
-					this.authTable[ value.uid ] = this.authTable[ value.uid ] || {};
-					this.authTable[ value.uid ].facebook = facebookID;
+					this.authTable[value.uid] = this.authTable[value.uid] || {};
+					this.authTable[value.uid].Facebook = facebookID;
 
 					checkLen();
 				} );
@@ -233,18 +233,18 @@ module.exports = {
 	*/
 
 	setAuthID( type, u, newID ) {
-		if( typeof u === 'object' ) {
+		if ( typeof u === 'object' ) {
 			u = u.uid;
 		}
-		this.authTable[ u ] = this.authTable[ u ] || {};
-		this.authTable[ u ][ type ] = newID;
+		this.authTable[u] = this.authTable[u] || {};
+		this.authTable[u][type] = newID;
 	},
 	getAuthID( type, u ) {
-		if( typeof u === 'object' ) {
+		if ( typeof u === 'object' ) {
 			u = u.uid;
 		}
-		const auth = this.authTable[ u ];
-		return auth ? auth[ type ] : undefined;
+		const auth = this.authTable[u];
+		return auth ? auth[type] : undefined;
 	},
 
 	_getUser( uid, callback ) {
@@ -253,7 +253,7 @@ module.exports = {
 			callback( {
 				code: 'ELOAD',
 				err: 'User Not Loaded',
-				isLoaded: this.isLoaded
+				isLoaded: this.isLoaded,
 			} );
 			return false;
 		}
@@ -261,7 +261,7 @@ module.exports = {
 		if( !(uid >= 0) ) {
 			callback( {
 				code: 'EUID',
-				err: `Invalid uid=${uid}. It must be >= 0.`
+				err: `Invalid uid=${uid}. It must be >= 0.`,
 			} );
 			return false;
 		}
@@ -270,7 +270,7 @@ module.exports = {
 		if( !user ) {
 			callback( {
 				code: 'ENOUSER',
-				err: `User Not Found, uid=${uid}.`
+				err: `User Not Found, uid=${uid}.`,
 			} );
 			return false;
 		}
@@ -280,11 +280,11 @@ module.exports = {
 
 	// Local...
 	_writeUser( uid, callback ) {
-		const user = this.allUsers[ uid ];
+		const user = this.allUsers[uid];
 		const userString = JSON.stringify( user );
 		const filePath = `data/users/${uid}`;
-		fs.writeFile( filePath, userString, err => {
-			if( err ) {
+		fs.writeFile( filePath, userString, ( err ) => {
+			if ( err ) {
 				callback( {
 					code: 'EWRITE',
 					err: convertError( err ),
@@ -299,7 +299,7 @@ module.exports = {
 		const local = this.allLocals[ localID ];
 		const localString = JSON.stringify( local );
 		const filePath = `data/users/local/${localID}`;
-		fs.writeFile( filePath, localString, err => {
+		fs.writeFile( filePath, localString, ( err ) => {
 			if( err ) {
 				callback( {
 					code: 'EWRITE',
@@ -315,7 +315,7 @@ module.exports = {
 		const facebook = this.allFacebooks[ facebookID ];
 		const facebookString = JSON.stringify( facebook );
 		const filePath = `data/users/facebook/${facebookID}`;
-		fs.writeFile( filePath, facebookString, err => {
+		fs.writeFile( filePath, facebookString, ( err ) => {
 			if( err ) {
 				callback( {
 					code: 'EWRITE',
@@ -327,10 +327,32 @@ module.exports = {
 			callback( { code: 'OK' } );
 		} );
 	},
+	_getProvider( Provider ) { // 첫 글자 대문자 !!!
+		// const allProviders = `all${provider.replace( /^\w/, c => c.toUpperCase() )}s`;
+		const providerKey = `all${Provider}s`;
+		return this[providerKey];
+	},
+	_writeProvider( Provider, providerID, callback ) {
+		const allProviders = this._getProvider( Provider );
+		const prov = allProviders[providerID];
+		const provString = JSON.stringify( prov );
+		const filePath = `data/users/${Provider}/${providerID}`;
+		fs.writeFile( filePath, provString, ( err ) => {
+			if ( err ) {
+				callback( {
+					code: 'EWRITE',
+					err: convertError( err ),
+					msg: `${Provider}ID=${providerID}, Str=${provString}`,
+				} );
+				return;
+			}
+			callback( { code: 'OK' } );
+		} );
+	},
 
 	haveDuplicatedID( id ) {
-		let sendMsg = {};
-		if( this.allLocals[ id ] === undefined ) {
+		const sendMsg = {};
+		if ( this.allLocals[id] === undefined ) {
 			sendMsg.code = 'OK';
 		} else {
 			sendMsg.code = 'EUSERID';
@@ -341,7 +363,7 @@ module.exports = {
 
 	addUser( body, callback ) {
 		const msg = this.haveDuplicatedID( body.id );
-		if( msg.code !== 'OK' ) {
+		if ( msg.code !== 'OK' ) {
 			callback( msg );
 			return;
 		}
@@ -372,15 +394,15 @@ module.exports = {
 		}
 		*/
 		const uid = ++this._maxUID;
-		this.allUsers[ uid ] = {
+		this.allUsers[uid] = {
 			uid,
-			name: body.name
+			name: body.name,
 		};
 		this.authTable[ uid ] = {};
 
 		let local = { uid };
 		const localID = body.id;
-		if( localID ) {
+		if ( localID ) {
 			// id - password 는 둘다 있든지 둘다 없든지
 			if( !body.password ) {
 				callback( {
@@ -395,18 +417,18 @@ module.exports = {
 			this.authTable[ uid ].local = localID;
 		}
 
-		if( !localID ) {
-			this._writeUser( uid, msg => {
+		if ( !localID ) {
+			this._writeUser( uid, ( msg ) => {
 				msg.uid = uid;
 				callback( msg );
 			} );
 		} else {
-			this._writeUser( uid, msg => {
+			this._writeUser( uid, ( msg ) => {
 				bcrypt.hash( body.password, 10, ( err, hash ) => {
 					local.password = hash;
-					this._writeLocal( localID, sendMsg => {
+					this._writeLocal( localID, ( sendMsg ) => {
 
-						if( sendMsg.code === 'OK' ) {
+						if ( sendMsg.code === 'OK' ) {
 							sendMsg.code = msg.code;
 							sendMsg.err = msg.err;
 						} else {
@@ -426,7 +448,7 @@ module.exports = {
 	editUser( uid, body, callback ) {
 
 		const user = this._getUser( uid, callback );
-		if( !user ) {
+		if ( !user ) {
 			return;
 		}
 
@@ -447,27 +469,27 @@ module.exports = {
 		*/
 
 
-		//const oldID = user.id;
+		// const oldID = user.id;
 
-		//let changePassword = false;
+		// let changePassword = false;
 		let tempPassword = '';
-		for( let key in body ) {
-			const value = body[ key ];
+		for ( let key in body ) {
+			const value = body[key];
 
-			if( key === 'mode' || key === 'uid' ) {
+			if ( key === 'mode' || key === 'uid' ) {
 				continue;
-			} else if( key === 'id' ) {
+			} else if ( key === 'id' ) {
 				// localID 변경처리 추후에
 				continue;
 			} else if( key === 'password' ) {
-				if( value === '' ) {
+				if ( value === '' ) {
 					continue;
 				}
 				//changePassword = true;
 				tempPassword = value;
 				continue;
 			} else if( key !== 'name' ) {
-				if( uid == 0 ) {
+				if ( uid == 0 ) {
 					continue;
 				}
 			}
@@ -485,20 +507,22 @@ module.exports = {
 		}
 		*/
 
-		if( !tempPassword ) {
+		if ( !tempPassword ) {
 			this._writeUser( uid, callback );
 		} else {
 			// user가 고아가 되서 authTable에 없는 경우,
 			// admin 기능으로 password 를 추가해 줄 수 있음
-			const auth = this.authTable[ uid ] = this.authTable[ uid ] || {};
+			this.authTable[uid] = this.authTable[uid] || {};
+			const auth = this.authTable[uid];
 			const localID = auth.local || body.id;
 			auth.local = localID;
-			const local = this.allLocals[ localID ] = this.allLocals[ localID ] || { uid };
-			this._writeUser( uid, msg => {
+			this.allLocals[localID] = this.allLocals[localID] || { uid };
+			const local = this.allLocals[localID];
+			this._writeUser( uid, ( msg ) => {
 				bcrypt.hash( tempPassword, 10, ( err, hash ) => {
 					local.password = hash;
-					this._writeLocal( localID, sendMsg => {
-						if( sendMsg.code === 'OK' ) {
+					this._writeLocal( localID, ( sendMsg ) => {
+						if ( sendMsg.code === 'OK' ) {
 							sendMsg.code = msg.code;
 							sendMsg.err = msg.err;
 						} else {
@@ -507,7 +531,7 @@ module.exports = {
 						}
 						callback( sendMsg );
 					} );
-				}  );
+				} );
 			} );
 		}
 	},
@@ -516,12 +540,12 @@ module.exports = {
 	deleteUser( uid, body, callback ) {
 
 		const user = this._getUser( uid, callback );
-		if( !user ) {
+		if ( !user ) {
 			return;
 		}
 
-		if( uid == 0 ) {
-			_initSuperAdmin();
+		if ( uid == 0 ) {
+			this._initSuperAdmin();
 		} else {
 			user.deleted = true;
 		}
@@ -533,7 +557,7 @@ module.exports = {
 	enableUser( body, callback ) {
 
 		const user = this._getUser( body.uid, callback );
-		if( !user ) {
+		if ( !user ) {
 			return;
 		}
 
@@ -545,11 +569,11 @@ module.exports = {
 	disableUser( body, callback ) {
 
 		const user = this._getUser( body.uid, callback );
-		if( !user ) {
+		if ( !user ) {
 			return;
 		}
 
-		if( user.enabled ) {
+		if ( user.enabled ) {
 			user.enabled = false;
 		}
 
@@ -557,20 +581,31 @@ module.exports = {
 	},
 
 	getUserList() {
-		let temp = {};
-		for( const uid in this.allUsers ) {
-
-			//if( uid == 0 ) {
-			//	continue;
-			//}
-
-			temp[ uid ] = {};
-			const user = this.allUsers[ uid ];
-			const auth = this.authTable[ uid ];
-			temp[ uid ].user = user;
-			temp[ uid ].auth = auth;
+		const temp = {};
+		/*
+		for ( const uid in this.allUsers ) {
+			if ( this.allUsers.hasOwnProperty( uid ) ) {
+			//	if( uid == 0 ) {
+			//		continue;
+			//	}
+				temp[uid] = {};
+				const user = this.allUsers[uid];
+				const auth = this.authTable[uid];
+				temp[uid].user = user;
+				temp[uid].auth = auth;
+			}
 		}
-
+		*/
+		Object.keys( this.allUsers ).forEach( ( uid ) => {
+		//	if( uid == 0 ) {
+		//		continue;
+		//	}
+			temp[uid] = {};
+			const user = this.allUsers[uid];
+			const auth = this.authTable[uid];
+			temp[uid].user = user;
+			temp[uid].auth = auth;
+		} );
 		return temp;
 	},
 
@@ -579,8 +614,6 @@ module.exports = {
 	},
 
 
-//	setFacebook( accessToken, refreshToken, profile, done ) {
-//	},
 
 	/*
 	req.user.uid = 3, newFacebookID = 44444 를 연동하면
@@ -594,29 +627,9 @@ module.exports = {
 			33333: 3 ~~> unlink
 			44444: 4 ~~> 3
 	*/
-/*
-	hasAuthInfo( newFacebookID ) {
-
-		const newFacebook = allFacebooks[ newFacebookID ]; // 44444
-		if( !newFacebook ) {
-			// do authenticate
-			callback( { code: 'AUTHENTICATE' } );
-			return;
-		}
-	},
-*/
-
-/*
-		let sendMsg = {
-			uid: currentUser.uid,
-			newFacebookID
-		};
-
-	if( currentUser.uid != newFacebook.uid ) {
-*/
 	getDisplayName( u ) {
 		let user, uid;
-		if( typeof u === 'object' ) {
+		if ( typeof u === 'object' ) {
 			user = u;
 			uid = user.uid;
 		} else {
@@ -624,137 +637,145 @@ module.exports = {
 			user = this.allUsers[ uid ];
 		}
 
-		if( user.name ) {
+		if ( user.name ) {
 			return user.name;
-		} else {
-			const auth = this.authTable[ uid ];
-			if( auth && auth.local ) {
-				return auth.local;
-			}
 		}
-		return `* {user.uid}`;
+		const auth = this.authTable[uid];
+		if ( auth && auth.Local ) {
+			return auth.Local;
+		}
+		return `* ${user.uid}`;
 	},
 
-	checkFacebook( type, currentUser, newFacebookID, callback ) {
-		const newFacebook = this.allFacebooks[ newFacebookID ]; // 44444
-		const oldFacebookID = this.getAuthID( 'facebook', currentUser ); // 3.33333
-		if( currentUser.uid === newFacebook.uid && oldFacebookID === newFacebookID ) {
-			return callback( { code: 'OK', msg: 'Same User' } );
+	checkFacebook( Provider, currentUser, newProviderID, callback ) {
+		const allProviders = this._getProvider( Provider );
+		const newProv = allProviders[newProviderID]; // 44444
+		const oldProviderID = this.getAuthID( Provider, currentUser ); // 3.33333
+		if ( currentUser.uid === newProv.uid && oldProviderID === newProviderID ) {
+			callback( { code: 'OK', msg: 'Same User' } );
+			return;
 		}
 
 		const sendMsg = { code: 'ASK' };
 
-		const deleteUID = newFacebook.uid; // 44444.4
-		const deleteAuth = this.authTable[ deleteUID ]; // 4
+		const deleteUID = newProv.uid; // 44444.4
+		const deleteAuth = this.authTable[deleteUID]; // 4
 
-		const askKey = `ask${type}`;
-		sendMsg[ askKey ] = deleteAuth[ askKey ] = Math.random();
-		sendMsg.newFacebookID = newFacebookID;
+		const askKey = `ask${Provider}`;
+		deleteAuth[askKey] = Math.random();
+		sendMsg[askKey] = deleteAuth[askKey];
+		sendMsg[`new${Provider}ID`] = newProviderID;
+		// sendMsg.newProviderID = newProviderID;
 
 		// TODO - getDisplayName
-		const deleteUser = this.allUsers[ deleteUID ];
-		sendMsg.facebookName = newFacebook.profile.displayName;
+		const deleteUser = this.allUsers[deleteUID];
+		sendMsg.facebookName = newProv.profile.displayName;
 		sendMsg.currentName = this.getDisplayName( currentUser );
 		sendMsg.deleteName = this.getDisplayName( deleteUser );
 
-		if( this.authNoMoreExist( deleteAuth, type ) ) {
+		if ( this.authNoMoreExist( deleteAuth, Provider ) ) {
 			sendMsg.askDelete = true;
 		}
 		callback( sendMsg );
 	},
 
 	authNoMoreExist( deleteAuth, except ) {
-		const checkKeys = ['local', 'facebook', 'google', 'kakao', 'twitter'];
-		return checkKeys.every( key => {
-			if( key === except ) {
+		const checkKeys = ['Local', 'Facebook', 'Google', 'Kakao', 'Twitter'];
+		return checkKeys.every( ( key ) => {
+			if ( key === except ) {
 				return true;
 			}
-			if( !deleteAuth[ key ] ) {
+			if ( !deleteAuth[key] ) {
 				return true;
 			}
 			return false;
 		} );
 	},
 
-	associateFacebook( type, currentUser, body, callback ) {
+	associateProvider( Provider, currentUser, body, callback ) {
+		const askKey = `ask${Provider}`;
+		const newProviderID = body[`${Provider.toLowerCase}ID`]; // body.providerID(facebookID)
+		const allProviders = this._getProvider( Provider );
+		const newProv = allProviders[newProviderID];
+		const deleteUID = newProv.uid;
+		const deleteAuth = this.authTable[deleteUID]; // 4
+		const askValue = deleteAuth[askKey];
+		delete deleteAuth[askKey];
 
-		const askKey = `ask${type}`;
-		const newFacebookID = body.facebookID;
-		const newFacebook = this.allFacebooks[ newFacebookID ];
-		const deleteUID = newFacebook.uid;
-		const deleteAuth = this.authTable[ deleteUID ]; // 4
-		const askValue = deleteAuth[ askKey ];
-		delete deleteAuth[ askKey ];
-
-		if( !body.bYes ) {
-			return callback( {
+		if ( !body.bYes ) {
+			callback( {
 				code: 'NO',
-				msg: 'You select No...'
+				msg: 'You select No...',
 			} );
+			return;
 		}
 
-		if( !body[ askKey ] || body[ askKey ] !== askValue ) {
-			return callback( {
+		if ( !body[askKey] || body[askKey] !== askValue ) {
+			callback( {
 				code: 'ASKKEY',
-				err: `${askKey} is not valid`
+				err: `${askKey} is not valid`,
 			} );
+			return;
 		}
 
 		const sendMsg = { code: 'OK' };
 
-		delete deleteAuth.facebook; // 4.44444 ~~> delete
-		//sendMsg.authDeleted = true;
+		delete deleteAuth[Provider]; // 4.44444 ~~> delete
+		// sendMsg.authDeleted = true;
 
-		const oldFacebookID = this.getAuthID( type, currentUser ); // 3.33333
-		//sendMsg.oldFacebookID = oldFacebookID;
+		const oldProviderID = this.getAuthID( Provider, currentUser ); // 3.33333
+		// sendMsg.oldFacebookID = oldFacebookID;
 
-		this.setAuthID( type, currentUser, newFacebookID ); // 3.33333 ~~> 44444
-		newFacebook.uid = currentUser.uid; // 44444.4 ~~> 3
+		this.setAuthID( Provider, currentUser, newProviderID ); // 3.33333 ~~> 44444
+		newProv.uid = currentUser.uid; // 44444.4 ~~> 3
 
-		this._writeFacebook( newFacebookID, msg => {
-			if( msg.code !== 'OK' ) {
+		this._writeProvider( Provider, newProviderID, ( msg ) => {
+			if ( msg.code !== 'OK' ) {
 				callback( msg );
 				return;
 			}
-			if( this.allFacebooks[ oldFacebookID ] ) {
-				//sendMsg.facebookDeleted = true;
-				delete this.allFacebooks[ oldFacebookID ]; // 33333.3 ~~> unlink
-				fs.unlink( `data/users/facebook/${oldFacebookID}`, () => { } ); //에러처리안함
-			}
 
+			if ( allProviders[oldProviderID] ) {
+				// sendMsg.facebookDeleted = true;
+				delete allProviders[oldProviderID]; // 33333.3 ~~> unlink
+				fs.unlink( `data/users/${Provider}/${oldProviderID}`, () => { } ); //에러처리안함
+			}
 			callback( sendMsg );
 		} );
 	},
 
-	saveFacebook( facebookID, done ) {
-		this._writeFacebook( facebookID, sendMsg => {
-			if( sendMsg.code !== 'OK' ) {
-				done( err, false );
+	saveProvider( Provider, providerID, done ) {
+		this._writeProvider( Provider, providerID, ( sendMsg ) => {
+			if ( sendMsg.code !== 'OK' ) {
+				done( sendMsg.err, false );
 			}
-			const uid = this.allFacebooks[ facebookID ].uid;
-			const user = this.allUsers[ uid ];
-			done( null, user, { facebookID } );
+			const allProviders = this._getProvider( Provider );
+			const { uid } = allProviders[providerID];
+			const user = this.allUsers[uid];
+			done( null, user, { [`${Provider.toLowerCase()}ID`]: providerID } );
+			// done( null, user, { providerID } );
 		} );
 	},
 
 
-	addFacebookUser( facebookID, callback ) {
-		const facebook = this.allFacebooks[ facebookID ];
-		if( !facebook ) {
+	addProviderUser( Provider, providerID, callback ) {
+		const allProviders = this._getProvider( Provider );
+		const prov = allProviders[providerID];
+		if ( !prov ) {
 			callback( {
-				code: 'EFACEBOOK',
-				err: `facebook ${facebookID} not Exist`
+				code: `E${Provider.toUpperCase()}`,
+				err: `${Provider} ${providerID} not Exist`,
 			} );
 		}
 
-		const body = { name: facebook.profile.displayName };
-		this._addUser( body, msg => {
-			if( msg.code !== 'OK' ) {
+		const body = { name: prov.profile.displayName };
+		this._addUser( body, ( msg ) => {
+			if ( msg.code !== 'OK' ) {
 				callback( msg );
 				return;
 			}
-			facebook.uid = msg.uid;
-			this._writeFacebook( facebookID, callback );
+			prov.uid = msg.uid;
+			this._writeProvider( Provider, providerID, callback );
 		} );
-	}
+	},
 };
