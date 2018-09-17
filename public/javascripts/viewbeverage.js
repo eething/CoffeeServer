@@ -5,10 +5,10 @@ l2data.view.beverage = true;
 l2beverage = {
 	cbBeverageList() {
 
-		let select = document.querySelector( '#beverageSelect2' );
+		const select = document.querySelector( '#beverageSelect2' );
 		removeChildAll( select );
 
-		for( const bKey in l2data.allBeverages ) {
+		for ( const bKey in l2data.allBeverages ) {
 			let beverage = l2data.allBeverages[bKey];
 			let option = document.createElement( 'option' );
 			option.text = `${beverage.name}`;
@@ -51,7 +51,7 @@ function delBeverage( self ) {
 	const input = {};
 	var chkon = false;
 	var delchks = document.querySelectorAll( 'input.delchk' );
-	for( var delchk of delchks ) {
+	for ( var delchk of delchks ) {
 		if( delchk.checked ) {
 			chkon = true;
 			input[ delchk.name ] = 1;

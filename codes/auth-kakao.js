@@ -1,5 +1,4 @@
-﻿'use strict';
-
+﻿
 const admins = require( './admin' );
 const users = require( './user' );
 
@@ -16,5 +15,5 @@ module.exports = {
 	},
 
 	registerStrategy( passport ) {
-	}
+	},
 };

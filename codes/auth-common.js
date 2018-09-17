@@ -1,5 +1,4 @@
-﻿'use strict';
-
+﻿
 const users			= require( './user' );
 const beverages		= require( './beverage' );
 const orders		= require( './order' );
@@ -26,14 +25,14 @@ module.exports = {
 
 	registerStrategy( passport ) {
 
-		passport.serializeUser( function ( user, done ) {
+		passport.serializeUser( ( user, done ) => {
 			done( null, user.uid );
 		} );
 
-		passport.deserializeUser( function ( uid, done ) {
+		passport.deserializeUser( ( uid, done ) => {
 			const user = users.allUsers[uid];
 			let err = '';
-			if( !user ) {
+			if ( !user ) {
 				err = `CANNOT deserializeUser: ${uid}`;
 			}
 			done( err, user );
@@ -49,25 +48,24 @@ module.exports = {
 
 		sendMsg.allUsers = users.getUserList();
 		sendMsg.allBeverages = beverages.allBeverages;
-		orders.getCurrentOrder( currentOrder => {
+		orders.getCurrentOrder( ( currentOrder ) => {
 			sendMsg.currentOrder = currentOrder;
 			res.send( JSON.stringify( sendMsg ) );
 		} );
 	},
 
 	processLogin( req, res, user ) {
-
 		const sendMsg = {};
 
-		req.login( user, err => {
-			if( err ) {
+		req.login( user, ( error ) => {
+			if ( error ) {
 				sendMsg.code = 'ELOGIN';
-				sendMsg.err = convertError( err );
+				sendMsg.err = convertError( error );
 				res.send( JSON.stringify( sendMsg ) );
 				return;
 			}
-			req.session.save( err => {
-				if( err ) {
+			req.session.save( ( err ) => {
+				if ( err ) {
 					console.log( `ERROR: Login - Session Save, ${err}...` );
 					sendMsg.code = 'ESS';
 					sendMsg.err = convertError( err );
@@ -77,5 +75,5 @@ module.exports = {
 				}
 			} ); // save
 		} ); // login
-	}
+	},
 };

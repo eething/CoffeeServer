@@ -1,9 +1,8 @@
-﻿'use strict';
-
+﻿
 const admins = require( './admin' );
 const users = require( './user' );
 
-//const TwitterStrategy = require( 'passport-twitter' ).Strategy;
+// const TwitterStrategy = require( 'passport-twitter' ).Strategy;
 
 module.exports = {
 
@@ -16,5 +15,5 @@ module.exports = {
 	},
 
 	registerStrategy( passport ) {
-	}
+	},
 };
