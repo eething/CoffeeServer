@@ -40,7 +40,13 @@ module.exports = {
 		} );
 	},
 
-	sendAllData( res, sendMsg ) {
+	onSuccessLogin( res, user, sendMsg ) {
+		sendMsg.code = 'OK';
+		sendMsg.uid = user.uid;
+		sendMsg.name = user.name;
+		sendMsg.admin = user.admin;
+		sendMsg.id = users.getAuthID( 'local', user );
+
 		sendMsg.allUsers = users.getUserList();
 		sendMsg.allBeverages = beverages.allBeverages;
 		orders.getCurrentOrder( currentOrder => {
@@ -65,15 +71,10 @@ module.exports = {
 					console.log( `ERROR: Login - Session Save, ${err}...` );
 					sendMsg.code = 'ESS';
 					sendMsg.err = convertError( err );
+					res.send( JSON.stringify( sendMsg ) );
 				} else {
-					sendMsg.code = 'OK';
-					sendMsg.uid = user.uid;
-					sendMsg.name = user.name;
-					sendMsg.admin = user.admin;
-					sendMsg.id = users.getAuthID( 'local', user ); // users.authTable[ user.uid ].local;
+					this.onSuccessLogin( res, user, sendMsg );
 				}
-
-				this.sendAllData( res, sendMsg );
 			} ); // save
 		} ); // login
 	}

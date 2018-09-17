@@ -222,7 +222,7 @@ function addOrder( self ) {
 
 	changeBeverage( f, '' );
 
-	fetchHelper( '/order', input, 'addOrder', data => {
+	fetchHelper( '/order', null, input, 'addOrder', data => {
 		if( data.code == 'OK' ) {
 			l2data.setData( data );
 		} else {

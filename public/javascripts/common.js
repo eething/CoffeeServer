@@ -12,18 +12,14 @@ MyError.prototype.constructor = MyError;
 
 let elem = {};
 
-function fetchHelper( address, data, description, callback ) {
+function fetchHelper( address, options, input, description, callback ) {
 
-	let options = {};
-	if( data ) {
-		options = {
-			headers: {
-				//'Accept': 'application/json',
-				'Content-Type': 'application/json'
-			},
-			method: 'post',
-			body: JSON.stringify( data )
-		};
+	if( input ) {
+		options = options || {};
+		options.headers = options.headers || {};
+		options.headers['Content-Type'] = 'application/json';
+		options.method = 'post';
+		options.body = JSON.stringify( input );
 	}
 
 	fetch( address, options )
@@ -102,7 +98,7 @@ let l2data = {
 	},
 
 	getAllList( callback ) {
-		fetchHelper( '/auth/list', null, 'getAllList', data => {
+		fetchHelper( '/auth/list', null, null, 'getAllList', data => {
 			this.setData( data );
 			if( callback ) {
 				callback( data );
@@ -111,7 +107,7 @@ let l2data = {
 	},
 
 	getUserList( callback ) {
-		fetchHelper( '/user/list', null, 'getUserList', data => {
+		fetchHelper( '/user/list', null, null, 'getUserList', data => {
 			this.setData( data );
 			if( callback ) {
 				callback();
@@ -120,7 +116,7 @@ let l2data = {
 	},
 
 	getBeverageList( callback ) {
-		fetchHelper( '/beverage/list', null, 'getBeverageList', data => {
+		fetchHelper( '/beverage/list', null, null, 'getBeverageList', data => {
 			this.setData( data );
 			if( callback ) {
 				callback();
@@ -129,7 +125,7 @@ let l2data = {
 	},
 
 	getCurrentOrderList( callback ) {
-		fetchHelper( '/order/list', null, 'getCurrentOrderList', data => {
+		fetchHelper( '/order/list', null, null, 'getCurrentOrderList', data => {
 			this.setData( data );
 			if( callback ) {
 				callback();

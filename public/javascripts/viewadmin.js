@@ -6,7 +6,7 @@ function initAdminElem() {
 	elem.selectConfigAdmin = document.querySelector( '#config_admin' );
 	checkAdminForm( elem.selectConfigAdmin );
 
-	fetchHelper( '/admin/list', null, 'adminList', l2admin.cbAdminList );
+	fetchHelper( '/admin/list', null, null, 'adminList', l2admin.cbAdminList );
 }
 
 l2admin = {
@@ -106,7 +106,7 @@ function changeAdminConfig( self ) {
 			break;
 	}
 
-	fetchHelper( `/admin/${config}`, input, config, data => {
+	fetchHelper( `/admin/${config}`, null, input, config, data => {
 		if( data.code === 'OK' ) {
 			l2admin.cbAdminList( data );
 		} else {

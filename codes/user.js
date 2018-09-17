@@ -627,7 +627,7 @@ module.exports = {
 		if( user.name ) {
 			return user.name;
 		} else {
-			const auth = users.authTable[ uid ];
+			const auth = this.authTable[ uid ];
 			if( auth && auth.local ) {
 				return auth.local;
 			}
@@ -679,16 +679,16 @@ module.exports = {
 	associateFacebook( type, currentUser, body, callback ) {
 
 		const askKey = `ask${type}`;
-		const newFacebookID = body.newFacebookID;
+		const newFacebookID = body.facebookID;
 		const newFacebook = this.allFacebooks[ newFacebookID ];
 		const deleteUID = newFacebook.uid;
 		const deleteAuth = this.authTable[ deleteUID ]; // 4
 		const askValue = deleteAuth[ askKey ];
-		delete deletAuth[ askKey ];
+		delete deleteAuth[ askKey ];
 
 		if( !body.bYes ) {
 			return callback( {
-				code: 'OK',
+				code: 'NO',
 				msg: 'You select No...'
 			} );
 		}
@@ -700,7 +700,7 @@ module.exports = {
 			} );
 		}
 
-		sendMsg = { code: 'OK' };
+		const sendMsg = { code: 'OK' };
 
 		delete deleteAuth.facebook; // 4.44444 ~~> delete
 		//sendMsg.authDeleted = true;
@@ -734,7 +734,7 @@ module.exports = {
 			const uid = this.allFacebooks[ facebookID ].uid;
 			const user = this.allUsers[ uid ];
 			done( null, user, { facebookID } );
-		} );		
+		} );
 	},
 
 

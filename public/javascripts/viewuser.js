@@ -52,7 +52,7 @@ l2user = {
 };
 
 function logout() {
-	fetchHelper( '/auth/logout', null, 'Logout', data => {
+	fetchHelper( '/auth/logout', null, null, 'Logout', data => {
 		if( data.code === 'OK' ) {
 			changeLoginData();
 		} else {
@@ -65,7 +65,7 @@ function processLoginAsk( data ) {
 
 	const type = '페이스북';
 	const msg = `${type} 계정 (${data.facebookName})을
-${data.currentName} 계정에 연동하면 
+${data.currentName} 계정에 연동하면
 ${data.deleteName} 와의 연결이 끊어집니다.
 계속하시곘습니까 ?`;
 
@@ -77,18 +77,21 @@ ${data.deleteName} 와의 연결이 끊어집니다.
 이 계정은 삭제됩니다.
 계속하시겠습니까?`;
 			bYes = confirm( msg2 );
-		}	
+		}
 	}
-	
+
 	input = {
 		bYes,
 		askfacebook: data.askfacebook,
-		facebookID: data.newFacebookID
+		facebookID: data.newFacebookID,
 	};
 
-	fetchHelper( '/auth/facebook/associate', input, 'FacebookAssociate', data => {
+	fetchHelper( '/auth/facebook/associate', null, input, 'FacebookAssociate', data => {
+		console.log( data );
 		if( data.code === 'OK' ) {
-			processLoginOK( data );
+			document.querySelector( '#facebook_edit' ).style.backgroundColor = 'lightblue';
+		} else if( data.code === 'NO' ) {
+			document.querySelector( '#facebook_edit' ).style.backgroundColor = 'orange';
 		} else {
 			throw new MyError( 500, data );
 		}
@@ -99,17 +102,6 @@ function processLoginOK( data ) {
 	changeLoginData( data.admin ? 'admin' : 'user', data.name, data.id, data.uid );
 	if( l2data.view.all ) {
 		changePage( 'Order' );
-	}
-}
-function processLogin( data ) {
-	if( data.code === 'OK' ) {
-		l2data.setData( data );
-		changeLoginData( data.admin ? 'admin' : 'user', data.name, data.id, data.uid );
-		if( l2data.view.all ) {
-			changePage( 'Order' );
-		}
-	} else {
-		throw new MyError( 500, data );
 	}
 }
 
@@ -123,7 +115,7 @@ function login( self ) {
 	f.id.value = '';
 	f.password.value = '';
 
-	fetchHelper( '/auth/login', input, 'Login', data => {
+	fetchHelper( '/auth/login', null, input, 'Login', data => {
 		if( data.code === 'OK' ) {
 			processLoginOK( data );
 		} else {
@@ -134,10 +126,12 @@ function login( self ) {
 
 function loginFacebook( self ) {
 
-	const f = self.form;
-	fetchHelper( '/auth/facebook', null, 'LoginFacebook', data => {
+	let options = { mode: 'no-cors' };
+
+	fetchHelper( '/auth/facebook', options, null, 'LoginFacebook', data => {
 		if( data.code === 'OK' ) {
-			processLoginOK( data );
+			// TODO - 임시 표시...
+			document.querySelector( '#facebook_edit' ).style.backgroundColor = 'lightgreen';
 		} else if( data.code === 'ASK' ) {
 			processLoginAsk( data );
 		} else {
@@ -154,7 +148,7 @@ function checkDuplicatedID( self ) {
 	if( !data.id ) {
 		return;
 	}
-	fetchHelper( '/user/duplicatedID', data, 'Logout', data => {
+	fetchHelper( '/user/duplicatedID', null, data, 'Logout', data => {
 		if( data.code === 'OK' ) {
 			l2user.duplicatedID = 1;
 			f.id_add.className = 'userGreen';
@@ -465,7 +459,7 @@ function delUser( self ) {
 
 function submitUser( mode, input, cb ) {
 
-	fetchHelper( `/user/${mode}`, input, mode, data => {
+	fetchHelper( `/user/${mode}`, null, input, mode, data => {
 		if( data.code == 'OK' ) {
 			l2data.setData( data );
 			cb( data );

@@ -49,7 +49,7 @@ module.exports = {
 			} ) ( req, res, next );
 		} );
 
-		router.get( 'facebook/associate', function ( req, res, next ) {
+		router.post( '/facebook/associate', function ( req, res, next ) {
 
 			if( !req.user ) {
 				return res.send( JSON.stringify( {

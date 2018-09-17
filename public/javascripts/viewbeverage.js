@@ -38,7 +38,7 @@ function addBeverage( self ) {
 		input.syrupable = true;
 	}
 
-	fetchHelper( '/beverage/add', input, 'addBeverage', data => {
+	fetchHelper( '/beverage/add', null, input, 'addBeverage', data => {
 		if( data.code === 'OK' ) {
 			l2data.setData( data );
 		} else {
@@ -62,7 +62,7 @@ function delBeverage( self ) {
 		return;
 	}
 	removeChildAll( document.querySelector( 'div.cDeleteList' ) );
-	fetchHelper( '/beverage/del', input, 'delBeverage', data => {
+	fetchHelper( '/beverage/del', null, input, 'delBeverage', data => {
 		if( data.code == 'OK' ) {
 			l2data.setData( data );
 		} else {
