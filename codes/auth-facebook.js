@@ -31,7 +31,7 @@ module.exports = {
 
 				if ( !req.user ) {
 					if ( user ) {
-						authCommon.processLogin( req, res, user );
+						authCommon.processLoginProvider( req, res, user );
 						return;
 					}
 					users.addProviderUser( 'Facebook', info.providerID, ( sendMsg ) => {
@@ -39,7 +39,7 @@ module.exports = {
 							res.send( JSON.stringify( sendMsg ) );
 							return;
 						}
-						authCommon.processLogin( req, res, user );
+						authCommon.processLoginProvider( req, res, user );
 					} );
 					return;
 				}
@@ -77,22 +77,21 @@ module.exports = {
 			profileURL: 'https://graph.facebook.com/me?locale=ko_KR',
 		},
 		( accessToken, refreshToken, profile, done ) => {
-			const facebookID = profile.id;
+			const providerID = profile.id;
 
-			const facebook = users.allFacebooks[facebookID];
+			const facebook = users.allFacebooks[providerID];
 			if ( facebook ) {
 				facebook.accessToken = accessToken;
 				facebook.refreshToken = refreshToken;
 				facebook.profile = profile;
-				users.saveProvider( 'Facebook', facebookID, done );
+				users.saveProvider( 'Facebook', providerID, done );
 			} else {
-				// facebook =
-				users.allFacebooks[facebookID] = {
+				users.allFacebooks[providerID] = {
 					accessToken,
 					refreshToken,
 					profile,
 				};
-				done( null, null, { facebookID } );
+				done( null, null, { providerID } );
 			}
 			/*
 			users.addFacebookUser( accessToken, refreshToken, profile, ( sendMsg ) => {

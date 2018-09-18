@@ -122,7 +122,17 @@ function login( self ) {
 	} );
 }
 
+window.providerCallback = ( loginType, loginName, loginID, loginUID ) => {
+	changeLoginData( loginType, loginName, loginID, loginUID );
+	if ( l2data.view.all ) {
+		changePage( 'Order' );
+	}
+	l2data.getAllList();
+};
+
 function loginProvider( Provider ) {
+	window.open( `/auth/${Provider}` );
+	/*
 	const options = { mode: 'no-cors' };
 	fetchHelper( `/auth/${Provider}`, options, null, `Login${Provider}`, ( data ) => {
 		if ( data.code === 'OK' ) {
@@ -135,6 +145,7 @@ function loginProvider( Provider ) {
 			throw new MyError( 500, data );
 		}
 	} );
+	*/
 }
 
 

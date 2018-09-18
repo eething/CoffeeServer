@@ -1,0 +1,15 @@
+﻿doctype html
+html
+	head
+		title AUTH ASK
+
+		script.
+				function initUser() {
+					initUserElem( '#{loginType}', '#{loginName}', '#{loginID}', '#{loginUID}' );
+					if( '#{loginType}' ) {
+						l2data.getUserList();
+					}
+				}
+
+	body(onLoad="initUser();")
+		include user_part

@@ -68,6 +68,9 @@
     <Content Include="README.md" />
     <Content Include="views\admin.pug" />
     <Content Include="views\admin_part.pug" />
+    <Content Include="views\auth-ask.pug" />
+    <Content Include="views\auth-error.pug" />
+    <Content Include="views\auth-ok.pug" />
     <Content Include="views\beverage.pug" />
     <Content Include="views\beverage_part.pug" />
     <Content Include="views\error.pug" />

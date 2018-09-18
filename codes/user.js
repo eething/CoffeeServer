@@ -57,18 +57,16 @@ module.exports = {
 	isLoaded: {
 		User:		false,
 		Local:		false,
-		Facebook:	false
-//		Google:		false
+		Facebook:	false,
+		Google:		false,
 	},
 	_maxUID: 0,
 	allUsers: {},
 	allLocals: {},
 	allFacebooks: {},
-	/*
 	allGoogles: {},
 	allKakaos: {},
 	allTwitters: {},
-	*/
 
 	authTable: {}, // NOT Serialize
 
@@ -78,8 +76,8 @@ module.exports = {
 		user.uid		= 0;
 		user.name		= adam.name;
 		user.admin		= true;
-//		user.deleted	= false;
-//		user.enabled	= false;
+		// user.deleted	= false;
+		// user.enabled	= false;
 		delete user.deleted;
 		delete user.enabled;
 
@@ -96,23 +94,22 @@ module.exports = {
 		fs.mkdir( 'data/users', () => {
 			this._initSuperAdmin();
 			this._loadUsers();
-			fs.mkdir( 'data/users/local', () => {
-				this._loadLocals();
+			fs.mkdir( 'data/users/Local', () => {
+				this._loadProviders( 'Local' );
 			} );
-			fs.mkdir( 'data/users/facebook', () => {
-				this._loadFacebooks();
+			fs.mkdir( 'data/users/Facebook', () => {
+				this._loadProviders( 'Facebook' );
 			} );
-			/*
-			fs.mkdir( 'data/users/google', () => {
-				this._loadGoogle();
+
+			fs.mkdir( 'data/users/Google', () => {
+				this._loadProviders( 'Google' );
 			} );
-			fs.mkdir( 'data/users/kakao', () => {
-				this._loadKakao();
+			fs.mkdir( 'data/users/Kakao', () => {
+				this._loadProviders( 'Kakao' );
 			} );
-			fs.mkdir( 'data/users/twitter', () => {
-				this._loadTwitter();
+			fs.mkdir( 'data/users/Twitter', () => {
+				this._loadProviders( 'Twitter' );
 			} );
-			*/
 		} );
 	},
 	_loadUsers() {
@@ -120,7 +117,6 @@ module.exports = {
 		const checkLen = () => {
 			if ( len === 0 ) {
 				this.isLoaded.User = true;
-				return;
 			}
 		};
 		fs.readdir( 'data/users', ( error, files ) => {
@@ -143,7 +139,7 @@ module.exports = {
 					const value = JSON.parse( data );
 					this.allUsers[uid] = value;
 
-					if( uid > this._maxUID ) {
+					if ( uid > this._maxUID ) {
 						this._maxUID = uid;
 					}
 
@@ -152,54 +148,19 @@ module.exports = {
 			} );
 		} );
 	},
-	_loadLocals() {
-		let len;
-		const checkLen = () => {
-			if ( len === 0 ) {
-				this.isLoaded.Local = true;
-				return;
-			}
-		};
-		fs.readdir( 'data/users/local', ( error, files ) => {
-			len = files.length;
-			checkLen();
-
-			files.forEach( ( localID ) => {
-				const filePath = `data/users/local/${localID}`;
-				fs.readFile( filePath, ( err, data ) => {
-					--len;
-					if ( err ) {
-						checkLen();
-						if ( err.code === 'EISDIR' ) {
-							return;
-						}
-						throw err;
-					}
-
-					const value = JSON.parse( data );
-					this.allLocals[localID] = value;
-					this.authTable[value.uid] = this.authTable[ value.uid ] || {};
-					this.authTable[value.uid].Local = localID;
-
-					checkLen();
-				} );
-			} );
-		} );
-	},
-	_loadFacebooks() {
+	_loadProviders( Provider ) {
 		let len;
 		const checkLen = () => {
 			if ( len === 0 ) {
 				this.isLoaded.Facebook = true;
-				return;
 			}
 		};
-		fs.readdir( 'data/users/facebook', ( error, files ) => {
+		fs.readdir( `data/users/${Provider}`, ( error, files ) => {
 			len = files.length;
 			checkLen();
 
-			files.forEach( ( facebookID ) => {
-				const filePath = `data/users/facebook/${facebookID}`;
+			files.forEach( ( providerID ) => {
+				const filePath = `data/users/${Provider}/${providerID}`;
 				fs.readFile( filePath, ( err, data ) => {
 					--len;
 					if ( err ) {
@@ -211,45 +172,34 @@ module.exports = {
 					}
 
 					const value = JSON.parse( data );
-					this.allFacebooks[facebookID] = value;
+					const allProviders = this._getProvider( Provider );
+					allProviders[providerID] = value;
 					this.authTable[value.uid] = this.authTable[value.uid] || {};
-					this.authTable[value.uid].Facebook = facebookID;
+					this.authTable[value.uid][Provider] = providerID;
 
 					checkLen();
 				} );
 			} );
 		} );
 	},
-	/*
-	_loadGoogle() {
 
-	},
-	_loadKakao() {
-
-	},
-	_loadTwitter() {
-
-	},
-	*/
-
-	setAuthID( type, u, newID ) {
+	setAuthID( Provider, u, newID ) {
 		if ( typeof u === 'object' ) {
 			u = u.uid;
 		}
 		this.authTable[u] = this.authTable[u] || {};
-		this.authTable[u][type] = newID;
+		this.authTable[u][Provider] = newID;
 	},
-	getAuthID( type, u ) {
+	getAuthID( Provider, u ) {
 		if ( typeof u === 'object' ) {
 			u = u.uid;
 		}
 		const auth = this.authTable[u];
-		return auth ? auth[type] : undefined;
+		return auth ? auth[Provider] : undefined;
 	},
 
 	_getUser( uid, callback ) {
-
-		if( Object.values( this.isLoaded ).includes( false ) ) {
+		if ( Object.values( this.isLoaded ).includes( false ) ) {
 			callback( {
 				code: 'ELOAD',
 				err: 'User Not Loaded',
@@ -266,7 +216,7 @@ module.exports = {
 			return false;
 		}
 
-		const user = this.allUsers[ uid ];
+		const user = this.allUsers[uid];
 		if( !user ) {
 			callback( {
 				code: 'ENOUSER',
@@ -328,7 +278,7 @@ module.exports = {
 		} );
 	},
 	_getProvider( Provider ) { // 첫 글자 대문자 !!!
-		// const allProviders = `all${provider.replace( /^\w/, c => c.toUpperCase() )}s`;
+		// `all${provider.replace( /^\w/, c => c.toUpperCase() )}s`;
 		const providerKey = `all${Provider}s`;
 		return this[providerKey];
 	},
@@ -628,13 +578,14 @@ module.exports = {
 			44444: 4 ~~> 3
 	*/
 	getDisplayName( u ) {
-		let user, uid;
+		let user;
+		let uid;
 		if ( typeof u === 'object' ) {
 			user = u;
 			uid = user.uid;
 		} else {
 			uid = u;
-			user = this.allUsers[ uid ];
+			user = this.allUsers[uid];
 		}
 
 		if ( user.name ) {

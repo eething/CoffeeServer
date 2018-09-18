@@ -13,18 +13,20 @@ module.exports = {
 	},
 
 	registerRouter( passport, router ) {
-
+		//
 		router.get( '/list', ( req, res ) => {
-			if( checkAuth( req, res ) ) {
+			if ( checkAuth( req, res ) ) {
 				return;
 			}
 
-			this.sendAllData( res, { code: 'OK' } );
+			this.collectAllData( ( sendMsg ) => {
+				res.send( JSON.stringify( sendMsg ) );
+			} );
 		} );
 	},
 
 	registerStrategy( passport ) {
-
+		//
 		passport.serializeUser( ( user, done ) => {
 			done( null, user.uid );
 		} );
@@ -39,22 +41,47 @@ module.exports = {
 		} );
 	},
 
-	onSuccessLogin( res, user, sendMsg ) {
-		sendMsg.code = 'OK';
-		sendMsg.uid = user.uid;
-		sendMsg.name = user.name;
-		sendMsg.admin = user.admin;
-		sendMsg.id = users.getAuthID( 'Local', user );
-
+	collectAllData( callback ) {
+		const sendMsg = { code: 'OK' };
 		sendMsg.allUsers = users.getUserList();
 		sendMsg.allBeverages = beverages.allBeverages;
-		orders.getCurrentOrder( ( currentOrder ) => {
-			sendMsg.currentOrder = currentOrder;
-			res.send( JSON.stringify( sendMsg ) );
+		orders.getCurrentOrder( ( co ) => {
+			sendMsg.currentOrder = co;
+			callback( sendMsg );
+		} );
+	},
+
+	onSuccessLogin( user, callback ) {
+		this.collectAllData( ( sendMsg ) => {
+			sendMsg.uid = user.uid;
+			sendMsg.name = user.name;
+			sendMsg.admin = user.admin;
+			sendMsg.id = users.getAuthID( 'Local', user );
+
+			callback( sendMsg );
 		} );
 	},
 
 	processLogin( req, res, user ) {
+		req.login( user, ( error ) => {
+			if ( error ) {
+				res.send( JSON.stringify( { code: 'ELOGIN', err: convertError( error ) } ) );
+				return;
+			}
+			req.session.save( ( err ) => {
+				if ( err ) {
+					// console.log( `ERROR: Login - Session Save, ${err}...` );
+					res.send( JSON.stringify( { code: 'ESS', err: convertError( err ) } ) );
+				} else {
+					this.onSuccessLogin( user, ( sendMsg ) => {
+						res.send( JSON.stringify( sendMsg ) );
+					} );
+				}
+			} ); // save
+		} ); // login
+	},
+
+	processLoginProvider( req, res, user ) {
 		const sendMsg = {};
 
 		req.login( user, ( error ) => {
@@ -71,9 +98,17 @@ module.exports = {
 					sendMsg.err = convertError( err );
 					res.send( JSON.stringify( sendMsg ) );
 				} else {
-					this.onSuccessLogin( res, user, sendMsg );
+					const params = {
+						loginName: req.user.name,
+						loginUID: req.user.uid,
+						loginID: users.getAuthID( 'Local', req.user.uid ),
+						loginType: req.user.admin ? 'admin' : 'user',
+					};
+					res.render( 'auth-ok', params );
 				}
 			} ); // save
 		} ); // login
 	},
+
+
 };

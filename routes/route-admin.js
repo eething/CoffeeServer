@@ -1,17 +1,13 @@
-'use strict';
 
-//const users			= require( '../codes/user' );
-//const beverages		= require( '../codes/beverage' );
-//const orders		= require( '../codes/order' );
-const admins		= require( '../codes/admin' );
-const checkAuth		= require( '../lib/check-auth' );
-const convertError	= require( '../lib/convert-error' );
-const express		= require( 'express' );
+const express = require( 'express' );
+
+const admins = require( '../codes/admin' );
+const checkAuth = require( '../lib/check-auth' );
 
 const router = express.Router();
 
-router.get( '/', function ( req, res ) {
-	let params = {};
+router.get( '/', ( req, res ) => {
+	const params = {};
 	/*
 	if( req.user ) {
 		params.loginName = req.user.name;
@@ -28,16 +24,17 @@ router.get( '/', function ( req, res ) {
 } );
 
 function checkAuthAdmin( req, res ) {
-	if( checkAuth( req, res ) ) {
+	if ( checkAuth( req, res ) ) {
 		return true;
 	}
-	if( !req.user.admin ) {
+	if ( !req.user.admin ) {
 		res.send( JSON.stringify( {
 			code: 'EAUTH',
-			err: 'You are not ADMIN.'
+			err: 'You are not ADMIN.',
 		} ) );
 		return true;
 	}
+	return false;
 }
 
 router.post( '/', ( req, res ) => {

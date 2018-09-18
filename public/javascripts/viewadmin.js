@@ -31,7 +31,7 @@ const l2admin = {
 		}
 		l2admin.credentials = data.credentials;
 		onSelectConfig( elem.selectConfigAdmin );
-	}
+	},
 };
 
 function checkAdminForm( self, getMsg ) {
@@ -108,7 +108,7 @@ function changeAdminConfig( self ) {
 		return;
 	}
 
-	fetchHelper( `/admin/${config}`, null, input, config, ( data ) => {
+	fetchHelper( '/admin', null, input, config, ( data ) => {
 		if ( data.code === 'OK' ) {
 			l2admin.cbAdminList( data );
 		} else {

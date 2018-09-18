@@ -1,21 +1,21 @@
-﻿'use strict';
+﻿
+const express = require( 'express' );
 
 const users			= require( '../codes/user' );
 const beverages		= require( '../codes/beverage' );
 const orders		= require( '../codes/order' );
 const checkAuth		= require( '../lib/check-auth' );
 const convertError	= require( '../lib/convert-error' );
-const express		= require( 'express' );
 
 const router = express.Router();
 
-router.get( '/', function ( req, res ) {
-	let params = {};
-	if( req.user ) {
+router.get( '/', ( req, res ) => {
+	const params = {};
+	if ( req.user ) {
 		params.loginName = req.user.name;
 		params.loginUID = req.user.uid;
-		params.loginID = users.authTable[ req.user.uid ].local;
-		if( req.user.admin ) {
+		params.loginID = users.getAuthID( 'Local', req.user.uid );
+		if ( req.user.admin ) {
 			params.loginType = 'admin';
 		} else {
 			params.loginType = 'user';
@@ -24,43 +24,41 @@ router.get( '/', function ( req, res ) {
 	res.render( 'user', params );
 } );
 
-router.post( '/duplicatedID', function ( req, res ) {
+router.post( '/duplicatedID', ( req, res ) => {
 	res.send( JSON.stringify( users.haveDuplicatedID( req.body.id ) ) );
 } );
 
-router.get( '/list', function ( req, res ) {
-	if( checkAuth( req, res ) ) {
+router.get( '/list', ( req, res ) => {
+	if ( checkAuth( req, res ) ) {
 		return;
 	}
 	res.send( JSON.stringify( { allUsers: users.getUserList() } ) );
 } );
 
-router.post( '/addUser', function ( req, res ) {
-
-	users.addUser( req.body, sendMsg => {
-
-		if( sendMsg.code !== 'OK' ) {
+router.post( '/addUser', ( req, res ) => {
+	users.addUser( req.body, ( sendMsg ) => {
+		if ( sendMsg.code !== 'OK' ) {
 			res.send( JSON.stringify( sendMsg ) );
 			return;
 		}
 
-		const user = users.allUsers[ sendMsg.uid ];
-		req.login( user, error => {
-			if( error ) {
+		const user = users.allUsers[sendMsg.uid];
+		req.login( user, ( error ) => {
+			if ( error ) {
 				sendMsg.code = 'ELOGIN';
 				sendMsg.err = convertError( error );
 				res.send( JSON.stringify( sendMsg ) );
 				return;
 			}
-			req.session.save( err => {
-				if( err ) {
+			req.session.save( ( err ) => {
+				if ( err ) {
 					sendMsg.code = 'ESS';
 					sendMsg.err = convertError( err );
 					res.send( JSON.stringify( sendMsg ) );
 				} else {
 					sendMsg.allUsers = users.getUserList();
 					sendMsg.allBeverages = beverages.allBeverages;
-					orders.getCurrentOrder( currentOrder => {
+					orders.getCurrentOrder( ( currentOrder ) => {
 						sendMsg.currentOrder = currentOrder;
 						res.send( JSON.stringify( sendMsg ) );
 					} );
@@ -70,30 +68,17 @@ router.post( '/addUser', function ( req, res ) {
 	} ); // addUser
 } );
 
-function getDisplayName( user ) {
-	if( user.name ) {
-		return user.name;
-	} else {
-		const auth = users.authTable[ user.uid ];
-		if( auth && auth.local ) {
-			return auth.local;
-		}
-	}
-	return `* {user.uid}`;
-}
-
-router.post( '/editUser', function ( req, res ) {
-
-	if( checkAuth( req, res ) ) {
+router.post( '/editUser', ( req, res ) => {
+	if ( checkAuth( req, res ) ) {
 		return false;
 	}
 
-	const oldDisplayName = getDisplayName( req.user );
+	const oldDisplayName = users.getDisplayName( req.user );
 
-	users.editUser( req.user.uid, req.body, sendMsg => {
-		const newDisplayName = getDisplayName( req.user );
+	users.editUser( req.user.uid, req.body, ( sendMsg ) => {
+		const newDisplayName = users.getDisplayName( req.user );
 
-		if( oldDisplayName != newDisplayName ) {
+		if ( oldDisplayName !== newDisplayName ) {
 			orders.changeDisplayName( req.user.uid, newDisplayName );
 		}
 		sendMsg.allUsers = users.getUserList();
@@ -102,31 +87,30 @@ router.post( '/editUser', function ( req, res ) {
 } );
 
 function checkAuthAdmin( req, res ) {
-	if( checkAuth( req, res ) ) {
+	if ( checkAuth( req, res ) ) {
 		return true;
 	}
-	if( !req.user.admin ) {
+	if ( !req.user.admin ) {
 		res.send( JSON.stringify( {
 			code: 'EAUTH',
-			err: 'You are not ADMIN.'
+			err: 'You are not ADMIN.',
 		} ) );
 		return true;
 	}
 }
 
-router.post( '/adminUser', function ( req, res ) {
-
-	if( checkAuthAdmin( req, res ) ) {
+router.post( '/adminUser', ( req, res ) => {
+	if ( checkAuthAdmin( req, res ) ) {
 		return;
 	}
 
-	const uid = req.body.uid;
-	const user = users.allUsers[ uid ];
-	const oldDisplayName = getDisplayName( user );
+	const { uid } = req.body;
+	const user = users.allUsers[uid];
+	const oldDisplayName = users.getDisplayName( user );
 
-	users.editUser( uid, req.body, sendMsg => {
-		const newDisplayName = getDisplayName( user );
-		if( oldDisplayName != newDisplayName ) {
+	users.editUser( uid, req.body, ( sendMsg ) => {
+		const newDisplayName = users.getDisplayName( user );
+		if ( oldDisplayName !== newDisplayName ) {
 			orders.changeDisplayName( uid, newDisplayName );
 		}
 
@@ -135,15 +119,14 @@ router.post( '/adminUser', function ( req, res ) {
 	} );
 } );
 
-router.post( '/delUser', function ( req, res ) {
-
-	if( checkAuthAdmin( req, res ) ) {
+router.post( '/delUser', ( req, res ) => {
+	if ( checkAuthAdmin( req, res ) ) {
 		return;
 	}
 
-	const uid = req.body.uid;
+	const { uid } = req.body;
 
-	users.deleteUser( uid, req.body, sendMsg => {
+	users.deleteUser( uid, req.body, ( sendMsg ) => {
 
 		if( sendMsg.code !== 'OK' || uid != req.user.uid ) {
 			sendMsg.allUsers = users.getUserList();
@@ -152,8 +135,8 @@ router.post( '/delUser', function ( req, res ) {
 		}
 
 		req.logout();
-		req.session.save( err => {
-			if( err ) {
+		req.session.save( ( err ) => {
+			if ( err ) {
 				sendMsg.code = 'ESS';
 				sendMsg.err = convertError( err );
 			} else {
@@ -164,24 +147,22 @@ router.post( '/delUser', function ( req, res ) {
 	} );
 } );
 
-router.post( '/enableUser', function ( req, res ) {
-
-	if( checkAuthAdmin( req, res ) ) {
+router.post( '/enableUser', ( req, res ) => {
+	if ( checkAuthAdmin( req, res ) ) {
 		return;
 	}
 
-	users.enableUser( req.body, sendMsg => {
+	users.enableUser( req.body, ( sendMsg ) => {
 		res.send( JSON.stringify( sendMsg ) );
 	} );
 } );
 
-router.post( '/disableUser', function ( req, res ) {
-
-	if( checkAuthAdmin( req, res ) ) {
+router.post( '/disableUser', ( req, res ) => {
+	if ( checkAuthAdmin( req, res ) ) {
 		return;
 	}
 
-	users.disableUser( req.body, sendMsg => {
+	users.disableUser( req.body, ( sendMsg ) => {
 		res.send( JSON.stringify( sendMsg ) );
 	} );
 } );
