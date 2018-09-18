@@ -44,7 +44,7 @@ module.exports = {
 		sendMsg.uid = user.uid;
 		sendMsg.name = user.name;
 		sendMsg.admin = user.admin;
-		sendMsg.id = users.getAuthID( 'local', user );
+		sendMsg.id = users.getAuthID( 'Local', user );
 
 		sendMsg.allUsers = users.getUserList();
 		sendMsg.allBeverages = beverages.allBeverages;

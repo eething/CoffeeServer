@@ -663,8 +663,8 @@ module.exports = {
 
 		const askKey = `ask${Provider}`;
 		deleteAuth[askKey] = Math.random();
-		sendMsg[askKey] = deleteAuth[askKey];
-		sendMsg[`new${Provider}ID`] = newProviderID;
+		sendMsg.askValue = deleteAuth[askKey];
+		sendMsg.providerID = newProviderID;
 		// sendMsg.newProviderID = newProviderID;
 
 		// TODO - getDisplayName
@@ -692,13 +692,15 @@ module.exports = {
 		} );
 	},
 
-	associateProvider( Provider, currentUser, body, callback ) {
-		const askKey = `ask${Provider}`;
-		const newProviderID = body[`${Provider.toLowerCase}ID`]; // body.providerID(facebookID)
+	associateProvider( currentUser, body, callback ) {
+		const Provider = body.Provider;
+		const newProviderID = body.ProviderID;
 		const allProviders = this._getProvider( Provider );
 		const newProv = allProviders[newProviderID];
+
 		const deleteUID = newProv.uid;
 		const deleteAuth = this.authTable[deleteUID]; // 4
+		const askKey = `ask${Provider}`;
 		const askValue = deleteAuth[askKey];
 		delete deleteAuth[askKey];
 
@@ -710,15 +712,15 @@ module.exports = {
 			return;
 		}
 
-		if ( !body[askKey] || body[askKey] !== askValue ) {
+		if ( !body.askValue || body.askValue !== askValue ) {
 			callback( {
-				code: 'ASKKEY',
+				code: 'EASKKEY',
 				err: `${askKey} is not valid`,
 			} );
 			return;
 		}
 
-		const sendMsg = { code: 'OK' };
+		const sendMsg = { code: 'YES' };
 
 		delete deleteAuth[Provider]; // 4.44444 ~~> delete
 		// sendMsg.authDeleted = true;
@@ -752,7 +754,7 @@ module.exports = {
 			const allProviders = this._getProvider( Provider );
 			const { uid } = allProviders[providerID];
 			const user = this.allUsers[uid];
-			done( null, user, { [`${Provider.toLowerCase()}ID`]: providerID } );
+			done( null, user, { providerID } );
 			// done( null, user, { providerID } );
 		} );
 	},

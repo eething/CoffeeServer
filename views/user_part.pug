@@ -26,6 +26,30 @@
 						input(type="button" value="로그인"
 							style="width:200px;"
 							onclick="login(this);")
+				tr
+					td FACEBOOK
+					td
+						input(type="button" value="페북로긴"
+							style="width:200px;"
+							onclick="loginProvider('Facebook')")
+				tr
+					td GOOGLE
+					td
+						input(type="button" value="구글로긴"
+							style="width:200px;"
+							onclick="loginProvider('Google')")
+				tr
+					td KAKAO
+					td
+						input(type="button" value="카카오로긴"
+							style="width:200px;"
+							onclick="loginProvider('Kakao')")
+				tr
+					td TWITTER
+					td
+						input(type="button" value="트윗로긴"
+							style="width:200px;"
+							onclick="loginProvider('Twitter')")
 
 	form(onsubmit="return false;")
 		//input(type="hidden" name="uid")
@@ -40,25 +64,25 @@
 					td
 						input(type="button" value="페북로긴"
 							style="width:200px;"
-							onclick="")
+							onclick="loginProvider('Facebook')")
 				tr
 					td GOOGLE
 					td
 						input(type="button" value="구글로긴"
 							style="width:200px;"
-							onclick="")
+							onclick="loginProvider('Google')")
 				tr
 					td KAKAO
 					td
 						input(type="button" value="카카오로긴"
 							style="width:200px;"
-							onclick="")
+							onclick="loginProvider('Kakao')")
 				tr
 					td TWITTER
 					td
 						input(type="button" value="트윗로긴"
 							style="width:200px;"
-							onclick="")
+							onclick="loginProvider('Twitter')")
 				tr
 					td 이름
 					td
@@ -122,27 +146,27 @@
 				tr
 					td FACEBOOK
 					td
-						input#facebook_edit(type="button" value="페북연동"
+						input#Facebook_edit(type="button" value="페북연동"
 							style="width:150px;"
-							onclick="loginFacebook(this);")
+							onclick="loginProvider('Facebook');")
 				tr
 					td GOOGLE
 					td
-						input(type="button" value="구글연동"
+						input#Google_edit(type="button" value="구글연동"
 							style="width:150px;"
-							onclick="")
+							onclick="loginProvider('Google')")
 				tr
 					td KAKAO
 					td
 						input(type="button" value="카카오연동"
 							style="width:150px;"
-							onclick="")
+							onclick="loginProvider('Kakao')")
 				tr
 					td TWITTER
 					td
 						input(type="button" value="트윗연동"
 							style="width:150px;"
-							onclick="")
+							onclick="loginProvider('Twitter')")
 				//tr
 					td(colspan="2" align="center")
 						input(type="button" value="탈퇴" onclick="delUser(this);" style="width:200px;")

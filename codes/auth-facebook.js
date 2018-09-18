@@ -32,16 +32,19 @@ module.exports = {
 				if ( !req.user ) {
 					if ( user ) {
 						authCommon.processLogin( req, res, user );
-					} else {
-						users.addProviderUser( 'facebook', info.facebookID, ( sendMsg ) => {
-							// res.send( JSON.stringify( sendMsg ) ); // 가 아니라 로그인 시켜줘야???
-							authCommon.processLogin( req, res, user );
-						} );
+						return;
 					}
+					users.addProviderUser( 'Facebook', info.providerID, ( sendMsg ) => {
+						if ( sendMsg.code !== 'OK' ) {
+							res.send( JSON.stringify( sendMsg ) );
+							return;
+						}
+						authCommon.processLogin( req, res, user );
+					} );
 					return;
 				}
 
-				users.checkFacebook( 'facebook', req.user, info.facebookID, ( sendMsg ) => {
+				users.checkFacebook( 'Facebook', req.user, info.providerID, ( sendMsg ) => {
 					res.send( JSON.stringify( sendMsg ) );
 				} );
 			} )( req, res, next );
@@ -56,7 +59,7 @@ module.exports = {
 				return;
 			}
 
-			users.associateFacebook( 'facebook', req.user, req.body, ( sendMsg ) => {
+			users.associateProvider( req.user, req.body, ( sendMsg ) => {
 				res.send( JSON.stringify( sendMsg ) );
 			} );
 		} );

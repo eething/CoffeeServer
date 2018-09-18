@@ -1,4 +1,6 @@
-﻿// vieworder.js
+// vieworder.js
+/* global fetchHelper removeChildAll l2data elem */
+/* eslint-env browser */
 
 l2data.view.user = true;
 
@@ -19,13 +21,13 @@ function initUserElem( loginType, loginName, loginID, loginUID ) {
 		elem.divLogin,
 		elem.divNewUser,
 		elem.divMyInfo,
-		elem.divAdmin
+		elem.divAdmin,
 	];
 
 	changeLoginData( loginType, loginName, loginID, loginUID );
 }
 
-l2user = {
+const l2user = {
 	duplicatedID: -1,
 
 	cbUserList() {
@@ -37,13 +39,13 @@ l2user = {
 				continue;
 			}
 			const u = l2data.allUsers[uid];
-			const userName = u.user.name || u.auth.local || `* ${uid}`;
+			const userName = u.user.name || u.auth.Local || `* ${uid}`;
 			let option = addElement( select, 'option', '', userName );
 			option.value = uid;
 		}
 
-		if( select.length === 0 ) {
-			let option = addElement( select, 'option', '', 'NNUULL' );
+		if ( select.length === 0 ) {
+			const option = addElement( select, 'option', '', 'NNUULL' );
 			option.value = -1;
 		}
 
@@ -52,8 +54,8 @@ l2user = {
 };
 
 function logout() {
-	fetchHelper( '/auth/logout', null, null, 'Logout', data => {
-		if( data.code === 'OK' ) {
+	fetchHelper( '/auth/logout', null, null, 'Logout', ( data ) => {
+		if ( data.code === 'OK' ) {
 			changeLoginData();
 		} else {
 			throw new MyError( 500, data );
@@ -61,52 +63,48 @@ function logout() {
 	} );
 }
 
-function processLoginAsk( data ) {
-
-	const type = '페이스북';
-	const msg = `${type} 계정 (${data.facebookName})을
-${data.currentName} 계정에 연동하면
-${data.deleteName} 와의 연결이 끊어집니다.
+function processLoginAsk( d ) {
+	const msg = `${d.Provider} 계정 (${d.providerName})을
+${d.currentName} 계정에 연동하면
+${d.deleteName} 와의 연결이 끊어집니다.
 계속하시곘습니까 ?`;
 
 	let bYes = false;
-	if( confirm( msg ) ) {
+	if ( confirm( msg ) ) {
 		bYes = true;
-		if( data.askDelete ) {
-			const msg2 = `${data.deleteName} 에 로그인 할 방법이 없어집니다.
+		if ( d.askDelete ) {
+			const msg2 = `${d.deleteName} 에 로그인 할 방법이 없어집니다.
 이 계정은 삭제됩니다.
 계속하시겠습니까?`;
 			bYes = confirm( msg2 );
 		}
 	}
 
-	input = {
+	const input = {
 		bYes,
-		askfacebook: data.askfacebook,
-		facebookID: data.newFacebookID,
+		Provider: d.Provider,
+		askValue: d.askValue,
+		providerID: d.providerID,
 	};
-
-	fetchHelper( '/auth/facebook/associate', null, input, 'FacebookAssociate', data => {
-		console.log( data );
-		if( data.code === 'OK' ) {
-			document.querySelector( '#facebook_edit' ).style.backgroundColor = 'lightblue';
-		} else if( data.code === 'NO' ) {
-			document.querySelector( '#facebook_edit' ).style.backgroundColor = 'orange';
+	fetchHelper( '/auth/facebook/associate', null, input, 'FacebookAssociate', ( data ) => {
+		if ( data.code === 'YES' ) {
+			document.querySelector(  `#${Provider}_edit` ).style.backgroundColor = 'lightblue';
+		} else if ( data.code === 'NO' ) {
+			document.querySelector(  `#${Provider}_edit` ).style.backgroundColor = 'orange';
 		} else {
 			throw new MyError( 500, data );
 		}
 	} );
 }
-function processLoginOK( data ) {
-	l2data.setData( data );
-	changeLoginData( data.admin ? 'admin' : 'user', data.name, data.id, data.uid );
-	if( l2data.view.all ) {
+function processLoginOK( d ) {
+	l2data.setData( d );
+	changeLoginData( d.admin ? 'admin' : 'user', d.name, d.id, d.uid );
+	if ( l2data.view.all ) {
 		changePage( 'Order' );
 	}
 }
 
 function login( self ) {
-
 	const f = self.form;
 	const input = {
 		id: f.id.value,
@@ -115,8 +113,8 @@ function login( self ) {
 	f.id.value = '';
 	f.password.value = '';
 
-	fetchHelper( '/auth/login', null, input, 'Login', data => {
-		if( data.code === 'OK' ) {
+	fetchHelper( '/auth/login', null, input, 'Login', ( data ) => {
+		if ( data.code === 'OK' ) {
 			processLoginOK( data );
 		} else {
 			throw new MyError( 500, data );
@@ -124,15 +122,14 @@ function login( self ) {
 	} );
 }
 
-function loginFacebook( self ) {
-
-	let options = { mode: 'no-cors' };
-
-	fetchHelper( '/auth/facebook', options, null, 'LoginFacebook', data => {
-		if( data.code === 'OK' ) {
+function loginProvider( Provider ) {
+	const options = { mode: 'no-cors' };
+	fetchHelper( `/auth/${Provider}`, options, null, `Login${Provider}`, ( data ) => {
+		if ( data.code === 'OK' ) {
 			// TODO - 임시 표시...
-			document.querySelector( '#facebook_edit' ).style.backgroundColor = 'lightgreen';
-		} else if( data.code === 'ASK' ) {
+			processLoginOK( data );
+			document.querySelector( `#${Provider}_edit` ).style.backgroundColor = 'lightgreen';
+		} else if ( data.code === 'ASK' ) {
 			processLoginAsk( data );
 		} else {
 			throw new MyError( 500, data );
@@ -144,15 +141,15 @@ function loginFacebook( self ) {
 function checkDuplicatedID( self ) {
 	const f = self.form;
 	f.id_add.value = f.id_add.value.trim();
-	const data = { id: f.id_add.value };
-	if( !data.id ) {
+	const input = { id: f.id_add.value };
+	if ( !input.id ) {
 		return;
 	}
-	fetchHelper( '/user/duplicatedID', null, data, 'Logout', data => {
-		if( data.code === 'OK' ) {
+	fetchHelper( '/user/duplicatedID', null, input, 'Logout', ( data ) => {
+		if ( data.code === 'OK' ) {
 			l2user.duplicatedID = 1;
 			f.id_add.className = 'userGreen';
-		} else if( data.code === 'EUSERID' ) {
+		} else if ( data.code === 'EUSERID' ) {
 			l2user.duplicatedID = 0;
 			f.id_add.className = 'userRed';
 		} else {
@@ -161,18 +158,18 @@ function checkDuplicatedID( self ) {
 	} );
 }
 
-const checkIDChanged = function () {
-	previousID = '';
-	return function ( self ) {
+const checkIDChanged = ( function outer() {
+	let previousID = '';
+	return ( function inner( self ) {
 		const f = self.form;
 		f.id_add.value = f.id_add.value.trim();
-		if( previousID !== f.id_add.value ) {
+		if ( previousID !== f.id_add.value ) {
 			l2user.duplicatedID = -1;
 			f.id_add.className = 'userYellow';
 			previousID = f.id_add.value;
 		}
-	};
-}();
+	} );
+}() );
 
 function checkAddForm( self, getMsg ) {
 	const f = self.form;
@@ -183,13 +180,13 @@ function checkAddForm( self, getMsg ) {
 	f.password1_add.className = ( errP1 === 1 ) ? 'userRed' : 'userWhite';
 	f.password2_add.className = ( errP2 === 1 ) ? 'userRed' : 'userWhite';
 
-	if( !errP1 && !errP2 ) {
+	if ( !errP1 && !errP2 ) {
 		f.password1_add.className = 'userGreen';
 		f.password2_add.className = 'userGreen';
-	} else if( errP1 === 1 ) {
+	} else if ( errP1 === 1 ) {
 		f.password1_add.className = 'userRed';
 		f.password2_add.className = 'userWhite';
-	} else if( errP2 === 1 ) {
+	} else if ( errP2 === 1 ) {
 		f.password1_add.className = 'userWhite';
 		f.password2_add.className = 'userRed';
 	} else {
@@ -197,28 +194,27 @@ function checkAddForm( self, getMsg ) {
 		f.password2_add.className = 'userWhite';
 	}
 
-	if( !getMsg ) {
-		return;
+	if ( !getMsg ) {
+		return null;
 	}
 
 	let msg = '';
-	if( l2user.duplicatedID == -1 ) {
+	if ( l2user.duplicatedID === -1 ) {
 		msg = 'ID 중복체크 하세요.';
-	} if( l2user.duplicatedID == 0 ) {
+	} else if ( l2user.duplicatedID === 0 ) {
 		msg = '이미 존재하는 ID 입니다.';
 	}
-	if( errP1 ) {
+	if ( errP1 ) {
 		msg = `${msg ? `${msg}\n` : ''}비밀번호 를 입력해주세요`;
-	} else if( errP2 ) {
+	} else if ( errP2 ) {
 		msg = `${msg ? `${msg}\n` : ''}비밀번호가 일치하지 않습니다`;
 	}
 	return msg;
 }
 
 function addUser( self ) {
-
 	const msg = checkAddForm( self, true );
-	if( msg ) {
+	if ( msg ) {
 		alert( msg );
 		return;
 	}
@@ -226,15 +222,15 @@ function addUser( self ) {
 	const input = {
 		name: f.name_add.value,
 		id: f.id.value,
-		password: f.password1_add.value
+		password: f.password1_add.value,
 	};
-	submitUser( 'addUser', input, data => {
+	submitUser( 'addUser', input, ( data ) => {
 		changeLoginData( 'user' );
 		l2data.login.name	= data.name;
 		l2data.login.ID		= data.id;
 		l2data.login.uid	= data.uid;
-		document.querySelector( '#id_edit').innerHTML = l2data.login.ID;
-		document.querySelector( '#name_edit').value = l2data.login.name;
+		document.querySelector( '#id_edit' ).innerHTML = l2data.login.ID;
+		document.querySelector( '#name_edit' ).value = l2data.login.name;
 
 		f.id_add.value				= '';
 		f.name_add.value			= '';
@@ -246,7 +242,7 @@ function addUser( self ) {
 		f.password1_add.className	= 'userRed';
 		f.password2_add.className = 'userWhite';
 
-		if( l2data.view.all ) {
+		if ( l2data.view.all ) {
 			changePage( 'Order' );
 		}
 	} );
@@ -262,10 +258,10 @@ function checkEditForm( self, getMsg ) {
 	let hasChange = fPassword1.value ? true : false;
 
 	const errP2 = ( fPassword1.value === fPassword2.value ) ? 0 : 1;
-	if( errP2 === 1 ) {
+	if ( errP2 === 1 ) {
 		fPassword1.className = 'userWhite';
 		fPassword2.className = 'userRed';
-	} else if( hasChange ) {
+	} else if ( hasChange ) {
 		fPassword1.className = 'userGreen';
 		fPassword2.className = 'userGreen';
 	} else {
@@ -281,18 +277,18 @@ function checkEditForm( self, getMsg ) {
 	const changeName = ( fName.value === orgName ) ? 0 : 1;
 	fName.className = ( changeName === 1 ) ? 'userGreen' : 'userWhite';
 
-	if( !getMsg ) {
-		return;
+	if ( !getMsg ) {
+		return null;
 	}
 
 	let msg;
-	if( errP2 ) {
+	if ( errP2 ) {
 		return '비밀번호가 다릅니다.';
 	}
-	if( changeName || changeDel || changeEnable ) {
+	if ( changeName || changeDel || changeEnable ) {
 		hasChange = true;
 	}
-	if( !hasChange ) {
+	if ( !hasChange ) {
 		msg = '변경사항이 없습니다.';
 	}
 	return msg;
@@ -303,7 +299,7 @@ function editUser( self ) {
 	const f = self.form;
 
 	const msg = checkEditForm( self, true );
-	if( msg ) {
+	if ( msg ) {
 		alert( msg );
 		return;
 	}
@@ -313,15 +309,16 @@ function editUser( self ) {
 
 	const input = {
 		name: f.name_edit.value,
-		password: f.password1_edit.value
+		password: f.password1_edit.value,
 	};
 	submitUser( 'editUser', input, () => {
 		if( editMe ) {
-			const user = l2data.allUsers[ l2data.login.uid ].user;
-			user.name = l2data.login.name = newName;
-			//user.id = l2data.login.ID = newID;
+			const { user } = l2data.allUsers[ l2data.login.uid ];
+			l2data.login.name = newName;
+			user.name = l2data.login.name;
+			// user.id = l2data.login.ID = newID;
 		}
-		//f.name_edit.value			= '';
+		// f.name_edit.value			= '';
 		f.password1_edit.value		= '';
 		f.password2_edit.value		= '';
 
@@ -342,7 +339,6 @@ function disableAdminForm( f, b ) {
 }
 
 function checkAdminForm( self, getMsg ) {
-
 	const f = self.form;
 	const fName = f.name_admin;
 	const fPassword1 = f.password1_admin;
@@ -351,10 +347,10 @@ function checkAdminForm( self, getMsg ) {
 	let hasChange = fPassword1.value ? true : false;
 
 	const errP2 = ( fPassword1.value === fPassword2.value ) ? 0 : 1;
-	if( errP2 === 1 ) {
+	if ( errP2 === 1 ) {
 		fPassword1.className = 'userWhite';
 		fPassword2.className = 'userRed';
-	} else if( hasChange ) {
+	} else if ( hasChange ) {
 		fPassword1.className = 'userGreen';
 		fPassword2.className = 'userGreen';
 	} else {
@@ -364,8 +360,8 @@ function checkAdminForm( self, getMsg ) {
 
 	const uid = f.idSelect.value;
 	let orgName = '';
-	if( uid > 0 ) {
-		const user = l2data.allUsers[uid].user;
+	if ( uid > 0 ) {
+		const { user } = l2data.allUsers[uid];
 		orgName = user.name;
 		var changeDel = f.del_admin.checked != user.deleted;
 		var changeEnable = f.enable_admin.checked != user.enabled;
@@ -377,32 +373,31 @@ function checkAdminForm( self, getMsg ) {
 	const changeName = ( fName.value === orgName ) ? 0 : 1;
 	fName.className = ( changeName === 1 ) ? 'userGreen' : 'userWhite';
 
-	if( !getMsg ) {
-		return;
+	if ( !getMsg ) {
+		return null;
 	}
 
 	let msg;
-	if( uid < 0 ) {
+	if ( uid < 0 ) {
 		return '유저를 선택해 주세요.';
 	}
-	if( errP2 ) {
+	if ( errP2 ) {
 		return '비밀번호가 다릅니다.';
 	}
-	if( changeName || changeDel || changeEnable ) {
+	if ( changeName || changeDel || changeEnable ) {
 		hasChange = true;
 	}
-	if( !hasChange ) {
+	if ( !hasChange ) {
 		msg = '변경사항이 없습니다.';
 	}
 	return msg;
 }
 
 function adminUser( self ) {
-
 	const f = self.form;
 
 	const msg = checkAdminForm( self, true );
-	if( msg ) {
+	if ( msg ) {
 		alert( msg );
 		return;
 	}
@@ -415,13 +410,13 @@ function adminUser( self ) {
 		name: f.name_admin.value,
 		password: f.password1_admin.value,
 		deleted: f.del_admin.checked,
-		enabled: f.enable_admin.checked
+		enabled: f.enable_admin.checked,
 	};
 	submitUser( 'adminUser', input, () => {
-		if( editMe ) {
-			const user = l2data.allUsers[ l2data.login.uid ].user;
+		if ( editMe ) {
+			const { user } = l2data.allUsers[ l2data.login.uid ];
 			user.name = l2data.login.name = newName;
-			//user.id = l2data.login.ID = newID;
+			// user.id = l2data.login.ID = newID;
 		}
 
 		f.name_admin.value		= '';
@@ -439,13 +434,13 @@ function delUser( self ) {
 	const f = self.form;
 //	if( admin ) {
 		const uid = f.idSelect.value;
-		if( uid < 0 ) {
+		if ( uid < 0 ) {
 			alert( '유저를 선택해 주세요.' );
 			return;
 		}
 //		const uid = f.uid.value;
-		const user = l2data.allUsers[ uid ];
-		const userName = user.name || user.id || `* ${uid}`;
+		const u = l2data.allUsers[ uid ];
+		const userName = u.user.name || u.auth.Local || `* ${uid}`;
 		var msg = `${userName} 를 삭제하시겠습니까?`;
 //	} else {
 //		var msg = '탈퇴하시겠습니까?';
@@ -458,9 +453,8 @@ function delUser( self ) {
 }
 
 function submitUser( mode, input, cb ) {
-
-	fetchHelper( `/user/${mode}`, null, input, mode, data => {
-		if( data.code == 'OK' ) {
+	fetchHelper( `/user/${mode}`, null, input, mode, ( data ) => {
+		if ( data.code === 'OK' ) {
 			l2data.setData( data );
 			cb( data );
 		} else {
@@ -472,26 +466,25 @@ function submitUser( mode, input, cb ) {
 function onSelectUser( self ) {
 	const f = self.form;
 	const uid = self.value;
-	let user = l2data.allUsers[ uid ];
-	if( !user ) {
+	const u = l2data.allUsers[uid];
+	if ( !u ) {
 		disableAdminForm( f, true );
 		return;
 	}
 
-	const auth = user.auth;
-	user = user.user;
+	const { user, auth } = u;
 
 	disableAdminForm( f, false );
 	document.querySelector( '#uid_admin' ).innerHTML = uid;
-	document.querySelector( '#id_admin' ).innerHTML = auth.local;
+	document.querySelector( '#id_admin' ).innerHTML = auth.Local;
 	document.querySelector( '#name_admin' ).value = user.name;
 	document.querySelector( '#del_admin' ).checked = user.deleted ? true : false;
 	document.querySelector( '#enable_admin' ).checked = user.enabled ? true : false;
 }
 
 function changeUserPage( page ) {
-	elem.userList.forEach( o => {
-		if( o.className.substr( 1 ) === page ) {
+	elem.userList.forEach( ( o ) => {
+		if ( o.className.substr( 1 ) === page ) {
 			o.style.display = 'block';
 		} else {
 			o.style.display = 'none';
@@ -499,15 +492,15 @@ function changeUserPage( page ) {
 	} );
 }
 
-if( typeof showAdminMenu === 'undefined' ) {
-	var showAdminMenu = function () { };
+if ( typeof showAdminMenu === 'undefined' ) {
+	var showAdminMenu = ( function empty() { } );
 }
 
 function changeLoginData( loginType, loginName, loginID, loginUID ) {
 
 	// Type
 	l2data.login.type = loginType;
-	if( !loginType ) {
+	if ( !loginType ) {
 		elem.spanLogin.style.display	= 'inline-block';
 		elem.spanRegister.style.display = 'inline-block';
 		elem.spanMyInfo.style.display	= 'none';
@@ -521,7 +514,7 @@ function changeLoginData( loginType, loginName, loginID, loginUID ) {
 		elem.spanMyInfo.style.display	= 'inline-block';
 		elem.spanLogout.style.display	= 'inline-block';
 
-		if( loginType === 'admin' ) {
+		if ( loginType === 'admin' ) {
 			elem.spanAdmin.style.display= 'inline-block';
 			changeUserPage( 'Admin' );
 			showAdminMenu( true );
