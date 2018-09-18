@@ -40,17 +40,17 @@ function checkAuthAdmin( req, res ) {
 	}
 }
 
-router.post( '/facebook', function ( req, res ) {
-	if( checkAuthAdmin( req, res ) ) {
+router.post( '/', ( req, res ) => {
+	if ( checkAuthAdmin( req, res ) ) {
 		return;
 	}
-	admins.setFacebook( req.body, sendMsg => {
+	admins.setProvider( req.body, ( sendMsg ) => {
 		res.send( JSON.stringify( sendMsg ) );
 	} );
 } );
 
-router.get( '/list', function ( req, res ) {
-	if( checkAuthAdmin( req, res ) ) {
+router.get( '/list', ( req, res ) => {
+	if ( checkAuthAdmin( req, res ) ) {
 		return;
 	}
 	res.send( JSON.stringify( { code: 'OK', credentials: admins.credentials } ) );

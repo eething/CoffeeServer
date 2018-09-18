@@ -1,5 +1,5 @@
 
-const GoogleStrategy = require( 'passport-google-oauth' ).OAuthStrategy;
+const GoogleStrategy = require( 'passport-google-oauth' ).OAuth2Strategy;
 
 const admins = require( './admin' );
 const users = require( './user' );
@@ -14,10 +14,10 @@ module.exports = {
 	},
 
 	registerRouter( passport, router ) {
-		router.get( '/auth/google', passport.authenticate( 'google',
+		router.get( '/google', passport.authenticate( 'google',
 			{ scope: ['https://www.googleapis.com/auth/plus.login'] } ) );
 
-		router.get( '/auth/google/callback',
+		router.get( '/google/callback',
 			passport.authenticate( 'google',
 				( req, res ) => {
 

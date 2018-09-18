@@ -1,6 +1,7 @@
-﻿'use strict';
 
 const fs = require( 'fs' );
+
+const convertError	= require( '../lib/convert-error' );
 
 module.exports = {
 
@@ -8,79 +9,65 @@ module.exports = {
 		Facebook: {},
 		Google: {},
 		Kakao: {},
-		Twitter: {}
+		Twitter: {},
 	},
 
-	setFacebook( body, callback ) {
-		const fb = this.credentials.Facebook;
-		fb.clientID = body.clientID;
-		fb.clientSecret = body.clientSecret;
-		fb.callbackURL = body.callbackURL;
-		if( body.profileFields && body.profileFields.length > 0 ) {
-			//profileFields: ['id', 'displayName', 'photos', 'email']
-			fb.profileFields = body.profileFields;
+	setProvider( body, callback ) {
+		const { Provider } = body;
+		const prov = this.credentials[Provider];
+		prov.clientID		= body.clientID;
+		prov.clientSecret	= body.clientSecret;
+		prov.callbackURL	= body.callbackURL;
+		if ( body.profileFields && body.profileFields.length > 0 ) {
+			// profileFields: ['id', 'displayName', 'photos', 'email']
+			prov.profileFields = body.profileFields;
 		}
-		this.saveFacebook( callback );
+		this.saveProvider( Provider, callback );
+	},
+	setGoogle( body, callback ) {
+		const gg = this.credentials.Google;
+		gg.clientID = body.clientID;
+		gg.clientSecret = body.clientSecret;
+		gg.callbackURL = body.callbackURL;
+		if ( body.profileFields && body.profileFields.length > 0 ) {
+			// profileFields: ['id', 'displayName', 'photos', 'email']
+			gg.profileFields = body.profileFields;
+		}
+		this.saveGoogle( callback );
 	},
 
 	loadAdmins() {
-		this.loadFacebook();
-		this.loadGoogle();
-		this.loadKakao();
-		this.loadTwitter();
+		this.loadProvider( 'Facebook' );
+		this.loadProvider( 'Google' );
+		// this.loadProvider( 'Kakao' );
+		// this.loadProvider( 'Twitter' );
 	},
 
-	loadFacebook() {
+	loadProvider( Provider ) {
 		try {
-			const data = fs.readFileSync( 'data/admins/Facebook' );
-			this.credentials.Facebook = JSON.parse( data );
-		} catch( err ) {
-			if( err && err.code === 'ENOENT' ) {
-				this.credentials.Facebook = {};
+			const data = fs.readFileSync( `data/admins/${Provider}` );
+			this.credentials[Provider] = JSON.parse( data );
+		} catch ( err ) {
+			if ( err && err.code === 'ENOENT' ) {
+				this.credentials[Provider] = {};
 				return;
 			}
 			throw err;
 		}
 	},
 
-	loadGoogle() {
-
-	},
-
-	loadKakao() {
-
-	},
-
-	loadTwitter() {
-
-	},
-
-	saveFacebook( callback ) {
-		const facebookString = JSON.stringify( this.credentials.Facebook );
-		fs.writeFile( 'data/admins/Facebook', facebookString, err => {
-			if( err ) {
+	saveProvider( Provider, callback ) {
+		const provString = JSON.stringify( this.credentials[Provider] );
+		fs.writeFile( `data/admins/${Provider}`, provString, ( err ) => {
+			if ( err ) {
 				callback( {
 					code: 'EWRITE',
-					err: err,
-					msg: `facebookString=${facebookString}`
+					err: convertError( err ),
+					msg: `${Provider} provString=${provString}`,
 				} );
 			} else {
-				callback( {
-					code: 'OK'
-				} );
+				callback( { code: 'OK' } );
 			}
 		} );
 	},
-
-	saveGoogle() {
-
-	},
-
-	saveKakao() {
-
-	},
-
-	saveTwitter() {
-
-	}
 };
