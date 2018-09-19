@@ -598,7 +598,7 @@ module.exports = {
 		return `* ${user.uid}`;
 	},
 
-	checkFacebook( Provider, currentUser, newProviderID, callback ) {
+	checkProvider( Provider, currentUser, newProviderID, callback ) {
 		const allProviders = this._getProvider( Provider );
 		const newProv = allProviders[newProviderID]; // 44444
 		const oldProviderID = this.getAuthID( Provider, currentUser ); // 3.33333
@@ -644,8 +644,7 @@ module.exports = {
 	},
 
 	associateProvider( currentUser, body, callback ) {
-		const Provider = body.Provider;
-		const newProviderID = body.ProviderID;
+		const { Provider, newProviderID } = body;
 		const allProviders = this._getProvider( Provider );
 		const newProv = allProviders[newProviderID];
 
@@ -701,6 +700,7 @@ module.exports = {
 		this._writeProvider( Provider, providerID, ( sendMsg ) => {
 			if ( sendMsg.code !== 'OK' ) {
 				done( sendMsg.err, false );
+				return;
 			}
 			const allProviders = this._getProvider( Provider );
 			const { uid } = allProviders[providerID];

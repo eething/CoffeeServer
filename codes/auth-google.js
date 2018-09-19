@@ -45,7 +45,7 @@ module.exports = {
 					return;
 				}
 
-				users.checkFacebook( 'Google', req.user, info.providerID, ( sendMsg ) => {
+				users.checkProvider( 'Google', req.user, info.providerID, ( sendMsg ) => {
 					res.send( JSON.stringify( sendMsg ) );
 				} );
 			} )( req, res, next );
@@ -78,12 +78,11 @@ module.exports = {
 		},
 		( accessToken, refreshToken, profile, done ) => {
 			const providerID = profile.id;
-
-			const facebook = users.allGoogles[providerID];
-			if ( facebook ) {
-				facebook.accessToken = accessToken;
-				facebook.refreshToken = refreshToken;
-				facebook.profile = profile;
+			const google = users.allGoogles[providerID];
+			if ( google ) {
+				google.accessToken	= accessToken;
+				google.refreshToken	= refreshToken;
+				google.profile		= profile;
 				users.saveProvider( 'Google', providerID, done );
 			} else {
 				users.allGoogles[providerID] = {

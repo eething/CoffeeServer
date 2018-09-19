@@ -24,23 +24,12 @@ module.exports = {
 		}
 		this.saveProvider( Provider, callback );
 	},
-	setGoogle( body, callback ) {
-		const gg = this.credentials.Google;
-		gg.clientID = body.clientID;
-		gg.clientSecret = body.clientSecret;
-		gg.callbackURL = body.callbackURL;
-		if ( body.profileFields && body.profileFields.length > 0 ) {
-			// profileFields: ['id', 'displayName', 'photos', 'email']
-			gg.profileFields = body.profileFields;
-		}
-		this.saveGoogle( callback );
-	},
 
 	loadAdmins() {
 		this.loadProvider( 'Facebook' );
 		this.loadProvider( 'Google' );
-		// this.loadProvider( 'Kakao' );
-		// this.loadProvider( 'Twitter' );
+		this.loadProvider( 'Kakao' );
+		this.loadProvider( 'Twitter' );
 	},
 
 	loadProvider( Provider ) {

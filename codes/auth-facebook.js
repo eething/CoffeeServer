@@ -44,7 +44,7 @@ module.exports = {
 					return;
 				}
 
-				users.checkFacebook( 'Facebook', req.user, info.providerID, ( sendMsg ) => {
+				users.checkProvider( 'Facebook', req.user, info.providerID, ( sendMsg ) => {
 					res.send( JSON.stringify( sendMsg ) );
 				} );
 			} )( req, res, next );

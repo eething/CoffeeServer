@@ -28,6 +28,7 @@ module.exports = {
 	registerStrategy( passport ) {
 		//
 		passport.serializeUser( ( user, done ) => {
+console.log( 'SERIALIZE:' + user + user.uid );
 			done( null, user.uid );
 		} );
 
@@ -86,6 +87,8 @@ module.exports = {
 
 		req.login( user, ( error ) => {
 			if ( error ) {
+console.log( '>>>ELOGIN' );
+console.log( error );
 				sendMsg.code = 'ELOGIN';
 				sendMsg.err = convertError( error );
 				res.send( JSON.stringify( sendMsg ) );
@@ -99,10 +102,10 @@ module.exports = {
 					res.send( JSON.stringify( sendMsg ) );
 				} else {
 					const params = {
-						loginName: req.user.name,
-						loginUID: req.user.uid,
-						loginID: users.getAuthID( 'Local', req.user.uid ),
-						loginType: req.user.admin ? 'admin' : 'user',
+						loginName: user.name,
+						loginUID: user.uid,
+						loginID: users.getAuthID( 'Local', user.uid ),
+						loginType: user.admin ? 'admin' : 'user',
 					};
 					res.render( 'auth-ok', params );
 				}
