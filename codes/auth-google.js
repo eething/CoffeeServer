@@ -40,13 +40,14 @@ module.exports = {
 							res.send( JSON.stringify( sendMsg ) );
 							return;
 						}
-						authCommon.processLoginProvider( req, res, user );
+						authCommon.processLoginProvider( req, res, users.allUsers[sendMsg.uid] );
 					} );
 					return;
 				}
 
 				users.checkProvider( 'Google', req.user, info.providerID, ( sendMsg ) => {
-					res.send( JSON.stringify( sendMsg ) );
+					res.render( 'auth-ask', sendMsg );
+					// res.send( JSON.stringify( sendMsg ) );
 				} );
 			} )( req, res, next );
 		} );

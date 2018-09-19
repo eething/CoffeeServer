@@ -22,3 +22,58 @@ div.cUserMenu > span {
 	display: inline-block;
 	width: 33%
 }
+
+div.cLoginButton {
+	width: 200px;
+	height: 40px;
+	line-height: 40px;
+	margin: 0;
+	border: 0;
+	border-radius: 5px;
+	text-align: center;
+}
+
+div.cFacebook {
+	color: #FFF;
+	background-color: #4267B2;
+}
+
+div.cGoogle {
+	color: #FFF;
+	background-color: #db4437;
+}
+
+div.cKakao {
+	background-color: #FFEB00;
+}
+
+div.cTwitter {
+	color: #FFF;
+	background-color: #1da1f2;
+}
+
+div.cKakaoImage {
+	margin: 0;
+	width: 222px;
+	height: 49px;
+	background-image: url('/images/kakao_login.png');
+}
+	div.cKakaoImage:hover {
+		cursor: pointer;
+		background-image: url('/images/kakao_login_ov.png');
+	}
+
+div.cGoogleImage {
+	margin: 0;
+	width: 191px;
+	height: 46px;
+	background-image: url('/images/google_dark_normal.png');
+}
+	div.cGoogleImage:hover {
+		cursor: pointer;
+		background-image: url('/images/google_dark_focus.png');
+	}
+	div.cGoogleImage:active {
+		cursor: pointer;
+		background-image: url('/images/google_dark_pressed.png');
+	}

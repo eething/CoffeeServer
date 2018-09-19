@@ -28,10 +28,9 @@ module.exports = {
 	registerStrategy( passport ) {
 		//
 		passport.serializeUser( ( user, done ) => {
-console.log( 'SERIALIZE:' + user + user.uid );
 			done( null, user.uid );
 		} );
-
+		// TODO - desrialize 실패시 세션삭제, 에러페이지 보이기?
 		passport.deserializeUser( ( uid, done ) => {
 			const user = users.allUsers[uid];
 			let err = '';
@@ -71,7 +70,6 @@ console.log( 'SERIALIZE:' + user + user.uid );
 			}
 			req.session.save( ( err ) => {
 				if ( err ) {
-					// console.log( `ERROR: Login - Session Save, ${err}...` );
 					res.send( JSON.stringify( { code: 'ESS', err: convertError( err ) } ) );
 				} else {
 					this.onSuccessLogin( user, ( sendMsg ) => {
@@ -83,35 +81,24 @@ console.log( 'SERIALIZE:' + user + user.uid );
 	},
 
 	processLoginProvider( req, res, user ) {
-		const sendMsg = {};
-
 		req.login( user, ( error ) => {
 			if ( error ) {
-console.log( '>>>ELOGIN' );
-console.log( error );
-				sendMsg.code = 'ELOGIN';
-				sendMsg.err = convertError( error );
-				res.send( JSON.stringify( sendMsg ) );
+				res.send( JSON.stringify( { code: 'ELOGIN', err: convertError( error ) } ) );
 				return;
 			}
 			req.session.save( ( err ) => {
 				if ( err ) {
-					console.log( `ERROR: Login - Session Save, ${err}...` );
-					sendMsg.code = 'ESS';
-					sendMsg.err = convertError( err );
-					res.send( JSON.stringify( sendMsg ) );
-				} else {
-					const params = {
-						loginName: user.name,
-						loginUID: user.uid,
-						loginID: users.getAuthID( 'Local', user.uid ),
-						loginType: user.admin ? 'admin' : 'user',
-					};
-					res.render( 'auth-ok', params );
+					res.send( JSON.stringify( { code: 'ESS', err: convertError( err ) } ) );
+					return;
 				}
+				const params = {
+					loginName: user.name,
+					loginUID: user.uid,
+					loginID: users.getAuthID( 'Local', user.uid ),
+					loginType: user.admin ? 'admin' : 'user',
+				};
+				res.render( 'auth-ok', params );
 			} ); // save
 		} ); // login
 	},
-
-
 };

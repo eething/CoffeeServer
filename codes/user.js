@@ -1,19 +1,18 @@
-﻿'use strict';
-
+﻿
 const fs = require( 'fs' );
 const bcrypt = require( 'bcrypt' );
 const convertError = require( '../lib/convert-error' );
 
 const adam = {
-//	uid: 0,
+	// uid: 0,
 	name: '관리자',
-//	admin: true,
-//	deleted: false,
-//	enabled: false
+	// admin: true,
+	// deleted: false,
+	// enabled: false
 
 	// for local
 	id: 'admin',
-	password: '$2b$10$j4gB9lgzNoKvyEN5ZpV6SOkaGUKSrf8s0CvSQA4bq4ZLwBCrIUC8e' //qwer
+	password: '$2b$10$j4gB9lgzNoKvyEN5ZpV6SOkaGUKSrf8s0CvSQA4bq4ZLwBCrIUC8e', //qwer
 };
 Object.freeze( adam );
 
@@ -261,22 +260,6 @@ module.exports = {
 			}
 		} );
 	},
-	_writeFacebook( facebookID, callback ) {
-		const facebook = this.allFacebooks[ facebookID ];
-		const facebookString = JSON.stringify( facebook );
-		const filePath = `data/users/facebook/${facebookID}`;
-		fs.writeFile( filePath, facebookString, ( err ) => {
-			if( err ) {
-				callback( {
-					code: 'EWRITE',
-					err: convertError( err ),
-					msg: `facebookID=${facebookID}, facebookString=${facebookString}`
-				} );
-				return;
-			}
-			callback( { code: 'OK' } );
-		} );
-	},
 	_getProvider( Provider ) { // 첫 글자 대문자 !!!
 		// `all${provider.replace( /^\w/, c => c.toUpperCase() )}s`;
 		const providerKey = `all${Provider}s`;
@@ -296,7 +279,11 @@ module.exports = {
 				} );
 				return;
 			}
-			callback( { code: 'OK' } );
+			callback( {
+				code: 'OK',
+				uid: prov.uid,
+				providerID,
+			} );
 		} );
 	},
 
@@ -602,6 +589,27 @@ module.exports = {
 		const allProviders = this._getProvider( Provider );
 		const newProv = allProviders[newProviderID]; // 44444
 		const oldProviderID = this.getAuthID( Provider, currentUser ); // 3.33333
+
+		// New User
+		if ( newProv.uid === undefined ) {
+			this.setAuthID( Provider, currentUser, newProviderID ); // 3.33333 ~~> 44444
+			newProv.uid = currentUser.uid; // 44444.4 ~~> 3
+
+			this._writeProvider( Provider, newProviderID, ( sendMsg ) => {
+				if ( sendMsg.code !== 'OK' ) {
+					callback( sendMsg );
+					return;
+				}
+
+				if ( allProviders[oldProviderID] ) {
+					// sendMsg.facebookDeleted = true;
+					delete allProviders[oldProviderID]; // 33333.3 ~~> unlink
+					fs.unlink( `data/users/${Provider}/${oldProviderID}`, () => { } ); // 에러처리안함
+				}
+				callback( { code: 'OK', msg: 'New User' } );
+			} );
+			return;
+		}
 		if ( currentUser.uid === newProv.uid && oldProviderID === newProviderID ) {
 			callback( { code: 'OK', msg: 'Same User' } );
 			return;
@@ -616,11 +624,9 @@ module.exports = {
 		deleteAuth[askKey] = Math.random();
 		sendMsg.askValue = deleteAuth[askKey];
 		sendMsg.providerID = newProviderID;
-		// sendMsg.newProviderID = newProviderID;
 
-		// TODO - getDisplayName
 		const deleteUser = this.allUsers[deleteUID];
-		sendMsg.facebookName = newProv.profile.displayName;
+		sendMsg.providerName = newProv.profile.displayName;
 		sendMsg.currentName = this.getDisplayName( currentUser );
 		sendMsg.deleteName = this.getDisplayName( deleteUser );
 
@@ -670,8 +676,10 @@ module.exports = {
 			return;
 		}
 
-		const sendMsg = { code: 'YES' };
-
+		if ( this.authNoMoreExist( deleteAuth, Provider ) ) {
+			this.allUsers[deleteUID].deleted = true;
+			this._writeUser( deleteUID, () => { } ); // TODO - 귀찮아서 처리콜백 등록안함-_-;
+		}
 		delete deleteAuth[Provider]; // 4.44444 ~~> delete
 		// sendMsg.authDeleted = true;
 
@@ -681,18 +689,18 @@ module.exports = {
 		this.setAuthID( Provider, currentUser, newProviderID ); // 3.33333 ~~> 44444
 		newProv.uid = currentUser.uid; // 44444.4 ~~> 3
 
-		this._writeProvider( Provider, newProviderID, ( msg ) => {
-			if ( msg.code !== 'OK' ) {
-				callback( msg );
+		this._writeProvider( Provider, newProviderID, ( sendMsg ) => {
+			if ( sendMsg.code !== 'OK' ) {
+				callback( sendMsg );
 				return;
 			}
 
 			if ( allProviders[oldProviderID] ) {
 				// sendMsg.facebookDeleted = true;
 				delete allProviders[oldProviderID]; // 33333.3 ~~> unlink
-				fs.unlink( `data/users/${Provider}/${oldProviderID}`, () => { } ); //에러처리안함
+				fs.unlink( `data/users/${Provider}/${oldProviderID}`, () => { } ); // 에러처리안함
 			}
-			callback( sendMsg );
+			callback( { code: 'YES' } );
 		} );
 	},
 
@@ -705,8 +713,8 @@ module.exports = {
 			const allProviders = this._getProvider( Provider );
 			const { uid } = allProviders[providerID];
 			const user = this.allUsers[uid];
+
 			done( null, user, { providerID } );
-			// done( null, user, { providerID } );
 		} );
 	},
 

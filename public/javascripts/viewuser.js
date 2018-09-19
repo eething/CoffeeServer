@@ -108,7 +108,7 @@ function login( self ) {
 	const f = self.form;
 	const input = {
 		id: f.id.value,
-		password: f.password.value
+		password: f.password.value,
 	};
 	f.id.value = '';
 	f.password.value = '';

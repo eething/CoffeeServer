@@ -27,29 +27,17 @@
 							style="width:200px;"
 							onclick="login(this);")
 				tr
-					td FACEBOOK
-					td
-						input(type="button" value="페북로긴"
-							style="width:200px;"
-							onclick="loginProvider('Facebook')")
+					td(colspan="2" align="center")
+						div.cLoginButton.cFacebook(onclick="loginProvider('Facebook')") 빼북
 				tr
-					td GOOGLE
-					td
-						input(type="button" value="구글로긴"
-							style="width:200px;"
-							onclick="loginProvider('Google')")
+					td(colspan="2" align="center")
+						div.cGoogleImage(onclick="loginProvider('Google')") 
 				tr
-					td KAKAO
-					td
-						input(type="button" value="카카오로긴"
-							style="width:200px;"
-							onclick="loginProvider('Kakao')")
+					td(colspan="2" align="center")
+						div.cKakaoImage(onclick="loginProvider('Kakao')") 
 				tr
-					td TWITTER
-					td
-						input(type="button" value="트윗로긴"
-							style="width:200px;"
-							onclick="loginProvider('Twitter')")
+					td(colspan="2" align="center")
+						div.cLoginButton.cTwitter(onclick="loginProvider('Twitter')") 트잉여
 
 	form(onsubmit="return false;")
 		//input(type="hidden" name="uid")
@@ -59,30 +47,6 @@
 				colgroup
 					col(width="90")
 					col
-				tr
-					td FACEBOOK
-					td
-						input(type="button" value="페북로긴"
-							style="width:200px;"
-							onclick="loginProvider('Facebook')")
-				tr
-					td GOOGLE
-					td
-						input(type="button" value="구글로긴"
-							style="width:200px;"
-							onclick="loginProvider('Google')")
-				tr
-					td KAKAO
-					td
-						input(type="button" value="카카오로긴"
-							style="width:200px;"
-							onclick="loginProvider('Kakao')")
-				tr
-					td TWITTER
-					td
-						input(type="button" value="트윗로긴"
-							style="width:200px;"
-							onclick="loginProvider('Twitter')")
 				tr
 					td 이름
 					td
@@ -111,6 +75,18 @@
 						input(type="button" value="회원가입"
 						style="width:200px;"
 						onclick="addUser(this);")
+				tr
+					td(colspan="2" align="center")
+						div.cLoginButton.cFacebook(onclick="loginProvider('Facebook')") 빼북
+				tr
+					td(colspan="2" align="center")
+						div.cGoogleImage(onclick="loginProvider('Google')") 
+				tr
+					td(colspan="2" align="center")
+						div.cKakaoImage(onclick="loginProvider('Kakao')") 
+				tr
+					td(colspan="2" align="center")
+						div.cLoginButton.cTwitter(onclick="loginProvider('Twitter')") 트잉여
 
 		div.cMyInfo
 			table
@@ -143,33 +119,21 @@
 						input(type="button" value="수정"
 							style="width:200px;"
 						 	onclick="editUser(this);")
-				tr
-					td FACEBOOK
-					td
-						input#Facebook_edit(type="button" value="페북연동"
-							style="width:150px;"
-							onclick="loginProvider('Facebook');")
-				tr
-					td GOOGLE
-					td
-						input#Google_edit(type="button" value="구글연동"
-							style="width:150px;"
-							onclick="loginProvider('Google')")
-				tr
-					td KAKAO
-					td
-						input(type="button" value="카카오연동"
-							style="width:150px;"
-							onclick="loginProvider('Kakao')")
-				tr
-					td TWITTER
-					td
-						input(type="button" value="트윗연동"
-							style="width:150px;"
-							onclick="loginProvider('Twitter')")
 				//tr
 					td(colspan="2" align="center")
 						input(type="button" value="탈퇴" onclick="delUser(this);" style="width:200px;")
+				tr
+					td(colspan="2" align="center")
+						div.cLoginButton.cFacebook(onclick="loginProvider('Facebook')") 빼북
+				tr
+					td(colspan="2" align="center")
+						div.cGoogleImage(onclick="loginProvider('Google')") 
+				tr
+					td(colspan="2" align="center")
+						div.cKakaoImage(onclick="loginProvider('Kakao')") 
+				tr
+					td(colspan="2" align="center")
+						div.cLoginButton.cTwitter(onclick="loginProvider('Twitter')") 트잉여
 
 		div.cAdmin
 			table
@@ -221,11 +185,15 @@
 					td FACEBOOK
 					td 연동끊기
 				tr
-					td TWITTER
-					td 연동끊기
-				tr
 					td GOOGLE
 					td 연동끊기
+				tr
+					td KAKAO
+					td 연동끊기
+				tr
+					td TWITTER
+					td 연동끊기
+
 				tr
 					td(colspan="2" align="center")
 						form(action="/user/del")
