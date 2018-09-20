@@ -255,7 +255,7 @@ module.exports = {
 	_writeProvider( Provider, providerID, callback ) {
 		const allProviders = this._getProvider( Provider );
 		const prov = allProviders[providerID];
-		const provString = JSON.stringify( prov );
+		const provString = JSON.stringify( prov ); console.log( provString );
 		const filePath = `data/users/${Provider}/${providerID}`;
 		fs.writeFile( filePath, provString, ( err ) => {
 			if ( err ) {
@@ -549,14 +549,6 @@ module.exports = {
 
 		// New User
 		if ( newProv.uid === undefined ) {
-		// 여기 들어오면 안되는데?
-			callback( {
-				code: 'ENEW',
-				cuid: currentUser.uid,
-				newProviderID,
-				Provider,
-			} );
-			/*
 			this.setAuthID( Provider, currentUser, newProviderID ); // 3.33333 ~~> 44444
 			newProv.uid = currentUser.uid; // 44444.4 ~~> 3
 
@@ -573,7 +565,6 @@ module.exports = {
 				}
 				callback( { code: 'OK', msg: 'New User' } );
 			} );
-			*/
 			return;
 		}
 		if ( currentUser.uid === newProv.uid && oldProviderID === newProviderID ) {
@@ -708,6 +699,7 @@ module.exports = {
 			}
 			this.setAuthID( Provider, msg.uid, providerID );
 			prov.uid = msg.uid;
+console.log( prov );
 			this._writeProvider( Provider, providerID, callback );
 		} );
 	},
