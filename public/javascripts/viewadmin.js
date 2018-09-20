@@ -8,7 +8,7 @@ function initAdminElem() {
 	elem.selectConfigAdmin = document.querySelector( '#config_admin' );
 	checkAdminForm( elem.selectConfigAdmin );
 
-	fetchHelper( '/admin/list', null, null, 'adminList', l2admin.cbAdminList );
+	fetchHelper( '/admin/adminList', null, null, 'adminList', l2admin.cbAdminList );
 }
 
 const l2admin = {

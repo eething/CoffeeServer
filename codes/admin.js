@@ -55,7 +55,10 @@ module.exports = {
 					msg: `${Provider} provString=${provString}`,
 				} );
 			} else {
-				callback( { code: 'OK' } );
+				callback( {
+					code: 'OK',
+					credentials: this.credentials,
+				} );
 			}
 		} );
 	},

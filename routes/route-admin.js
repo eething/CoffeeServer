@@ -46,7 +46,7 @@ router.post( '/', ( req, res ) => {
 	} );
 } );
 
-router.get( '/list', ( req, res ) => {
+router.get( '/adminList', ( req, res ) => {
 	if ( checkAuthAdmin( req, res ) ) {
 		return;
 	}
