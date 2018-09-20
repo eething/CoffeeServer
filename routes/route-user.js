@@ -45,16 +45,12 @@ router.post( '/addUser', ( req, res ) => {
 		const user = users.allUsers[sendMsg.uid];
 		req.login( user, ( error ) => {
 			if ( error ) {
-				sendMsg.code = 'ELOGIN';
-				sendMsg.err = convertError( error );
-				res.send( JSON.stringify( sendMsg ) );
+				res.send( JSON.stringify( { code: 'ELOGIN', err: convertError( error ) } ) );
 				return;
 			}
 			req.session.save( ( err ) => {
 				if ( err ) {
-					sendMsg.code = 'ESS';
-					sendMsg.err = convertError( err );
-					res.send( JSON.stringify( sendMsg ) );
+					res.send( JSON.stringify( { code: 'ESS', err: convertError( err ) } ) );
 				} else {
 					sendMsg.allUsers = users.getUserList();
 					sendMsg.allBeverages = beverages.allBeverages;

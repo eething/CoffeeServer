@@ -4,7 +4,7 @@ const KakaoStrategy = require( 'passport-kakao' ).Strategy;
 const admins = require( './admin' );
 const users = require( './user' );
 const authCommon = require( './auth-common' );
-const convertError = require( '../lib/convert-error' );
+// const convertError = require( '../lib/convert-error' );
 
 
 module.exports = {
@@ -28,39 +28,7 @@ module.exports = {
 		*/
 		router.get( '/kakao/callback', ( req, res, next ) => {
 			passport.authenticate( 'kakao', ( err, user, info ) => {
-				if ( err ) {
-					res.send( JSON.stringify( {
-						code: 'EAUTH_F',
-						err: convertError( err ),
-					} ) );
-					return;
-				}
-
-				if ( !req.user ) {
-					if ( user ) {
-						authCommon.processLoginProvider( req, res, user );
-						return;
-					}
-					users.addProviderUser( 'Kakao', info.providerID, ( sendMsg ) => {
-						if ( sendMsg.code !== 'OK' ) {
-							res.send( JSON.stringify( sendMsg ) );
-							return;
-						}
-						authCommon.processLoginProvider( req, res, users.allUsers[sendMsg.uid] );
-					} );
-					return;
-				}
-
-				users.checkProvider( 'Kakao', req.user, info.providerID, ( sendMsg ) => {
-					if ( sendMsg.code === 'OK' ) {
-						const params = { isSameUser: true };
-						res.render( 'auth-ok', params );
-					} else if ( sendMsg.code === 'ASK' ) {
-						authCommon.processProviderAsk( res, sendMsg );
-					} else {
-						res.send( JSON.stringify( sendMsg ) );
-					}
-				} );
+				authCommon.processAuthenticate( req, res, 'Kakao', err, user, info );
 			} )( req, res, next );
 		} );
 
@@ -80,6 +48,7 @@ module.exports = {
 	},
 
 	registerStrategy( passport ) {
+		// TODO - registered
 		const kk = admins.credentials.Kakao;
 		if ( !kk.clientID || !kk.clientSecret || !kk.callbackURL ) {
 			return;
@@ -88,23 +57,6 @@ module.exports = {
 			clientID: kk.clientID,
 			clientSecret: kk.clientSecret,
 			callbackURL: kk.callbackURL,
-		},
-		( accessToken, refreshToken, profile, done ) => {
-			const providerID = profile.id.toString();
-			const kakao = users.allKakaos[providerID];
-			if ( kakao ) {
-				kakao.accessToken	= accessToken;
-				kakao.refreshToken	= refreshToken;
-				kakao.profile		= profile;
-				users.saveProvider( 'Kakao', providerID, done );
-			} else {
-				users.allKakaos[providerID] = {
-					accessToken,
-					refreshToken,
-					profile,
-				};
-				done( null, null, { providerID } );
-			}
-		} ) );
+		}, authCommon.makeStrategy( 'Kakao' ) ) );
 	},
 };

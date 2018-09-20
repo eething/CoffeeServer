@@ -3,7 +3,7 @@ const users			= require( './user' );
 const beverages		= require( './beverage' );
 const orders		= require( './order' );
 const convertError	= require( '../lib/convert-error' );
-const checkAuth = require( '../lib/check-auth' );
+const checkAuth		= require( '../lib/check-auth' );
 
 module.exports = {
 
@@ -76,6 +76,7 @@ module.exports = {
 		} );
 	},
 
+	// Local
 	processLogin( req, res, user ) {
 		req.login( user, ( error ) => {
 			if ( error ) {
@@ -116,6 +117,42 @@ module.exports = {
 		} ); // login
 	},
 
+	processAuthenticate( req, res, Provider, err, user, info ) {
+		if ( err ) {
+			res.send( JSON.stringify( {
+				code: 'EAUTH_F',
+				err: convertError( err ),
+			} ) );
+			return;
+		}
+
+		if ( !req.user ) {
+			if ( user ) {
+				this.processLoginProvider( req, res, user );
+				return;
+			}
+			users.addProviderUser( Provider, info.providerID, ( sendMsg ) => {
+				if ( sendMsg.code !== 'OK' ) {
+					res.send( JSON.stringify( sendMsg ) );
+					return;
+				}
+				this.processLoginProvider( req, res, users.allUsers[sendMsg.uid] );
+			} );
+			return;
+		}
+
+		users.checkProvider( Provider, req.user, info.providerID, ( sendMsg ) => {
+			if ( sendMsg.code === 'OK' ) {
+				const params = { isSameUser: true };
+				res.render( 'auth-ok', params );
+			} else if ( sendMsg.code === 'ASK' ) {
+				this.processProviderAsk( res, sendMsg );
+			} else {
+				res.send( JSON.stringify( sendMsg ) );
+			}
+		} );
+	},
+
 	processProviderAsk( res, sendMsg ) {
 		const params = {
 			Provider: sendMsg.Provider,
@@ -127,5 +164,26 @@ module.exports = {
 			askDelete: sendMsg.askDelete,
 		};
 		res.render( 'auth-ask', params );
+	},
+
+	makeStrategy( Provider ) {
+		return ( accessToken, refreshToken, profile, done ) => {
+			const providerID = profile.id.toString();
+			const allProviders = users._getProvider( Provider );
+			const prov = allProviders[providerID];
+			if ( prov ) {
+				prov.accessToken	= accessToken;
+				prov.refreshToken	= refreshToken;
+				prov.profile		= profile;
+				users.saveProvider( Provider, providerID, done );
+			} else {
+				allProviders[providerID] = {
+					accessToken,
+					refreshToken,
+					profile,
+				};
+				done( null, null, { providerID } );
+			}
+		};
 	},
 };

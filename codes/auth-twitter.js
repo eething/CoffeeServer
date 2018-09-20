@@ -4,7 +4,9 @@ const TwitterStrategy = require( 'passport-twitter' ).Strategy;
 const admins = require( './admin' );
 const users = require( './user' );
 const authCommon = require( './auth-common' );
-const convertError = require( '../lib/convert-error' );
+// const convertError = require( '../lib/convert-error' );
+
+
 
 module.exports = {
 
@@ -19,39 +21,7 @@ module.exports = {
 
 		router.get( '/twitter/callback', ( req, res, next ) => {
 			passport.authenticate( 'twitter', ( err, user, info ) => {
-				if ( err ) {
-					res.send( JSON.stringify( {
-						code: 'EAUTH_F',
-						err: convertError( err ),
-					} ) );
-					return;
-				}
-
-				if ( !req.user ) {
-					if ( user ) {
-						authCommon.processLoginProvider( req, res, user );
-						return;
-					}
-					users.addProviderUser( 'Twitter', info.providerID, ( sendMsg ) => {
-						if ( sendMsg.code !== 'OK' ) {
-							res.send( JSON.stringify( sendMsg ) );
-							return;
-						}
-						authCommon.processLoginProvider( req, res, users.allUsers[sendMsg.uid] );
-					} );
-					return;
-				}
-
-				users.checkProvider( 'Twitter', req.user, info.providerID, ( sendMsg ) => {
-					if ( sendMsg.code === 'OK' ) {
-						const params = { isSameUser: true };
-						res.render( 'auth-ok', params );
-					} else if ( sendMsg.code === 'ASK' ) {
-						authCommon.processProviderAsk( res, sendMsg );
-					} else {
-						res.send( JSON.stringify( sendMsg ) );
-					}
-				} );
+				authCommon.processAuthenticate( req, res, 'Twitter', err, user, info );
 			} )( req, res, next );
 		} );
 
@@ -71,6 +41,7 @@ module.exports = {
 	},
 
 	registerStrategy( passport ) {
+		// TODO - registered
 		const tt = admins.credentials.Twitter;
 		if ( !tt.clientID || !tt.clientSecret || !tt.callbackURL ) {
 			return;
@@ -79,23 +50,6 @@ module.exports = {
 			consumerKey: tt.clientID,
 			consumerSecret: tt.clientSecret,
 			callbackURL: tt.callbackURL,
-		},
-		( token, tokenSecret, profile, done ) => {
-			const providerID = profile.id.toString();
-			const twitter = users.allTwitters[providerID];
-			if ( twitter ) {
-				twitter.token		= token;
-				twitter.tokenSecret	= tokenSecret;
-				twitter.profile		= profile;
-				users.saveProvider( 'Twitter', providerID, done );
-			} else {
-				users.allTwitters[providerID] = {
-					token,
-					tokenSecret,
-					profile,
-				};
-				done( null, null, { providerID } );
-			}
-		} ) );
+		}, authCommon.makeStrategy( 'Twitter' ) ) );
 	},
 };

@@ -12,7 +12,7 @@ const adam = {
 
 	// for local
 	id: 'admin',
-	password: '$2b$10$j4gB9lgzNoKvyEN5ZpV6SOkaGUKSrf8s0CvSQA4bq4ZLwBCrIUC8e', //qwer
+	password: '$2b$10$j4gB9lgzNoKvyEN5ZpV6SOkaGUKSrf8s0CvSQA4bq4ZLwBCrIUC8e', // qwer
 };
 Object.freeze( adam );
 
@@ -54,10 +54,12 @@ allFacebooks = {
 module.exports = {
 
 	isLoaded: {
-		User:		false,
-		Local:		false,
-		Facebook:	false,
-		Google:		false,
+		User: false,
+		Local: false,
+		Facebook: false,
+		Google: false,
+		Kakao: false,
+		Twitter: false,
 	},
 	_maxUID: 0,
 	allUsers: {},
@@ -151,7 +153,7 @@ module.exports = {
 		let len;
 		const checkLen = () => {
 			if ( len === 0 ) {
-				this.isLoaded.Facebook = true;
+				this.isLoaded[Provider] = true;
 			}
 		};
 		fs.readdir( `data/users/${Provider}`, ( error, files ) => {
@@ -207,7 +209,7 @@ module.exports = {
 			return false;
 		}
 
-		if( !(uid >= 0) ) {
+		if ( !(uid >= 0) ) {
 			callback( {
 				code: 'EUID',
 				err: `Invalid uid=${uid}. It must be >= 0.`,
@@ -216,7 +218,7 @@ module.exports = {
 		}
 
 		const user = this.allUsers[uid];
-		if( !user ) {
+		if ( !user ) {
 			callback( {
 				code: 'ENOUSER',
 				err: `User Not Found, uid=${uid}.`,
@@ -237,29 +239,14 @@ module.exports = {
 				callback( {
 					code: 'EWRITE',
 					err: convertError( err ),
-					msg: `uid=${uid}, userString=${userString}`
+					msg: `uid=${uid}, userString=${userString}`,
 				} );
 			} else {
 				callback( { code: 'OK' } );
 			}
 		} );
 	},
-	_writeLocal( localID, callback ) {
-		const local = this.allLocals[ localID ];
-		const localString = JSON.stringify( local );
-		const filePath = `data/users/local/${localID}`;
-		fs.writeFile( filePath, localString, ( err ) => {
-			if( err ) {
-				callback( {
-					code: 'EWRITE',
-					err: convertError( err ),
-					msg: `localID=${localID}, localString=${localString}`
-				} );
-			} else {
-				callback( { code: 'OK' } );
-			}
-		} );
-	},
+
 	_getProvider( Provider ) { // 첫 글자 대문자 !!!
 		// `all${provider.replace( /^\w/, c => c.toUpperCase() )}s`;
 		const providerKey = `all${Provider}s`;
@@ -282,7 +269,7 @@ module.exports = {
 			callback( {
 				code: 'OK',
 				uid: prov.uid,
-				providerID,
+				/* 필요없는거 같은데? providerID, */
 			} );
 		} );
 	},
@@ -307,83 +294,57 @@ module.exports = {
 		this._addUser( body, callback );
 	},
 	_addUser( body, callback ) {
-
-		/*
-		let user = {};
-		let changePassword = false;
-		for( let key in body ) {
-			let value = body[ key ];
-
-			if( key === 'mode' || key === 'uid' ) {
-				continue;
-			} else if( key == 'password' ) {
-				if( value === '' ) {
-					callback( {
-						code: 'EPASSWORD',
-						err: 'Empty Password.'
-					} );
-					return;
-				}
-				changePassword = true;
-			}
-
-			user[ key ] = value;
-		}
-		*/
 		const uid = ++this._maxUID;
 		this.allUsers[uid] = {
 			uid,
 			name: body.name,
 		};
-		this.authTable[ uid ] = {};
+		this.authTable[uid] = {};
 
-		let local = { uid };
 		const localID = body.id;
 		if ( localID ) {
 			// id - password 는 둘다 있든지 둘다 없든지
-			if( !body.password ) {
+			if ( !body.password ) {
 				callback( {
 					code: 'EPASSWORD',
-					err: 'Password NOT Exists.'
+					err: 'Password NOT Exists.',
 				} );
 				return;
 			}
 
-			local.id = localID;
-			this.allLocals[ localID ] = local;
-			this.authTable[ uid ].local = localID;
+			this.allLocals[localID] = {
+				uid,
+				id: localID,
+			};
+			this.setAuthID( 'Local', uid, localID );
 		}
 
-		if ( !localID ) {
-			this._writeUser( uid, ( msg ) => {
-				msg.uid = uid;
+		this._writeUser( uid, ( msg ) => {
+			msg.uid = uid;
+			msg.name = this.allUsers[uid].name;
+			if ( !localID ) {
 				callback( msg );
-			} );
-		} else {
-			this._writeUser( uid, ( msg ) => {
-				bcrypt.hash( body.password, 10, ( err, hash ) => {
-					local.password = hash;
-					this._writeLocal( localID, ( sendMsg ) => {
+				return;
+			}
 
-						if ( sendMsg.code === 'OK' ) {
-							sendMsg.code = msg.code;
-							sendMsg.err = msg.err;
-						} else {
-							sendMsg.code2 = msg.code;
-							sendMsg.err2 = msg.err;
-						}
-						sendMsg.uid = uid;
-						sendMsg.id = localID;
-						sendMsg.name = this.allUsers[ uid ].name;
-						callback( sendMsg );
-					} );
+			msg.id = localID;
+			const local = this.allLocals[localID];
+			bcrypt.hash( body.password, 10, ( err, hash ) => {
+				local.password = hash;
+				this._writeProvider( 'Local', localID, ( msg2 ) => {
+					msg._writeProvider = msg2;
+					if ( msg.code === 'OK' ) {
+						msg.code = msg2.code;
+					} else if ( msg2.code !== 'OK' ) {
+						msg.code2 = msg2.code;
+					}
+					callback( msg );
 				} );
 			} );
-		}
+		} );
 	},
 
 	editUser( uid, body, callback ) {
-
 		const user = this._getUser( uid, callback );
 		if ( !user ) {
 			return;
@@ -410,7 +371,7 @@ module.exports = {
 
 		// let changePassword = false;
 		let tempPassword = '';
-		for ( let key in body ) {
+		for ( const key in body ) {
 			const value = body[key];
 
 			if ( key === 'mode' || key === 'uid' ) {
@@ -418,19 +379,19 @@ module.exports = {
 			} else if ( key === 'id' ) {
 				// localID 변경처리 추후에
 				continue;
-			} else if( key === 'password' ) {
+			} else if ( key === 'password' ) {
 				if ( value === '' ) {
 					continue;
 				}
 				//changePassword = true;
 				tempPassword = value;
 				continue;
-			} else if( key !== 'name' ) {
+			} else if ( key !== 'name' ) {
 				if ( uid == 0 ) {
 					continue;
 				}
 			}
-			user[ key ] = body[ key ];
+			user[key] = body[key];
 		}
 		/* localID 가 바뀌는 경우에 대한 처리는 추후에 다시...
 		if( newLocalID !== oldLocalID ) {
@@ -444,38 +405,36 @@ module.exports = {
 		}
 		*/
 
-		if ( !tempPassword ) {
-			this._writeUser( uid, callback );
-		} else {
+		this._writeUser( uid, ( msg ) => {
+			if ( !tempPassword ) {
+				callback( msg );
+				return;
+			}
+
 			// user가 고아가 되서 authTable에 없는 경우,
 			// admin 기능으로 password 를 추가해 줄 수 있음
-			this.authTable[uid] = this.authTable[uid] || {};
-			const auth = this.authTable[uid];
-			const localID = auth.local || body.id;
-			auth.local = localID;
+			const localID = this.getAuthID( 'Local', uid ) || body.id;
+			this.setAuthID( 'Local', uid, localID );
 			this.allLocals[localID] = this.allLocals[localID] || { uid };
+
 			const local = this.allLocals[localID];
-			this._writeUser( uid, ( msg ) => {
-				bcrypt.hash( tempPassword, 10, ( err, hash ) => {
-					local.password = hash;
-					this._writeLocal( localID, ( sendMsg ) => {
-						if ( sendMsg.code === 'OK' ) {
-							sendMsg.code = msg.code;
-							sendMsg.err = msg.err;
-						} else {
-							sendMsg.code2 = msg.code;
-							sendMsg.err2 = msg.err;
-						}
-						callback( sendMsg );
-					} );
+			bcrypt.hash( tempPassword, 10, ( err, hash ) => {
+				local.password = hash;
+				this._writeProvider( 'Local', localID, ( msg2 ) => {
+					msg._writeProvider = msg2;
+					if ( msg.code === 'OK' ) {
+						msg.code = msg2.code;
+					} else if ( msg2.code !== 'OK' ) {
+						msg.code2 = msg2.code;
+					}
+					callback( msg );
 				} );
 			} );
-		}
+		} );
 	},
 
 	// TODO - body 지울 것
 	deleteUser( uid, body, callback ) {
-
 		const user = this._getUser( uid, callback );
 		if ( !user ) {
 			return;
@@ -492,7 +451,6 @@ module.exports = {
 
 	// TODO - body 대신 uid
 	enableUser( body, callback ) {
-
 		const user = this._getUser( body.uid, callback );
 		if ( !user ) {
 			return;
@@ -504,7 +462,6 @@ module.exports = {
 	},
 	// TODO - body 대신 uid
 	disableUser( body, callback ) {
-
 		const user = this._getUser( body.uid, callback );
 		if ( !user ) {
 			return;
@@ -596,10 +553,10 @@ module.exports = {
 			callback( {
 				code: 'ENEW',
 				cuid: currentUser.uid,
-	 			newProviderID,
- 				Provider,
+				newProviderID,
+				Provider,
 			} );
-		/*
+			/*
 			this.setAuthID( Provider, currentUser, newProviderID ); // 3.33333 ~~> 44444
 			newProv.uid = currentUser.uid; // 44444.4 ~~> 3
 
@@ -616,7 +573,7 @@ module.exports = {
 				}
 				callback( { code: 'OK', msg: 'New User' } );
 			} );
-		*/
+			*/
 			return;
 		}
 		if ( currentUser.uid === newProv.uid && oldProviderID === newProviderID ) {
@@ -624,21 +581,23 @@ module.exports = {
 			return;
 		}
 
-		const sendMsg = { code: 'ASK', Provider };
-
 		const deleteUID = newProv.uid; // 44444.4
 		const deleteAuth = this.authTable[deleteUID]; // 4
 
 		const askKey = `ask${Provider}`;
 		deleteAuth[askKey] = Math.random().toString();
-		sendMsg.askValue = deleteAuth[askKey];
-		sendMsg.providerID = newProviderID;
 
 		const deleteUser = this.allUsers[deleteUID];
-		sendMsg.providerName = newProv.profile.displayName;
-		sendMsg.currentName = this.getDisplayName( currentUser );
-		sendMsg.deleteName = this.getDisplayName( deleteUser );
 
+		const sendMsg = {
+			code: 'ASK',
+			Provider,
+			askValue: deleteAuth[askKey],
+			providerID: newProviderID,
+			providerName: newProv.profile.displayName,
+			currentName: this.getDisplayName( currentUser ),
+			deleteName: this.getDisplayName( deleteUser ),
+		};
 		if ( this.authNoMoreExist( deleteAuth, Provider ) ) {
 			sendMsg.askDelete = true;
 		}
@@ -738,6 +697,7 @@ module.exports = {
 				code: `E${Provider.toUpperCase()}`,
 				err: `${Provider} ${providerID} not Exist`,
 			} );
+			return;
 		}
 
 		const body = { name: prov.profile.displayName };
@@ -746,6 +706,7 @@ module.exports = {
 				callback( msg );
 				return;
 			}
+			this.setAuthID( Provider, msg.uid, providerID );
 			prov.uid = msg.uid;
 			this._writeProvider( Provider, providerID, callback );
 		} );

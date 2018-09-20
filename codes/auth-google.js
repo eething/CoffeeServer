@@ -4,7 +4,7 @@ const GoogleStrategy = require( 'passport-google-oauth' ).OAuth2Strategy;
 const admins = require( './admin' );
 const users = require( './user' );
 const authCommon = require( './auth-common' );
-const convertError = require( '../lib/convert-error' );
+// const convertError = require( '../lib/convert-error' );
 
 
 
@@ -22,39 +22,7 @@ module.exports = {
 
 		router.get( '/google/callback', ( req, res, next ) => {
 			passport.authenticate( 'google', ( err, user, info ) => {
-				if ( err ) {
-					res.send( JSON.stringify( {
-						code: 'EAUTH_F',
-						err: convertError( err ),
-					} ) );
-					return;
-				}
-
-				if ( !req.user ) {
-					if ( user ) {
-						authCommon.processLoginProvider( req, res, user );
-						return;
-					}
-					users.addProviderUser( 'Google', info.providerID, ( sendMsg ) => {
-						if ( sendMsg.code !== 'OK' ) {
-							res.send( JSON.stringify( sendMsg ) );
-							return;
-						}
-						authCommon.processLoginProvider( req, res, users.allUsers[sendMsg.uid] );
-					} );
-					return;
-				}
-
-				users.checkProvider( 'Google', req.user, info.providerID, ( sendMsg ) => {
-					if ( sendMsg.code === 'OK' ) {
-						const params = { isSameUser: true };
-						res.render( 'auth-ok', params );
-					} else if ( sendMsg.code === 'ASK' ) {
-						authCommon.processProviderAsk( res, sendMsg );
-					} else {
-						res.send( JSON.stringify( sendMsg ) );
-					}
-				} );
+				authCommon.processAuthenticate( req, res, 'Google', err, user, info );
 			} )( req, res, next );
 		} );
 
@@ -74,6 +42,7 @@ module.exports = {
 	},
 
 	registerStrategy( passport ) {
+		// TODO - registered
 		const gg = admins.credentials.Google;
 		if ( !gg.clientID || !gg.clientSecret || !gg.callbackURL ) {
 			return;
@@ -82,23 +51,6 @@ module.exports = {
 			clientID: gg.clientID,
 			clientSecret: gg.clientSecret,
 			callbackURL: gg.callbackURL,
-		},
-		( accessToken, refreshToken, profile, done ) => {
-			const providerID = profile.id.toString();
-			const google = users.allGoogles[providerID];
-			if ( google ) {
-				google.accessToken	= accessToken;
-				google.refreshToken	= refreshToken;
-				google.profile		= profile;
-				users.saveProvider( 'Google', providerID, done );
-			} else {
-				users.allGoogles[providerID] = {
-					accessToken,
-					refreshToken,
-					profile,
-				};
-				done( null, null, { providerID } );
-			}
-		} ) );
+		}, authCommon.makeStrategy( 'Google' ) ) );
 	},
 };

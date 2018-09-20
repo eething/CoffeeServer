@@ -78,16 +78,19 @@ module.exports = {
 			const uid = local ? local.uid : -1;
 			const user = users.allUsers[uid];
 			if ( !user ) {
-				return done( null, false, { code: 'ENOUSER', message: 'Incorrect username.' } );
+				done( null, false, { code: 'ENOUSER', message: 'Incorrect username.' } );
+				return;
 			}
 			if ( user.deleted ) {
-				return done( null, false, { code: 'EDELETED', message: 'Deleted User. Ask admin.' } );
+				done( null, false, { code: 'EDELETED', message: 'Deleted User. Ask admin.' } );
+				return;
 			}
 			bcrypt.compare( pwd, local.password, ( err, result ) => {
 				if ( result ) {
-					return done( null, user, { code: 'OK' } );
+					done( null, user, { code: 'OK' } );
+					return;
 				}
-				return done( null, false, { code: 'EPASSWORD', message: 'Incorrect password.' } );
+				done( null, false, { code: 'EPASSWORD', message: 'Incorrect password.' } );
 			} );
 		} ) );
 	},
