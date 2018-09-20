@@ -17,7 +17,8 @@ module.exports = {
 
 	registerRouter( passport, router ) {
 		//
-		router.get( '/facebook', passport.authenticate( 'facebook' ) );
+		router.get( '/facebook', passport.authenticate( 'facebook' ),
+			{ scope: 'user_posts' } );
 
 		router.get( '/facebook/callback', ( req, res, next ) => {
 			passport.authenticate( 'facebook', ( err, user, info ) => {
