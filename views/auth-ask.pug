@@ -1,15 +1,43 @@
-﻿doctype html
+doctype html
 html
 	head
 		title AUTH ASK
 
 		script.
-				function initUser() {
-					initUserElem( '#{loginType}', '#{loginName}', '#{loginID}', '#{loginUID}' );
-					if( '#{loginType}' ) {
-						l2data.getUserList();
+			function doAsk() {
+				const Provider = '#{Provider}';
+				const providerName = '#{providerName}';
+				const currentName = '#{currentName}';
+				const deleteName = '#{deleteName}';
+				const providerID = '#{providerID}';
+				const askValue = '#{askValue}';
+				const askDelete = '#{askDelete}';
+
+				const msg = `${Provider} 계정 (${providerName})을\n` +
+							`${currentName} 계정에 연동하면\n` +
+							`${deleteName} 와의 연결이 끊어집니다.\n` +
+							`계속하시곘습니까 ?`;
+
+				let bYes = false;
+				if ( confirm( msg ) ) {
+					bYes = true;
+					if ( askDelete ) {
+						const msg2 = `${deleteName} 에 로그인 할 방법이 없어집니다.\n` +
+						`이 계정은 삭제됩니다.\n` +
+						`계속하시겠습니까?`;
+					bYes = confirm( msg2 );
 					}
 				}
 
-	body(onLoad="initUser();")
-		include user_part
+				const input = {
+					bYes,
+					Provider,
+					providerID,
+					askValue,
+				};
+
+				window.opener.providerCallbackAsk( input );
+				//window.close();
+			}
+
+	body(onload="doAsk();")

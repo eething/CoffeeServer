@@ -1,5 +1,5 @@
 // vieworder.js
-/* global fetchHelper removeChildAll l2data elem */
+/* global MyError fetchHelper removeChildAll l2data elem */
 /* eslint-env browser */
 
 l2data.view.user = true;
@@ -31,11 +31,11 @@ const l2user = {
 	duplicatedID: -1,
 
 	cbUserList() {
-		let select = document.querySelector( '#idSelect' );
+		const select = document.querySelector( '#idSelect' );
 		removeChildAll( select );
 
-		for( const uid in l2data.allUsers ) {
-			if( uid == 0 ) {
+		for ( const uid in l2data.allUsers ) {
+			if ( uid == 0 ) {
 				continue;
 			}
 			const u = l2data.allUsers[uid];
@@ -50,7 +50,7 @@ const l2user = {
 		}
 
 		onSelectUser( select );
-	}
+	},
 };
 
 function logout() {
@@ -63,39 +63,6 @@ function logout() {
 	} );
 }
 
-function processLoginAsk( d ) {
-	const msg = `${d.Provider} 계정 (${d.providerName})을
-${d.currentName} 계정에 연동하면
-${d.deleteName} 와의 연결이 끊어집니다.
-계속하시곘습니까 ?`;
-
-	let bYes = false;
-	if ( confirm( msg ) ) {
-		bYes = true;
-		if ( d.askDelete ) {
-			const msg2 = `${d.deleteName} 에 로그인 할 방법이 없어집니다.
-이 계정은 삭제됩니다.
-계속하시겠습니까?`;
-			bYes = confirm( msg2 );
-		}
-	}
-
-	const input = {
-		bYes,
-		Provider: d.Provider,
-		askValue: d.askValue,
-		providerID: d.providerID,
-	};
-	fetchHelper( '/auth/facebook/associate', null, input, 'FacebookAssociate', ( data ) => {
-		if ( data.code === 'YES' ) {
-			document.querySelector(  `#${Provider}_edit` ).style.backgroundColor = 'lightblue';
-		} else if ( data.code === 'NO' ) {
-			document.querySelector(  `#${Provider}_edit` ).style.backgroundColor = 'orange';
-		} else {
-			throw new MyError( 500, data );
-		}
-	} );
-}
 function processLoginOK( d ) {
 	l2data.setData( d );
 	changeLoginData( d.admin ? 'admin' : 'user', d.name, d.id, d.uid );
@@ -122,7 +89,11 @@ function login( self ) {
 	} );
 }
 
-window.providerCallback = ( loginType, loginName, loginID, loginUID ) => {
+function loginProvider( Provider ) {
+	window.open( `/auth/${Provider}` );
+}
+
+window.providerCallbackOK = ( loginType, loginName, loginID, loginUID ) => {
 	changeLoginData( loginType, loginName, loginID, loginUID );
 	if ( l2data.view.all ) {
 		changePage( 'Order' );
@@ -130,24 +101,20 @@ window.providerCallback = ( loginType, loginName, loginID, loginUID ) => {
 	l2data.getAllList();
 };
 
-function loginProvider( Provider ) {
-	window.open( `/auth/${Provider}` );
-	/*
-	const options = { mode: 'no-cors' };
-	fetchHelper( `/auth/${Provider}`, options, null, `Login${Provider}`, ( data ) => {
-		if ( data.code === 'OK' ) {
-			// TODO - 임시 표시...
-			processLoginOK( data );
-			document.querySelector( `#${Provider}_edit` ).style.backgroundColor = 'lightgreen';
-		} else if ( data.code === 'ASK' ) {
-			processLoginAsk( data );
+window.providerCallbackSame = () => {};
+
+window.providerCallbackAsk = ( input ) => {
+	const desc = `${input.Provider}Associate`;
+	fetchHelper( '/auth/associate', null, input, desc, ( data ) => {
+		if ( data.code === 'YES' ) {
+			console.log( 'YES' );
+		} else if ( data.code === 'NO' ) {
+			console.log( 'NO' );
 		} else {
 			throw new MyError( 500, data );
 		}
 	} );
-	*/
-}
-
+};
 
 function checkDuplicatedID( self ) {
 	const f = self.form;

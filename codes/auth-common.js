@@ -23,6 +23,20 @@ module.exports = {
 				res.send( JSON.stringify( sendMsg ) );
 			} );
 		} );
+
+		router.post( '/associate', ( req, res ) => {
+			if ( !req.user ) {
+				res.send( JSON.stringify( {
+					code: 'EAUTH',
+					err: 'You must login.',
+				} ) );
+				return;
+			}
+
+			users.associateProvider( req.user, req.body, ( sendMsg ) => {
+				res.send( JSON.stringify( sendMsg ) );
+			} );
+		} );
 	},
 
 	registerStrategy( passport ) {
@@ -100,5 +114,18 @@ module.exports = {
 				res.render( 'auth-ok', params );
 			} ); // save
 		} ); // login
+	},
+
+	processProviderAsk( res, sendMsg ) {
+		const params = {
+			Provider: sendMsg.Provider,
+			providerName: sendMsg.providerName,
+			currentName: sendMsg.currentName,
+			deleteName: sendMsg.deleteName,
+			providerID: sendMsg.providerID,
+			askValue: sendMsg.askValue,
+			askDelete: sendMsg.askDelete,
+		};
+		res.render( 'auth-ask', params );
 	},
 };

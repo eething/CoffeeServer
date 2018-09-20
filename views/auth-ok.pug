@@ -4,7 +4,14 @@ html
 		title AUTH OK
 
 		script.
-			window.opener.providerCallback( '#{loginType}', '#{loginName}', '#{loginID}', '#{loginUID}' );
-			window.close();
+			function doOK() {
+				if( `#{isSameUser}` ) {
+					window.opener.providerCallbackSame();
+				}
+				else {
+					window.opener.providerCallbackOK( '#{loginType}', '#{loginName}', '#{loginID}', '#{loginUID}' );
+				}
+				window.close();
+			}
 
-	body
+	body(onload="doOK();")

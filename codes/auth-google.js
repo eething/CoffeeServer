@@ -46,8 +46,14 @@ module.exports = {
 				}
 
 				users.checkProvider( 'Google', req.user, info.providerID, ( sendMsg ) => {
-					res.render( 'auth-ask', sendMsg );
-					// res.send( JSON.stringify( sendMsg ) );
+					if ( sendMsg.code === 'OK' ) {
+						const params = { isSameUser: true };
+						res.render( 'auth-ok', params );
+					} else if ( sendMsg.code === 'ASK' ) {
+						authCommon.processProviderAsk( res, sendMsg );
+					} else {
+						res.send( JSON.stringify( sendMsg ) );
+					}
 				} );
 			} )( req, res, next );
 		} );
@@ -78,7 +84,7 @@ module.exports = {
 			callbackURL: gg.callbackURL,
 		},
 		( accessToken, refreshToken, profile, done ) => {
-			const providerID = profile.id;
+			const providerID = profile.id.toString();
 			const google = users.allGoogles[providerID];
 			if ( google ) {
 				google.accessToken	= accessToken;

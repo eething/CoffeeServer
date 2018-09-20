@@ -93,6 +93,8 @@ function changeAdminConfig( self ) {
 	switch ( config ) {
 	case 'Facebook':
 	case 'Google':
+	case 'Kakao':
+	case 'Twitter':
 		input.Provider		= config;
 		input.clientID		= f.clientID.value;
 		input.clientSecret	= f.clientSecret.value;
@@ -100,10 +102,6 @@ function changeAdminConfig( self ) {
 		// input.profileFields = f.profileFields.values;
 		break;
 
-	case 'Kakao':
-		return;
-	case 'Twitter':
-		return;
 	default:
 		return;
 	}

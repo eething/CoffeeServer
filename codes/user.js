@@ -592,6 +592,14 @@ module.exports = {
 
 		// New User
 		if ( newProv.uid === undefined ) {
+		// 여기 들어오면 안되는데?
+			callback( {
+				code: 'ENEW',
+				cuid: currentUser.uid,
+	 			newProviderID,
+ 				Provider,
+			} );
+		/*
 			this.setAuthID( Provider, currentUser, newProviderID ); // 3.33333 ~~> 44444
 			newProv.uid = currentUser.uid; // 44444.4 ~~> 3
 
@@ -608,6 +616,7 @@ module.exports = {
 				}
 				callback( { code: 'OK', msg: 'New User' } );
 			} );
+		*/
 			return;
 		}
 		if ( currentUser.uid === newProv.uid && oldProviderID === newProviderID ) {
@@ -615,13 +624,13 @@ module.exports = {
 			return;
 		}
 
-		const sendMsg = { code: 'ASK' };
+		const sendMsg = { code: 'ASK', Provider };
 
 		const deleteUID = newProv.uid; // 44444.4
 		const deleteAuth = this.authTable[deleteUID]; // 4
 
 		const askKey = `ask${Provider}`;
-		deleteAuth[askKey] = Math.random();
+		deleteAuth[askKey] = Math.random().toString();
 		sendMsg.askValue = deleteAuth[askKey];
 		sendMsg.providerID = newProviderID;
 
@@ -650,14 +659,14 @@ module.exports = {
 	},
 
 	associateProvider( currentUser, body, callback ) {
-		const { Provider, newProviderID } = body;
+		const { Provider, providerID, askValue } = body;
 		const allProviders = this._getProvider( Provider );
-		const newProv = allProviders[newProviderID];
+		const newProv = allProviders[providerID];
 
 		const deleteUID = newProv.uid;
 		const deleteAuth = this.authTable[deleteUID]; // 4
 		const askKey = `ask${Provider}`;
-		const askValue = deleteAuth[askKey];
+		const deleteAskValue = deleteAuth[askKey];
 		delete deleteAuth[askKey];
 
 		if ( !body.bYes ) {
@@ -668,10 +677,12 @@ module.exports = {
 			return;
 		}
 
-		if ( !body.askValue || body.askValue !== askValue ) {
+		if ( !askValue || askValue !== deleteAskValue ) {
 			callback( {
 				code: 'EASKKEY',
 				err: `${askKey} is not valid`,
+				deleteAskValue,
+				askValue,
 			} );
 			return;
 		}
@@ -686,10 +697,10 @@ module.exports = {
 		const oldProviderID = this.getAuthID( Provider, currentUser ); // 3.33333
 		// sendMsg.oldFacebookID = oldFacebookID;
 
-		this.setAuthID( Provider, currentUser, newProviderID ); // 3.33333 ~~> 44444
+		this.setAuthID( Provider, currentUser, providerID ); // 3.33333 ~~> 44444
 		newProv.uid = currentUser.uid; // 44444.4 ~~> 3
 
-		this._writeProvider( Provider, newProviderID, ( sendMsg ) => {
+		this._writeProvider( Provider, providerID, ( sendMsg ) => {
 			if ( sendMsg.code !== 'OK' ) {
 				callback( sendMsg );
 				return;

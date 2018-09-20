@@ -45,8 +45,14 @@ module.exports = {
 				}
 
 				users.checkProvider( 'Facebook', req.user, info.providerID, ( sendMsg ) => {
-					res.render( 'auth-ask', sendMsg );
-					// res.send( JSON.stringify( sendMsg ) );
+					if ( sendMsg.code === 'OK' ) {
+						const params = { isSameUser: true };
+						res.render( 'auth-ok', params );
+					} else if ( sendMsg.code === 'ASK' ) {
+						authCommon.processProviderAsk( res, sendMsg );
+					} else {
+						res.send( JSON.stringify( sendMsg ) );
+					}
 				} );
 			} )( req, res, next );
 		} );
@@ -78,8 +84,7 @@ module.exports = {
 			profileURL: 'https://graph.facebook.com/me?locale=ko_KR',
 		},
 		( accessToken, refreshToken, profile, done ) => {
-			const providerID = profile.id;
-
+			const providerID = profile.id.toString();
 			const facebook = users.allFacebooks[providerID];
 			if ( facebook ) {
 				facebook.accessToken = accessToken;
