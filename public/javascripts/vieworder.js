@@ -199,8 +199,8 @@ function addOrder( self ) {
 		return;
 	}
 
-	if ( elem.divIce.style.display && elem.divHot.style.display &&
-		!elem.radioIce.checked && !elem.radioHot.checked ) {
+	if ( ( elem.divIce.style.display === 'block' || elem.divHot.style.display === 'block' )
+		&& !elem.radioIce.checked && !elem.radioHot.checked ) {
 		alert( '아이스 / 따뜻 골라주세요.' );
 		return;
 	}
