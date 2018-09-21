@@ -129,7 +129,7 @@ function onSelectConfig( self ) {
 	default:
 		break;
 	}
-	checkAdminForm( self );
+	checkAdminForm2( self );
 }
 
 function onSelectProvider( Provider, f ) {

@@ -454,7 +454,7 @@ function onSelectUser( self ) {
 
 	disableAdminForm( f, false );
 	document.querySelector( '#uid_admin' ).innerHTML = uid;
-	document.querySelector( '#id_admin' ).innerHTML = auth.Local;
+	document.querySelector( '#id_admin' ).innerHTML = auth ? auth.Local : '';
 	document.querySelector( '#name_admin' ).value = user.name;
 	document.querySelector( '#del_admin' ).checked = user.deleted ? true : false;
 	document.querySelector( '#enable_admin' ).checked = user.enabled ? true : false;
