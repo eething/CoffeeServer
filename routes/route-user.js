@@ -163,4 +163,13 @@ router.post( '/disableUser', ( req, res ) => {
 	} );
 } );
 
+router.get( '/test', ( req, res ) => {
+	const loadedStr = JSON.stringify( users.isLoaded );
+	if ( Object.values( users.isLoaded ).includes( false ) ) {
+		res.send( `false: ${loadedStr}` );
+	} else {
+		res.send( `true: ${loadedStr}` );
+	}
+} );
+
 module.exports = router;
