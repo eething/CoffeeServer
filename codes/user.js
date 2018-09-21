@@ -200,16 +200,22 @@ module.exports = {
 	},
 
 	_getUser( uid, callback ) {
-		if ( Object.values( this.isLoaded ).includes( false ) ) {
-			callback( {
-				code: 'ELOAD',
-				err: 'User Not Loaded',
-				isLoaded: this.isLoaded,
-			} );
-			return false;
+		// Azure 에서 작동 안함..
+		// undefined, Object.values is not a function...
+		// nodejs 버전 문제인지? 8.11.1 인데? 일단 급한 불을 끄자...
+		// if ( Object.values( this.isLoaded ).includes( false ) ) {
+		for ( const k in this.isLoaded ) {
+			if ( !this.isLoaded[k] ) {
+				callback( {
+					code: 'ELOAD',
+					err: 'User Not Loaded',
+					isLoaded: this.isLoaded,
+				} );
+				return false;
+			}
 		}
 
-		if ( !(uid >= 0) ) {
+		if ( !( uid >= 0 ) ) {
 			callback( {
 				code: 'EUID',
 				err: `Invalid uid=${uid}. It must be >= 0.`,
