@@ -105,7 +105,7 @@ l2order = {
 		const tr = addElement( elem.tableOrderB, 'tr', 'cOrderItem' );
 
 		const tdBeverage = addElement( tr, 'td', 'cBeverage', k );
-		const size = Math.min( Math.max( 23 - k.length * 2, 11 ), 15 );
+		let size = Math.min( Math.max( 23 - k.length * 2, 11 ), 15 );
 		tdBeverage.style.fontSize = size + 'px';
 
 		const option = JSON.parse( v.options );
