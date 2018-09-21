@@ -6,7 +6,7 @@ l2data.view.admin = true;
 
 function initAdminElem() {
 	elem.selectConfigAdmin = document.querySelector( '#config_admin' );
-	checkAdminForm( elem.selectConfigAdmin );
+	checkAdminForm2( elem.selectConfigAdmin );
 
 	fetchHelper( '/admin/adminList', null, null, 'adminList', l2admin.cbAdminList );
 }
@@ -81,7 +81,7 @@ function checkAdminForm2( self, getMsg ) {
 }
 
 function changeAdminConfig( self ) {
-	const msg = checkAdminForm( self, true );
+	const msg = checkAdminForm2( self, true );
 	if ( msg ) {
 		alert( msg );
 		return;

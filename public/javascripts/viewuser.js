@@ -317,8 +317,6 @@ function disableAdminForm( f, b ) {
 }
 
 function checkAdminForm( self, getMsg ) {
-	return;
-
 	const f = self.form;
 	const fName = f.name_admin;
 	const fPassword1 = f.password1_admin;
