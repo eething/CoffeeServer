@@ -504,7 +504,7 @@ module.exports = {
 			const user = this.allUsers[uid];
 			const auth = this.authTable[uid];
 			temp[uid].user = user;
-			temp[uid].auth = auth;
+			temp[uid].auth = auth || {};
 		} );
 		return temp;
 	},
