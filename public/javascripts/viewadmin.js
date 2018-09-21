@@ -34,7 +34,7 @@ const l2admin = {
 	},
 };
 
-function checkAdminForm( self, getMsg ) {
+function checkAdminForm2( self, getMsg ) {
 	const f = self.form;
 	f.clientID.value		= f.clientID.value.trim();
 	f.clientSecret.value	= f.clientSecret.value.trim();
