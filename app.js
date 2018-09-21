@@ -69,6 +69,11 @@ app.use( '/order',		routeOrder );
 app.use( '/user',		routeUser );
 app.use( '/admin',		routeAdmin );
 
+app.get( '/env', ( req, res ) => {
+	const env = app.get( 'env' );
+	const port = process.env.PORT;
+	res.send( `env: ${env}<BR>port: ${port}` );
+} );
 
 // catch 404 and forward to error handler
 app.use( ( req, res, next ) => {
