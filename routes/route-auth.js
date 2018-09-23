@@ -1,17 +1,18 @@
-﻿'use strict';
-var express = require( 'express' );
-var router = express.Router();
+﻿
+const express = require( 'express' );
 
-router.get( '/', function (req, res) {
-    res.send( 'AUTH' );
+const router = express.Router();
+
+router.get( '/', ( req, res ) => {
+	res.send( 'AUTH' );
 } );
 
-router.get( '/login', function (req, res) {
-    res.send( 'ID: *** <br>PASSWORD: ***<br>' );
+router.get( '/login', ( req, res ) => {
+	res.send( 'ID: *** <br>PASSWORD: ***<br>' );
 } );
 
-router.get( '/logout', function (req, res) {
-    res.send( 'Logout... Redirect to ...' );
+router.get( '/logout', ( req, res ) => {
+	res.send( 'Logout... Redirect to ...' );
 } );
 
 module.exports = router;

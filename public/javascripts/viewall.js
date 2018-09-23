@@ -1,11 +1,14 @@
 ﻿// viewall.js
+/* eslint-env browser */
+/* global l2data l2user l2beverage l2order elem */
+/* eslint no-unused-vars: ["error", { "varsIgnorePattern": "^(?:on|init)" }] */
 
 l2data.view.all = true;
 
-l2all = {
+const l2all = {
 
 	cbAllList( data ) {
-		if( data.code === 'EAUTH' ) {
+		if ( data.code === 'EAUTH' ) {
 			changePage( 'User' );
 		}
 	},
@@ -22,41 +25,41 @@ l2all = {
 
 	cbOrderList() {
 		l2order.cbOrderList();
-	}
+	},
 };
 
-function initAllElem( loginType ) {
-	elem.divOuterOrder		= document.querySelector( 'div#outerOrder' );
-	elem.divOuterUser		= document.querySelector( 'div#outerUser' );
-	elem.divOuterBeverage	= document.querySelector( 'div#outerBeverage' );
-	elem.divOuterAdmin		= document.querySelector( 'div#outerAdmin' );
-
-	elem.outerList = [
-		elem.divOuterOrder,
-		elem.divOuterUser,
-		elem.divOuterBeverage,
-		elem.divOuterAdmin
-	];
-
-	if( loginType !== 'admin' ) {
-		showAdminMenu( false );
-	}
-	changePage( 'Order' );
-}
-
 function showAdminMenu( bShow ) {
-	if( !elem.divMenuAdmin ) {
+	if ( !elem.divMenuAdmin ) {
 		elem.divMenuAdmin = document.querySelector( '#menu_admin' );
 	}
 	elem.divMenuAdmin.style.display = bShow ? 'inline-block' : 'none';
 }
 
 function changePage( page ) {
-	elem.outerList.forEach( o => {
-		if( o.id.substr( 5 ) === page ) {
+	elem.outerList.forEach( ( o )=> {
+		if ( o.id.substr( 5 ) === page ) {
 			o.style.display = 'block';
 		} else {
 			o.style.display = 'none';
 		}
 	} );
+}
+
+function initAllElem( loginType ) {
+	elem.divOuterOrder = document.querySelector( 'div#outerOrder' );
+	elem.divOuterUser = document.querySelector( 'div#outerUser' );
+	elem.divOuterBeverage = document.querySelector( 'div#outerBeverage' );
+	elem.divOuterAdmin = document.querySelector( 'div#outerAdmin' );
+
+	elem.outerList = [
+		elem.divOuterOrder,
+		elem.divOuterUser,
+		elem.divOuterBeverage,
+		elem.divOuterAdmin,
+	];
+
+	if ( loginType !== 'admin' ) {
+		showAdminMenu( false );
+	}
+	changePage( 'Order' );
 }

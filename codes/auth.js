@@ -25,12 +25,12 @@ module.exports = function auth( app ) {
 	app.use( passport.initialize() );
 	app.use( passport.session() );
 
-	authCommon		.register( passport, router );
-	authLocal		.register( passport, router );
-	authFacebook	.register( passport, router );
-	authGoogle		.register( passport, router );
-	authKakao		.register( passport, router );
-	authTwitter		.register( passport, router );
+	authCommon.register( passport, router );
+	authLocal.register( passport, router );
+	authFacebook.register( passport, router );
+	authGoogle.register( passport, router );
+	authKakao.register( passport, router );
+	authTwitter.register( passport, router );
 
 	return router;
 };

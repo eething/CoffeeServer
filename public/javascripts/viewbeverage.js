@@ -1,45 +1,47 @@
 ﻿// viewbeverage.js
+/* eslint-env browser */
+/* global MyError fetchHelper addElement removeChildAll l2data */
+/* eslint no-unused-vars: ["error", { "varsIgnorePattern": "^(?:on|init)" }] */
 
 l2data.view.beverage = true;
 
-l2beverage = {
+const l2beverage = {
 	cbBeverageList() {
-
 		const select = document.querySelector( '#beverageSelect2' );
 		removeChildAll( select );
 
-		for ( const bKey in l2data.allBeverages ) {
-			let beverage = l2data.allBeverages[bKey];
-			let option = document.createElement( 'option' );
+		Object.keys( l2data.allBeverages ).forEach( ( bKey ) => {
+			const beverage = l2data.allBeverages[bKey];
+			const option = document.createElement( 'option' );
 			option.text = `${beverage.name}`;
 			option.value = `${beverage.name}`;
 			select.appendChild( option );
-		}
-	}
+		} );
+	},
 };
 
 function addBeverage( self ) {
 	const f = self.form;
-	if( f.name.value == '' ) {
+	if ( f.name.value === '' ) {
 		alert( '음료명을 입력해주세요' );
 		return;
 	}
 
 	const input = {
-		name: f.name.value
+		name: f.name.value,
 	};
-	if( f.iceable.checked ) {
+	if ( f.iceable.checked ) {
 		input.iceable = true;
 	}
-	if( f.hotable.checked ) {
+	if ( f.hotable.checked ) {
 		input.hotable = true;
 	}
-	if( f.syrupable.checked ) {
+	if ( f.syrupable.checked ) {
 		input.syrupable = true;
 	}
 
-	fetchHelper( '/beverage/add', null, input, 'addBeverage', data => {
-		if( data.code === 'OK' ) {
+	fetchHelper( '/beverage/add', null, input, 'addBeverage', ( data ) => {
+		if ( data.code === 'OK' ) {
 			l2data.setData( data );
 		} else {
 			throw new MyError( 500, data );
@@ -47,23 +49,23 @@ function addBeverage( self ) {
 	} );
 }
 
-function delBeverage( self ) {
+function delBeverage( /* self */ ) {
 	const input = {};
-	var chkon = false;
-	var delchks = document.querySelectorAll( 'input.delchk' );
-	for ( var delchk of delchks ) {
-		if( delchk.checked ) {
+	let chkon = false;
+	const delchks = document.querySelectorAll( 'input.delchk' );
+	delchks.forEach( ( delchk ) => {
+		if ( delchk.checked ) {
 			chkon = true;
-			input[ delchk.name ] = 1;
+			input[delchk.name] = 1;
 		}
-	}
-	if( !chkon ) {
+	} );
+	if ( !chkon ) {
 		alert( '삭제할 음료를 선택해주세요' );
 		return;
 	}
 	removeChildAll( document.querySelector( 'div.cDeleteList' ) );
-	fetchHelper( '/beverage/del', null, input, 'delBeverage', data => {
-		if( data.code == 'OK' ) {
+	fetchHelper( '/beverage/del', null, input, 'delBeverage', ( data ) => {
+		if ( data.code === 'OK' ) {
 			l2data.setData( data );
 		} else {
 			throw new MyError( 500, data );
@@ -71,29 +73,28 @@ function delBeverage( self ) {
 	} );
 }
 
-function addDelete( self ) {
-	let divDeleteList = document.querySelector( 'div.cDeleteList' );
-	let value = document.querySelector( '#delBeverage ' ).value;
-	if( !value ) {
-		value = document.querySelector( '#beverageSelect2' ).value;
+function addDelete( /* self */ ) {
+	const divDeleteList = document.querySelector( 'div.cDeleteList' );
+	let { value } = document.querySelector( '#delBeverage ' );
+	if ( !value ) {
+		( { value } = document.querySelector( '#beverageSelect2' ) );
 	}
-	if( !value || !l2data.allBeverages[value] ) {
+	if ( !value || !l2data.allBeverages[value] ) {
 		return;
 	}
 
-	let delchks = document.querySelectorAll( '.delchk' );
-	for( let d of delchks ) {
-		if( d.id === value ) {
-			return;
-		}
+	const delchks = document.querySelectorAll( '.delchk' );
+	if ( delchks.some( d => d.id === value ) ) {
+		return;
 	}
 
-	let p = addElement( divDeleteList, 'p', '' );
-	let input = addElement( p, 'input', 'delchk' );
+	const p = addElement( divDeleteList, 'p', '' );
+	const input = addElement( p, 'input', 'delchk' );
 	input.type = 'checkbox';
-	input.id = input.name = value;
+	input.id = value;
+	input.name = value;
 	input.checked = true;
 
-	let label = addElement( p, 'label', '', value );
+	const label = addElement( p, 'label', '', value );
 	label.setAttribute( 'for', value );
 }
