@@ -2,6 +2,7 @@
 const fs = require( 'fs' );
 
 const convertError	= require( '../lib/convert-error' );
+const checkLoaded = require( '../lib/check-loaded' );
 
 module.exports = {
 
@@ -25,24 +26,30 @@ module.exports = {
 		this.saveProvider( Provider, callback );
 	},
 
-	loadAdmins() {
-		this.loadProvider( 'Facebook' );
-		this.loadProvider( 'Google' );
-		this.loadProvider( 'Kakao' );
-		this.loadProvider( 'Twitter' );
+	loadAdmins( callback ) {
+		const checker = checkLoaded( 4, () => {
+			console.log( 'Admin Loaded...' );
+			callback();
+		} );
+
+		fs.mkdir( 'data/admins', () => {
+			this.loadProvider( 'Facebook',	checker );
+			this.loadProvider( 'Google',	checker );
+			this.loadProvider( 'Kakao',		checker );
+			this.loadProvider( 'Twitter',	checker );
+		} );
 	},
 
-	loadProvider( Provider ) {
-		try {
-			const data = fs.readFileSync( `data/admins/${Provider}` );
-			this.credentials[Provider] = JSON.parse( data );
-		} catch ( err ) {
-			if ( err && err.code === 'ENOENT' ) {
-				this.credentials[Provider] = {};
-				return;
+	loadProvider( Provider, callback ) {
+		fs.readFile( `data/admins/${Provider}`, ( err, data ) => {
+			if ( err ) {
+				if ( err.code !== 'ENOENT' ) {
+					throw err;
+				}
 			}
-			throw err;
-		}
+			this.credentials[Provider] = data ? JSON.parse( data ) : {};
+			callback();
+		} );
 	},
 
 	saveProvider( Provider, callback ) {

@@ -44,6 +44,7 @@
     <Compile Include="codes\order.js" />
     <Compile Include="codes\user.js" />
     <Compile Include="lib\check-auth.js" />
+    <Compile Include="lib\check-loaded.js" />
     <Compile Include="lib\convert-error.js" />
     <Compile Include="public\javascripts\common.js" />
     <Compile Include="public\javascripts\viewadmin.js" />

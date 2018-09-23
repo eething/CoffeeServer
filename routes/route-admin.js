@@ -2,7 +2,9 @@
 const express = require( 'express' );
 
 const admins = require( '../codes/admin' );
+const users = require( '../codes/user' );
 const checkAuth = require( '../lib/check-auth' );
+const checkLoaded = require( '../lib/check-loaded' );
 
 const router = express.Router();
 
@@ -23,22 +25,8 @@ router.get( '/', ( req, res ) => {
 	res.render( 'admin', params );
 } );
 
-function checkAuthAdmin( req, res ) {
-	if ( checkAuth( req, res ) ) {
-		return true;
-	}
-	if ( !req.user.admin ) {
-		res.send( JSON.stringify( {
-			code: 'EAUTH',
-			err: 'You are not ADMIN.',
-		} ) );
-		return true;
-	}
-	return false;
-}
-
 router.post( '/', ( req, res ) => {
-	if ( checkAuthAdmin( req, res ) ) {
+	if ( checkAuth( req, res, 'admin' ) ) {
 		return;
 	}
 	admins.setProvider( req.body, ( sendMsg ) => {
@@ -46,11 +34,113 @@ router.post( '/', ( req, res ) => {
 	} );
 } );
 
+
+const makeProviders = ( Provider ) => {
+	const temp = {};
+	const allProviders = users.getAllProvider( Provider );
+	Object.keys( allProviders ).forEach( ( providerID ) => {
+		const prov = allProviders[providerID];
+		temp[providerID] = { uid: prov.uid };
+		if ( Provider !== 'Local' ) {
+			temp[providerID].name = prov.profile.displayName;
+		}
+	} );
+	return temp;
+};
+
 router.get( '/adminList', ( req, res ) => {
-	if ( checkAuthAdmin( req, res ) ) {
+	if ( checkAuth( req, res, 'admin' ) ) {
 		return;
 	}
-	res.send( JSON.stringify( { code: 'OK', credentials: admins.credentials } ) );
+
+	res.send( JSON.stringify( {
+		code: 'OK',
+		credentials: admins.credentials,
+		allLocals: makeProviders( 'Local' ),
+		allFacebooks: makeProviders( 'Facebook' ),
+		allGoogles: makeProviders( 'Google' ),
+		allKakaos: makeProviders( 'Kakao' ),
+		allTwitters: makeProviders( 'Twitter' ),
+	} ) );
 } );
+
+function changeProvider( Provider, providerID, uidChanged, callback ) {
+	const prov = users.getProvider( Provider, providerID );
+	const { uid } = prov;
+
+	if ( Provider === 'Local' && uid === 0 ) {
+		callback();
+		return;
+	}
+
+	users.setAuthID( Provider, uid, undefined );
+	users.setAuthID( Provider, uidChanged, providerID );
+
+	prov.uid = Number( uidChanged );
+	users.writeProvider( Provider, providerID, ( sendMsg ) => {
+		if ( sendMsg.code !== 'OK' ) {
+			callback( sendMsg );
+			return;
+		}
+
+		if ( users.allUsers[uidChanged] ) {
+			callback();
+			return;
+		}
+
+		if ( uidChanged > users.maxUID ) {
+			users.maxUID = Number( uidChanged );
+		}
+		users.allUsers[uidChanged] = { uid: users.maxUID };
+		users.writeUser( uidChanged, ( sendMsg2 ) => {
+			if ( sendMsg.code !== 'OK' ) {
+				callback( sendMsg2 );
+				return;
+			}
+			callback();
+		} );
+	} );
+}
+
+router.post( '/auth', ( req, res ) => {
+	if ( checkAuth( req, res, 'admin' ) ) {
+		return;
+	}
+
+	const checker = checkLoaded( Object.keys( req.body ).length, ( err ) => {
+		if ( err ) {
+			return;
+		}
+		res.send( JSON.stringify( {
+			code: 'OK',
+			allLocals: makeProviders( 'Local' ),
+			allFacebooks: makeProviders( 'Facebook' ),
+			allGoogles: makeProviders( 'Google' ),
+			allKakaos: makeProviders( 'Kakao' ),
+			allTwitters: makeProviders( 'Twitter' ),
+		} ) );
+	} );
+
+	const Providers = ['Local', 'Facebook', 'Google', 'Kakao', 'Twitter'];
+	Providers.forEach( ( Provider ) => {
+		const changedProv = req.body[Provider];
+		if ( changedProv ) {
+			const keys = Object.keys( changedProv );
+			const checker2 = checkLoaded( keys.length, checker );
+
+			keys.forEach( ( providerID ) => {
+				const uidChanged = changedProv[providerID];
+				changeProvider( Provider, providerID, uidChanged, ( sendMsg ) => {
+					if ( sendMsg && sendMsg.code !== 'OK' ) {
+						checker2( true );
+						return;
+					}
+					checker2();
+				} );
+			} );
+		}
+	} );
+} );
+
 
 module.exports = router;

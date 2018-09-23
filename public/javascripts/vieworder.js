@@ -1,4 +1,6 @@
 ﻿// vieworder.js
+/* global MyError fetchHelper removeChildAll addElement l2data elem */
+/* eslint-env browser */
 
 l2data.view.order = true;
 
@@ -19,35 +21,34 @@ function initOrderElem() {
 	elem.tableOrderO.style.display = 'none';
 }
 
-l2order = {
+const l2order = {
 	cbBeverageList() {
-		let select = document.querySelector( '#beverageList select' );
+		const select = document.querySelector( '#beverageList select' );
 		removeChildAll( select );
 
-		let option = addElement( select, 'option', '', '음료선택' );
+		const option = addElement( select, 'option', '', '음료선택' );
 		option.value = '';
 
-		for( const bKey in l2data.allBeverages ) {
-			let beverage = l2data.allBeverages[bKey];
-			let option = addElement( select, 'option', '', beverage.name );
-			//option.text = beverage.name;
-			//option.value = beverage.name;
-		}
+		Object.keys( l2data.allBeverages ).forEach( ( bKey ) => {
+			const beverage = l2data.allBeverages[bKey];
+			/* const option = */addElement( select, 'option', '', beverage.name );
+			// option.text = beverage.name;
+			// option.value = beverage.name;
+		} );
 	},
 
 	cbUserList() {
-		let select = document.querySelector( '#orderBy' );
+		const select = document.querySelector( '#orderBy' );
 		removeChildAll( select );
 
-		for ( const uid in l2data.allUsers ) {
+		Object.keys( l2data.allUsers ).forEach( ( uid ) => {
 			const user = l2data.allUsers[uid];
-			if ( user.user.deleted || !user.user.enabled ) {
-				continue;
+			if ( !user.deleted && user.enabled ) {
+				const option = addElement( select, 'option', '',
+					user.name || user.localID || `* ${uid}` );
+				option.value = uid;
 			}
-			const option = addElement( select, 'option', '',
-				user.user.name || user.auth.Local || `* ${uid}` );
-			option.value = uid;
-		}
+		} );
 
 		if ( select.length === 0 ) {
 			const option = addElement( select, 'option', '', 'NNUULL' );
@@ -57,18 +58,22 @@ l2order = {
 
 	_makeOptionStr( option ) {
 		let optionStr = '';
-		for ( const k in option ) {
+		Object.keys( option ).forEach( ( k ) => {
 			if ( k === 'icehot' ) {
-				const icehot = ( ( option[k] === 'ice' ) ? '아이스' :
-					( option[k] === 'hot' ) ? '따뜻' : '' );
-				optionStr = icehot +
-					( ( icehot && optionStr ) ? '/' : '' ) +
-					optionStr;
+				let icehot = '';
+				if ( option[k] === 'ice' ) {
+					icehot = '아이스';
+				} else if ( option[k] === 'hot' ) {
+					icehot = '따뜻';
+				}
+				optionStr = icehot
+					+ ( ( icehot && optionStr ) ? '/' : '' )
+					+ optionStr;
 			} else if ( k === 'syrup' ) {
-				optionStr += ( optionStr ? '/' : '' ) +
-					( option[k] === 'minus' ? '시럽빼고' : '' );
+				optionStr += ( optionStr ? '/' : '' )
+					+ ( option[k] === 'minus' ? '시럽빼고' : '' );
 			}
-		}
+		} );
 		return optionStr;
 	},
 	_addTableOrderO( co ) {
@@ -96,7 +101,7 @@ l2order = {
 	},
 	_makeTableOrderO() {
 		removeChildAll( elem.tableOrderO );
-		l2data.currentOrder.forEach( co => {
+		l2data.currentOrder.forEach( ( co ) => {
 			this._addTableOrderO( co );
 		} );
 	},
@@ -106,11 +111,11 @@ l2order = {
 
 		const tdBeverage = addElement( tr, 'td', 'cBeverage', k );
 		let size = Math.min( Math.max( 23 - k.length * 2, 11 ), 15 );
-		tdBeverage.style.fontSize = size + 'px';
+		tdBeverage.style.fontSize = `${size}px`;
 
 		const option = JSON.parse( v.options );
-		let optionStr = this._makeOptionStr( option );
-		let tdOption = addElement( tr, 'td', 'cOption', optionStr );
+		const optionStr = this._makeOptionStr( option );
+		const tdOption = addElement( tr, 'td', 'cOption', optionStr );
 		size = Math.min( Math.max( 25 - optionStr.length, 10 ), 15 );
 		tdOption.style.fontSize = `${size}px`;
 
@@ -122,21 +127,21 @@ l2order = {
 			removeChildAll( elem.divPopup );
 			addElement( elem.divPopup, 'p', '', k );
 			addElement( elem.divPopup, 'p', '', optionStr );
-			v.orderByDNs.forEach( oDN => {
+			v.orderByDNs.forEach( ( oDN ) => {
 				addElement( elem.divPopup, 'p', '', oDN );
 			} );
 
 			const input = addElement( elem.divPopup, 'input', 'cNadoNado', '' );
 			input.type = 'button';
 			input.value = '나도나도';
-			input.addEventListener( 'click', function ( event ) {
+			input.addEventListener( 'click', () => {
 				selectBeverage( k );
 				checkOptions( option );
 			} );
 
 			showPopup( true );
 		}
-		aPopup.addEventListener( 'click', function ( event ) {
+		aPopup.addEventListener( 'click', () => {
 			popupViewOrderBys();
 		} );
 	},
@@ -146,18 +151,18 @@ l2order = {
 	_makeTableOrderB() {
 		removeChildAll( elem.tableOrderB );
 		this._totalCount = 0;
-		for ( const k of l2data.buyKeysSorted ) {
-			for ( const v of l2data.currentBuy[k] ) {
+		l2data.buyKeysSorted.forEach( ( k ) => {
+			l2data.currentBuy[k].forEach( ( v ) => {
 				this._addTableOrderB( k, v );
-			}
-		}
+			} );
+		} );
 	},
 
 	cbOrderList() {
 		l2order._makeTableOrderO();
 		l2order._makeTableOrderB();
 		l2order._setTotalForOrderB();
-	}
+	},
 	/*
 	cbOrderOne( order ) {
 		l2order._addTableOrderO( order );
@@ -186,8 +191,8 @@ function addOrder( self ) {
 		alert( '마실 사람을 선택해 주세요.' );
 		return;
 	}
-	if ( f.beverage.value == '' ) {
-		if( f.beverageSelect.value ) {
+	if ( f.beverage.value === '' ) {
+		if ( f.beverageSelect.value ) {
 			f.beverage.value = f.beverageSelect.value;
 		} else {
 			alert( '음료명을 입력해주세요.' );
@@ -292,21 +297,21 @@ function changeBeverage( f, value ) {
 	} else {
 		removeChildAll( elem.divPopup );
 		let bFound = false;
-		for( const k in l2data.allBeverages ) {
+		Object.keys( l2data.allBeverages ).forEach( ( k ) => {
 			const b = l2data.allBeverages[k];
 			if ( b.name.indexOf( value ) !== -1 ) {
 				bFound = true;
 				let p = document.createElement( 'p' );
 				p.className = 'stxt';
-				p.addEventListener( 'click', function ( event ) {
+				p.addEventListener( 'click', () => {
 					selectBeverage( b.name );
 				} );
 				p.innerHTML = b.name;
 				elem.divPopup.appendChild( p );
 			}
-		}
+		} );
 		if ( bFound ) {
-			let p = document.createElement( 'p' );
+			const p = document.createElement( 'p' );
 			p.className = 'ctxt';
 			p.innerHTML = '음료를 선택해주세요';
 			elem.divPopup.prepend( p );
@@ -331,7 +336,7 @@ function changeBeverage( f, value ) {
 function selectBeverage( name ) {
 	document.querySelector( '#beverageSelect' ).value = name;
 	document.querySelector( '#beverage' ).value = name;
-	const order_form = document.querySelector( '#order_form' );
-	changeBeverage( order_form, name );
+	const orderForm = document.querySelector( '#order_form' );
+	changeBeverage( orderForm, name );
 	showPopup( false );
 }

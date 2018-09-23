@@ -1,6 +1,8 @@
 ﻿
 const fs = require( 'fs' );
+
 const convertError = require( '../lib/convert-error' );
+const checkLoaded = require( '../lib/check-loaded' );
 
 module.exports = {
 
@@ -18,7 +20,7 @@ module.exports = {
 
 	todayString: '',
 
-	_initOrderSetting( preserveOther = false ) {
+	initOrderSetting( preserveOther = false ) {
 		const newTodayString = new Date().toISOString().substr( 0, 10 );
 		if ( this.todayString !== newTodayString ) {
 			this.currentOrderList = [];
@@ -26,11 +28,11 @@ module.exports = {
 		}
 
 		if ( !preserveOther ) {
-			for ( const key in this.allOrders ) {
+			Object.keys( this.allOrders ).forEach( ( key ) => {
 				if ( key !== this.todayString ) {
 					delete this.allOrders[key];
 				}
-			}
+			} );
 		}
 	},
 
@@ -41,24 +43,34 @@ module.exports = {
 			}
 		} );
 	},
-	_addCurrentOrderList( order ) {
-		let isNewOrder = true;
+	adjustDisplayNameAll( displayNames ) {
+		this.currentOrderList.forEach( ( co ) => {
+			co.orderByDN = displayNames[co.orderBy] || 'NULL';
+		} );
+	},
 
-		this.currentOrderList.forEach( ( co, i ) => {
+	addCurrentOrderList( order ) {
+		let isNewOrder = true;
+		this.currentOrderList.forEach( ( co ) => {
 			// orderBy 가 undefined 이면 true 가 되는 문제가 있지만, 일단 넘어가자
 			if ( co.orderBy === order.orderBy ) {
 				isNewOrder = false;
-				this.currentOrderList[i] = order;
+				Object.keys( order ).forEach( ( k ) => {
+					co[k] = order[k];
+				} );
 			}
 		} );
 
 		if ( isNewOrder ) {
-			this.currentOrderList.push( order );
+			const orderCopy = {};
+			Object.keys( order ).forEach( ( k ) => {
+				orderCopy[k] = order[k];
+			} );
+			this.currentOrderList.push( orderCopy );
 		}
 	},
 
-	_loadTodayOrder( _callback ) {
-
+	loadTodayOrder( _callback ) {
 		const key = this.todayString;
 		if ( this.allOrders[key] ) {
 			_callback();
@@ -73,24 +85,24 @@ module.exports = {
 				const value = JSON.parse( data );
 				this.allOrders[key] = value;
 
-				for ( const order of value ) {
-					this._addCurrentOrderList( order );
-				}
+				value.forEach( ( order ) => {
+					this.addCurrentOrderList( order );
+				} );
 			}
 			_callback();
 		} );
 	},
 
 	addOrder( body, callback ) {
-		this._initOrderSetting( false );
-		this._loadTodayOrder( () => {
+		this.initOrderSetting( false );
+		this.loadTodayOrder( () => {
 			// 그냥 때려박으면 별로 의미가 없나-_-
-			let order = {};
-			for ( let k in body ) {
+			const order = {};
+			Object.keys( body ).forEach( ( k ) => {
 				order[k] = body[k];
-			}
+			} );
 
-			this._addCurrentOrderList( order );
+			this.addCurrentOrderList( order );
 
 			const key = this.todayString;
 			const todayOrder = this.allOrders[key];
@@ -114,42 +126,52 @@ module.exports = {
 			} );
 		} );
 	},
+	currentOrder() {
 
+	},
 	getCurrentOrder( callback ) {
-		this._initOrderSetting( false );
-		this._loadTodayOrder( () => {
+		this.initOrderSetting( false );
+		this.loadTodayOrder( () => {
 			callback( this.currentOrderList );
 		} );
 	},
 
 	getTodayOrder( callback ) {
-		this._initOrderSetting( false );
-		this._loadTodayOrder( () => {
+		this.initOrderSetting( false );
+		this.loadTodayOrder( () => {
 			callback( this.allOrders[this.todayString] );
 		} );
 	},
 
 	getAllOrder( callback ) {
-		this._initOrderSetting( true );
+		this.initOrderSetting( true );
 		this.loadOrders( true, () => {
 			callback( this.allOrders );
 		} );
 	},
 
-	loadOrders( bForce = false, _callback ) {
+	loadOrders( bForce = false, callback ) {
 		// 당분간 쓸 일은 없겠지만 구색맞추기-_-
 		if ( !bForce ) {
+			this.initOrderSetting( false );
+			this.loadTodayOrder( () => {
+				console.log( 'Order Loaded...' );
+				callback();
+			} );
 			return;
 		}
 
-		fs.readdir( 'data/orders', ( err, files ) => {
-			let len = files.length;
+		fs.readdir( 'data/orders', ( error, files ) => {
+			const len = files.length;
+			const checker = checkLoaded( len + 1, callback );
+			// () => { this.isLoaded = true; callback(); }
+			checker();
 			files.forEach( ( file ) => {
 				const filePath = `data/orders/${file}`;
 				fs.readFile( filePath, ( err, data ) => {
-					--len;
 					if ( err ) {
 						if ( err.code === 'EISDIR' ) {
+							checker();
 							return;
 						}
 						throw err;
@@ -160,15 +182,12 @@ module.exports = {
 					this.allOrders[key] = value;
 
 					if ( key === this.todayString ) {
-						for ( const order of value ) {
-							this._addCurrentOrderList( order );
-						}
+						value.forEach( ( order ) => {
+							this.addCurrentOrderList( order );
+						} );
 					}
 
-					if ( len === 0 ) {
-						// this.isLoaded = true;
-						_callback();
-					}
+					checker();
 				} );
 			} );
 		} );

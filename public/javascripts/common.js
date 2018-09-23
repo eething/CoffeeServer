@@ -3,7 +3,7 @@
 /* eslint-env browser */
 
 function MyError( status, errMsg ) {
-	this.name = "L2Error";
+	this.name = 'L2Error';
 	this.status = status;
 	this.code = errMsg.code || 'CUNKNOWN';
 	this.err = errMsg.err || '';
@@ -87,7 +87,7 @@ const l2data = {
 
 		this.currentOrder = data.currentOrder || this.currentOrder;
 		this.currentOrder.sort( ( a, b ) => a.orderByDN > b.orderByDN );
-		this._convertOrderToBuy();
+		this.convertOrderToBuy();
 		if ( data.currentOrder ) {
 			if ( this.view.all ) {
 				l2all.cbOrderList();
@@ -133,21 +133,22 @@ const l2data = {
 		} );
 	},
 
-	_convertOrderToBuy() {
+	convertOrderToBuy() {
 		this.currentBuy = {};
-		this.currentOrder.forEach( ( co )  => {
+		this.currentOrder.forEach( ( co ) => {
 			let buyList = this.currentBuy[co.beverage];
 			if ( !buyList ) {
-				buyList = this.currentBuy[co.beverage] = [];
+				buyList = [];
+				this.currentBuy[co.beverage] = buyList;
 			}
 
 			const optionKeys = Object.keys( co )
 				.filter( b => b !== 'orderBy' && b !== 'orderByDN' && b !== 'beverage' )
 				.sort();
-			let options = {};
-			for ( const k of optionKeys ) {
+			const options = {};
+			optionKeys.forEach( ( k ) => {
 				options[k] = co[k];
-			}
+			} );
 			const optionString = JSON.stringify( options );
 
 			let buy = buyList.find( b => b.options === optionString );
@@ -159,39 +160,32 @@ const l2data = {
 			buy.orderByDNs.push( co.orderByDN );
 		} );
 
-		for ( const k in this.currentBuy ) {
+		Object.keys( this.currentBuy ).forEach( ( k ) => {
 			this.currentBuy[k].forEach( ( b ) => {
-				//b.orderBys.sort();
 				b.orderByDNs.sort();
 			} );
-		}
+		} );
 
 		// 옵션별 정렬 : options 짧은거 -> 주문자 수
-		for( const k in this.currentBuy ) {
+		Object.keys( this.currentBuy ).forEach( ( k ) => {
 			this.currentBuy[k].sort( ( a, b ) => {
 				const c1 = a.options.length - b.options.length;
 				if ( c1 !== 0 ) {
 					return c1;
 				}
 				const c2 = b.orderBys.length - a.orderBys.length;
-				if ( c2 !== 0) {
+				if ( c2 !== 0 ) {
 					return c2;
 				}
 				return 0;
 			} );
-		}
+		} );
 
 		// 음료별 정렬 : 주문자 수 총합
 		this.buyKeysSorted = Object.keys( this.currentBuy );
 		this.buyKeysSorted.sort( ( a, b ) => {
-			let count1 = 0;
-			let count2 = 0;
-			for ( const buy of this.currentBuy[a] ) {
-				count1 += buy.orderBys.length;
-			}
-			for( const buy of this.currentBuy[b] ) {
-				count2 += buy.orderBys.length;
-			}
+			const count1 = this.currentBuy[a].reduce( ( sum, buy ) => sum + buy.orderBys.length, 0 );
+			const count2 = this.currentBuy[b].reduce( ( sum, buy ) => sum + buy.orderBys.length, 0 );
 			return count2 - count1;
 		} );
 	},

@@ -27,7 +27,7 @@
 				}
 
 			table.cOrderB, table.cOrderO {
-				width:100%;
+				width: 100%;
 				margin: auto;
 			}
 				tr.cOrderItem {
@@ -39,7 +39,7 @@
 						font-size: 15px;
 					}
 						tr.cOrderItem > td.cBeverage {
-							width: 80px;
+							width: 90px;
 						}
 						tr.cOrderItem > td.cOption {
 							width: 180px;
@@ -53,7 +53,7 @@
 		div.cMain > div.cIce,
 		div.cMain > div.cHot,
 		div.cMain > div.cSyrup {
-			border:1px dotted;
+			//border:1px dotted;
 			display: none;
 		}
 
@@ -93,7 +93,7 @@ div.cPopupOuter {
 				bottom: 10px;
 				left: 10px;
 				right: 0;
-				font-size: 13pt;
+				//font-size: 13pt;
 				background-color: lightgreen;
 				border-color: green;
 				width: 120px;

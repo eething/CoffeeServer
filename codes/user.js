@@ -1,7 +1,9 @@
 ﻿
 const fs = require( 'fs' );
 const bcrypt = require( 'bcrypt' );
+
 const convertError = require( '../lib/convert-error' );
+const checkLoaded = require( '../lib/check-loaded' );
 
 const adam = {
 	// uid: 0,
@@ -61,7 +63,9 @@ module.exports = {
 		Kakao: false,
 		Twitter: false,
 	},
-	_maxUID: 0,
+
+	maxUID: 0,
+
 	allUsers: {},
 	allLocals: {},
 	allFacebooks: {},
@@ -71,7 +75,7 @@ module.exports = {
 
 	authTable: {}, // NOT Serialize
 
-	_initSuperAdmin() {
+	initSuperAdmin() {
 		this.allUsers[0] = this.allUsers[0] || {};
 		const user = this.allUsers[0];
 		user.uid		= 0;
@@ -91,46 +95,52 @@ module.exports = {
 		this.authTable[0].Local = adam.id;
 	},
 
-	loadUsers() {
+	loadUsers( callback ) {
+		const checker = checkLoaded( 6, () => {
+			console.log( 'User Loaded...' );
+			callback();
+		} );
+
 		fs.mkdir( 'data/users', () => {
-			this._initSuperAdmin();
-			this._loadUsers();
+			this.initSuperAdmin();
+
+			this.loadUser( checker );
+
 			fs.mkdir( 'data/users/Local', () => {
-				this._loadProviders( 'Local' );
+				this.loadProvider( 'Local', checker );
 			} );
+
 			fs.mkdir( 'data/users/Facebook', () => {
-				this._loadProviders( 'Facebook' );
+				this.loadProvider( 'Facebook', checker );
 			} );
 
 			fs.mkdir( 'data/users/Google', () => {
-				this._loadProviders( 'Google' );
+				this.loadProvider( 'Google', checker );
 			} );
+
 			fs.mkdir( 'data/users/Kakao', () => {
-				this._loadProviders( 'Kakao' );
+				this.loadProvider( 'Kakao', checker );
 			} );
+
 			fs.mkdir( 'data/users/Twitter', () => {
-				this._loadProviders( 'Twitter' );
+				this.loadProvider( 'Twitter', checker );
 			} );
 		} );
 	},
-	_loadUsers() {
-		let len;
-		const checkLen = () => {
-			if ( len === 0 ) {
-				this.isLoaded.User = true;
-			}
-		};
+	loadUser( callback ) {
 		fs.readdir( 'data/users', ( error, files ) => {
-			len = files.length;
-			checkLen();
-
+			const len = files.length;
+			const checker = checkLoaded( len + 1, () => {
+				this.isLoaded.User = true;
+				callback();
+			} );
+			checker();
 			files.forEach( ( file ) => {
 				const filePath = `data/users/${file}`;
 				fs.readFile( filePath, ( err, data ) => {
-					--len;
 					if ( err ) {
-						checkLen();
 						if ( err.code === 'EISDIR' ) {
+							checker();
 							return;
 						}
 						throw err;
@@ -140,79 +150,81 @@ module.exports = {
 					const value = JSON.parse( data );
 					this.allUsers[uid] = value;
 
-					if ( uid > this._maxUID ) {
-						this._maxUID = uid;
+					if ( uid > this.maxUID ) {
+						this.maxUID = Number( uid );
 					}
 
-					checkLen();
+					checker();
 				} );
 			} );
 		} );
 	},
-	_loadProviders( Provider ) {
-		let len;
-		const checkLen = () => {
-			if ( len === 0 ) {
-				this.isLoaded[Provider] = true;
-			}
-		};
+	loadProvider( Provider, callback ) {
 		fs.readdir( `data/users/${Provider}`, ( error, files ) => {
-			len = files.length;
-			checkLen();
-
+			const len = files.length;
+			const checker = checkLoaded( len + 1, () => {
+				this.isLoaded[Provider] = true;
+				callback();
+			} );
+			checker();
 			files.forEach( ( providerID ) => {
 				const filePath = `data/users/${Provider}/${providerID}`;
 				fs.readFile( filePath, ( err, data ) => {
-					--len;
 					if ( err ) {
-						checkLen();
 						if ( err.code === 'EISDIR' ) {
+							checker();
 							return;
 						}
 						throw err;
 					}
 
 					const value = JSON.parse( data );
-					const allProviders = this._getProvider( Provider );
+					const allProviders = this.getAllProvider( Provider );
 					allProviders[providerID] = value;
 					this.authTable[value.uid] = this.authTable[value.uid] || {};
 					this.authTable[value.uid][Provider] = providerID;
 
-					checkLen();
+					checker();
 				} );
 			} );
 		} );
 	},
 
 	setAuthID( Provider, u, newID ) {
+		let uid = u;
 		if ( typeof u === 'object' ) {
-			u = u.uid;
+			( { uid } = u );
 		}
-		this.authTable[u] = this.authTable[u] || {};
-		this.authTable[u][Provider] = newID;
+		this.authTable[uid] = this.authTable[uid] || {};
+		this.authTable[uid][Provider] = newID;
 	},
 	getAuthID( Provider, u ) {
+		let uid = u;
 		if ( typeof u === 'object' ) {
-			u = u.uid;
+			( { uid } = u );
 		}
-		const auth = this.authTable[u];
-		return auth ? auth[Provider] : undefined;
+		const auth = this.authTable[uid];
+		return auth ? auth[Provider] : null;
 	},
 
-	_getUser( uid, callback ) {
+	getUser( uid, callback ) {
 		// Azure 에서 작동 안함..
 		// undefined, Object.values is not a function...
 		// nodejs 버전 문제인지? 8.11.1 인데? 일단 급한 불을 끄자...
 		// if ( Object.values( this.isLoaded ).includes( false ) ) {
-		for ( const k in this.isLoaded ) {
-			if ( !this.isLoaded[k] ) {
+		let bError = false;
+		Object.keys( this.isLoaded ).forEach( ( k ) => {
+			if ( !bError && !this.isLoaded[k] ) {
+				bError = true;
 				callback( {
 					code: 'ELOAD',
 					err: 'User Not Loaded',
 					isLoaded: this.isLoaded,
 				} );
-				return false;
 			}
+		} );
+		if ( bError ) {
+			return false;
 		}
 
 		if ( !( uid >= 0 ) ) {
@@ -236,7 +248,7 @@ module.exports = {
 	},
 
 	// Local...
-	_writeUser( uid, callback ) {
+	writeUser( uid, callback ) {
 		const user = this.allUsers[uid];
 		const userString = JSON.stringify( user );
 		const filePath = `data/users/${uid}`;
@@ -253,15 +265,33 @@ module.exports = {
 		} );
 	},
 
-	_getProvider( Provider ) { // 첫 글자 대문자 !!!
+	getAllProvider( Provider ) { // Provider 첫 글자 대문자 !!!
 		// `all${provider.replace( /^\w/, c => c.toUpperCase() )}s`;
 		const providerKey = `all${Provider}s`;
-		return this[providerKey];
+		const allProviders = this[providerKey];
+		if ( !allProviders ) {
+			throw new Error( `Invalid Provider: ${Provider}` );
+		}
+		return allProviders;
 	},
-	_writeProvider( Provider, providerID, callback ) {
-		const allProviders = this._getProvider( Provider );
-		const prov = allProviders[providerID];
-		const provString = JSON.stringify( prov ); console.log( provString );
+	getProvider( Provider, providerID ) {
+		const allProviders = this.getAllProvider( Provider );
+		return allProviders[providerID];
+	},
+	deleteProvider( Provider, providerID ) {
+		let bDeleted = false;
+		const allProviders = this.getAllProvider( Provider );
+		if ( allProviders[providerID] ) {
+			bDeleted = true;
+			delete allProviders[providerID];
+			fs.unlink( `data/users/${Provider}/${providerID}`, () => { } ); // 에러처리안함
+		}
+		return bDeleted;
+	},
+
+	writeProvider( Provider, providerID, callback ) {
+		const prov = this.getProvider( Provider, providerID );
+		const provString = JSON.stringify( prov );
 		const filePath = `data/users/${Provider}/${providerID}`;
 		fs.writeFile( filePath, provString, ( err ) => {
 			if ( err ) {
@@ -280,9 +310,9 @@ module.exports = {
 		} );
 	},
 
-	haveDuplicatedID( id ) {
+	haveDuplicatedID( localID ) {
 		const sendMsg = {};
-		if ( this.allLocals[id] === undefined ) {
+		if ( this.allLocals[localID] === undefined ) {
 			sendMsg.code = 'OK';
 		} else {
 			sendMsg.code = 'EUSERID';
@@ -297,10 +327,11 @@ module.exports = {
 			callback( msg );
 			return;
 		}
-		this._addUser( body, callback );
+		this.processAddUser( body, callback );
 	},
-	_addUser( body, callback ) {
-		const uid = ++this._maxUID;
+	processAddUser( body, callback ) {
+		this.maxUID += 1;
+		const uid = this.maxUID;
 		this.allUsers[uid] = {
 			uid,
 			name: body.name,
@@ -325,7 +356,7 @@ module.exports = {
 			this.setAuthID( 'Local', uid, localID );
 		}
 
-		this._writeUser( uid, ( msg ) => {
+		this.writeUser( uid, ( msg ) => {
 			msg.uid = uid;
 			msg.name = this.allUsers[uid].name;
 			if ( !localID ) {
@@ -337,8 +368,8 @@ module.exports = {
 			const local = this.allLocals[localID];
 			bcrypt.hash( body.password, 10, ( err, hash ) => {
 				local.password = hash;
-				this._writeProvider( 'Local', localID, ( msg2 ) => {
-					msg._writeProvider = msg2;
+				this.writeProvider( 'Local', localID, ( msg2 ) => {
+					msg.writeProvider = msg2;
 					if ( msg.code === 'OK' ) {
 						msg.code = msg2.code;
 					} else if ( msg2.code !== 'OK' ) {
@@ -351,7 +382,7 @@ module.exports = {
 	},
 
 	editUser( uid, body, callback ) {
-		const user = this._getUser( uid, callback );
+		const user = this.getUser( uid, callback );
 		if ( !user ) {
 			return;
 		}
@@ -377,28 +408,32 @@ module.exports = {
 
 		// let changePassword = false;
 		let tempPassword = '';
-		for ( const key in body ) {
+		Object.keys( body ).forEach( ( key ) => {
 			const value = body[key];
-
+			let bContinue = false;
 			if ( key === 'mode' || key === 'uid' ) {
-				continue;
+				bContinue = true;
 			} else if ( key === 'id' ) {
 				// localID 변경처리 추후에
-				continue;
+				bContinue = true;
 			} else if ( key === 'password' ) {
 				if ( value === '' ) {
-					continue;
+					bContinue = true;
+				} else {
+					// changePassword = true;
+					tempPassword = value;
+					bContinue = true;
 				}
-				//changePassword = true;
-				tempPassword = value;
-				continue;
 			} else if ( key !== 'name' ) {
-				if ( uid == 0 ) {
-					continue;
+				if ( uid === 0 ) {
+					bContinue = true;
 				}
 			}
-			user[key] = body[key];
-		}
+
+			if ( !bContinue ) {
+				user[key] = body[key];
+			}
+		} );
 		/* localID 가 바뀌는 경우에 대한 처리는 추후에 다시...
 		if( newLocalID !== oldLocalID ) {
 			this.authTable[ uid ].local = newLocalID;
@@ -411,7 +446,7 @@ module.exports = {
 		}
 		*/
 
-		this._writeUser( uid, ( msg ) => {
+		this.writeUser( uid, ( msg ) => {
 			if ( !tempPassword ) {
 				callback( msg );
 				return;
@@ -426,8 +461,8 @@ module.exports = {
 			const local = this.allLocals[localID];
 			bcrypt.hash( tempPassword, 10, ( err, hash ) => {
 				local.password = hash;
-				this._writeProvider( 'Local', localID, ( msg2 ) => {
-					msg._writeProvider = msg2;
+				this.writeProvider( 'Local', localID, ( msg2 ) => {
+					msg.writeProvider = msg2;
 					if ( msg.code === 'OK' ) {
 						msg.code = msg2.code;
 					} else if ( msg2.code !== 'OK' ) {
@@ -439,36 +474,35 @@ module.exports = {
 		} );
 	},
 
-	// TODO - body 지울 것
-	deleteUser( uid, body, callback ) {
-		const user = this._getUser( uid, callback );
+	deleteUser( uid, callback ) {
+		const user = this.getUser( uid, callback );
 		if ( !user ) {
 			return;
 		}
 
-		if ( uid == 0 ) {
-			this._initSuperAdmin();
+		if ( uid === 0 ) {
+			this.initSuperAdmin();
 		} else {
 			user.deleted = true;
 		}
 
-		this._writeUser( uid, callback );
+		this.writeUser( uid, callback );
 	},
 
 	// TODO - body 대신 uid
 	enableUser( body, callback ) {
-		const user = this._getUser( body.uid, callback );
+		const user = this.getUser( body.uid, callback );
 		if ( !user ) {
 			return;
 		}
 
 		user.enabled = false;
 
-		this._writeUser( body.uid, callback );
+		this.writeUser( body.uid, callback );
 	},
 	// TODO - body 대신 uid
 	disableUser( body, callback ) {
-		const user = this._getUser( body.uid, callback );
+		const user = this.getUser( body.uid, callback );
 		if ( !user ) {
 			return;
 		}
@@ -477,43 +511,67 @@ module.exports = {
 			user.enabled = false;
 		}
 
-		this._writeUser( body.uid, callback );
+		this.writeUser( body.uid, callback );
 	},
 
-	getUserList() {
-		const temp = {};
-		/*
-		for ( const uid in this.allUsers ) {
-			if ( this.allUsers.hasOwnProperty( uid ) ) {
+	getUserList( admin ) {
+		const tempAll = {};
+		Object.keys( this.allUsers ).forEach( ( uid ) => {
 			//	if( uid == 0 ) {
 			//		continue;
 			//	}
-				temp[uid] = {};
-				const user = this.allUsers[uid];
-				const auth = this.authTable[uid];
-				temp[uid].user = user;
-				temp[uid].auth = auth;
-			}
-		}
-		*/
-		Object.keys( this.allUsers ).forEach( ( uid ) => {
-		//	if( uid == 0 ) {
-		//		continue;
-		//	}
-			temp[uid] = {};
+			let include = true;
 			const user = this.allUsers[uid];
 			const auth = this.authTable[uid];
-			temp[uid].user = user;
-			temp[uid].auth = auth || {};
+			if ( !admin ) {
+				if ( !auth || user.deleted || !user.enabled ) {
+					include = false;
+				}
+			}
+
+			if ( include ) {
+				tempAll[uid] = {};
+				const tempUser = tempAll[uid];
+				Object.keys( user ).forEach( ( key ) => {
+					tempUser[key] = user[key];
+				} );
+				tempUser.localID = auth ? auth.Local : null;
+				tempUser.profile = ''; // TODO - 프사
+
+				if ( admin ) {
+					tempUser.auth = this.getAuthInfo( auth );
+				}
+			}
+		} );
+		return tempAll;
+	},
+
+	getAuthInfo( auth ) {
+		if ( !auth ) {
+			return null;
+		}
+		const temp = {};
+		const Providers = ['Facebook', 'Google', 'Kakao', 'Twitter'];
+		Providers.forEach( ( Provider ) => {
+			const providerID = auth[Provider];
+			if ( providerID ) {
+				const prov = this.getProvider( Provider, providerID );
+				temp[Provider] = {
+					providerID,
+					uid: prov.uid,
+					id: prov.profile.id,
+					name: prov.profile.displayName,
+				};
+			}
 		} );
 		return temp;
 	},
 
+	/*
 	setFavorite( body, callback ) {
 
 	},
-
-
+	*/
 
 	/*
 	req.user.uid = 3, newFacebookID = 44444 를 연동하면
@@ -532,7 +590,7 @@ module.exports = {
 		let uid;
 		if ( typeof u === 'object' ) {
 			user = u;
-			uid = user.uid;
+			( { uid } = user );
 		} else {
 			uid = u;
 			user = this.allUsers[uid];
@@ -549,8 +607,7 @@ module.exports = {
 	},
 
 	checkProvider( Provider, currentUser, newProviderID, callback ) {
-		const allProviders = this._getProvider( Provider );
-		const newProv = allProviders[newProviderID]; // 44444
+		const newProv = this.getProvider( Provider, newProviderID ); // 44444
 		const oldProviderID = this.getAuthID( Provider, currentUser ); // 3.33333
 
 		// New User
@@ -558,21 +615,17 @@ module.exports = {
 			this.setAuthID( Provider, currentUser, newProviderID ); // 3.33333 ~~> 44444
 			newProv.uid = currentUser.uid; // 44444.4 ~~> 3
 
-			this._writeProvider( Provider, newProviderID, ( sendMsg ) => {
+			this.writeProvider( Provider, newProviderID, ( sendMsg ) => {
 				if ( sendMsg.code !== 'OK' ) {
 					callback( sendMsg );
 					return;
 				}
-
-				if ( allProviders[oldProviderID] ) {
-					// sendMsg.facebookDeleted = true;
-					delete allProviders[oldProviderID]; // 33333.3 ~~> unlink
-					fs.unlink( `data/users/${Provider}/${oldProviderID}`, () => { } ); // 에러처리안함
-				}
+				this.deleteProvider( Provider, oldProviderID ); // 33333.3 ~~> unlink
 				callback( { code: 'OK', msg: 'New User' } );
 			} );
 			return;
 		}
+
 		if ( currentUser.uid === newProv.uid && oldProviderID === newProviderID ) {
 			callback( { code: 'OK', msg: 'Same User' } );
 			return;
@@ -616,8 +669,7 @@ module.exports = {
 
 	associateProvider( currentUser, body, callback ) {
 		const { Provider, providerID, askValue } = body;
-		const allProviders = this._getProvider( Provider );
-		const newProv = allProviders[providerID];
+		const newProv = this.getProvider( Provider, providerID );
 
 		const deleteUID = newProv.uid;
 		const deleteAuth = this.authTable[deleteUID]; // 4
@@ -645,7 +697,7 @@ module.exports = {
 
 		if ( this.authNoMoreExist( deleteAuth, Provider ) ) {
 			this.allUsers[deleteUID].deleted = true;
-			this._writeUser( deleteUID, () => { } ); // TODO - 귀찮아서 처리콜백 등록안함-_-;
+			this.writeUser( deleteUID, () => { } ); // TODO - 귀찮아서 처리콜백 등록안함-_-;
 		}
 		delete deleteAuth[Provider]; // 4.44444 ~~> delete
 		// sendMsg.authDeleted = true;
@@ -656,39 +708,31 @@ module.exports = {
 		this.setAuthID( Provider, currentUser, providerID ); // 3.33333 ~~> 44444
 		newProv.uid = currentUser.uid; // 44444.4 ~~> 3
 
-		this._writeProvider( Provider, providerID, ( sendMsg ) => {
+		this.writeProvider( Provider, providerID, ( sendMsg ) => {
 			if ( sendMsg.code !== 'OK' ) {
 				callback( sendMsg );
 				return;
 			}
-
-			if ( allProviders[oldProviderID] ) {
-				// sendMsg.facebookDeleted = true;
-				delete allProviders[oldProviderID]; // 33333.3 ~~> unlink
-				fs.unlink( `data/users/${Provider}/${oldProviderID}`, () => { } ); // 에러처리안함
-			}
+			this.deleteProvider( Provider, oldProviderID ); // 33333.3 ~~> unlink
 			callback( { code: 'YES' } );
 		} );
 	},
 
 	saveProvider( Provider, providerID, done ) {
-		this._writeProvider( Provider, providerID, ( sendMsg ) => {
+		this.writeProvider( Provider, providerID, ( sendMsg ) => {
 			if ( sendMsg.code !== 'OK' ) {
 				done( sendMsg.err, false );
 				return;
 			}
-			const allProviders = this._getProvider( Provider );
-			const { uid } = allProviders[providerID];
-			const user = this.allUsers[uid];
-
+			const prov = this.getProvider( Provider, providerID );
+			const user = this.allUsers[prov.uid];
 			done( null, user, { providerID } );
 		} );
 	},
 
 
 	addProviderUser( Provider, providerID, callback ) {
-		const allProviders = this._getProvider( Provider );
-		const prov = allProviders[providerID];
+		const prov = this.getProvider( Provider, providerID );
 		if ( !prov ) {
 			callback( {
 				code: `E${Provider.toUpperCase()}`,
@@ -698,15 +742,14 @@ module.exports = {
 		}
 
 		const body = { name: prov.profile.displayName };
-		this._addUser( body, ( msg ) => {
+		this.processAddUser( body, ( msg ) => {
 			if ( msg.code !== 'OK' ) {
 				callback( msg );
 				return;
 			}
 			this.setAuthID( Provider, msg.uid, providerID );
 			prov.uid = msg.uid;
-console.log( prov );
-			this._writeProvider( Provider, providerID, callback );
+			this.writeProvider( Provider, providerID, callback );
 		} );
 	},
 };

@@ -32,7 +32,7 @@ router.get( '/list', ( req, res ) => {
 	if ( checkAuth( req, res ) ) {
 		return;
 	}
-	res.send( JSON.stringify( { allUsers: users.getUserList() } ) );
+	res.send( JSON.stringify( { allUsers: users.getUserList( req.user.admin ) } ) );
 } );
 
 router.post( '/addUser', ( req, res ) => {
@@ -52,7 +52,7 @@ router.post( '/addUser', ( req, res ) => {
 				if ( err ) {
 					res.send( JSON.stringify( { code: 'ESS', err: convertError( err ) } ) );
 				} else {
-					sendMsg.allUsers = users.getUserList();
+					sendMsg.allUsers = users.getUserList( false );
 					sendMsg.allBeverages = beverages.allBeverages;
 					orders.getCurrentOrder( ( currentOrder ) => {
 						sendMsg.currentOrder = currentOrder;
@@ -60,13 +60,13 @@ router.post( '/addUser', ( req, res ) => {
 					} );
 				}
 			} ); // save
-		} ); //login
+		} ); // login
 	} ); // addUser
 } );
 
 router.post( '/editUser', ( req, res ) => {
 	if ( checkAuth( req, res ) ) {
-		return false;
+		return;
 	}
 
 	const oldDisplayName = users.getDisplayName( req.user );
@@ -77,30 +77,17 @@ router.post( '/editUser', ( req, res ) => {
 		if ( oldDisplayName !== newDisplayName ) {
 			orders.changeDisplayName( req.user.uid, newDisplayName );
 		}
-		sendMsg.allUsers = users.getUserList();
+		sendMsg.allUsers = users.getUserList( req.user.admin );
 		res.send( JSON.stringify( sendMsg ) );
 	} );
 } );
 
-function checkAuthAdmin( req, res ) {
-	if ( checkAuth( req, res ) ) {
-		return true;
-	}
-	if ( !req.user.admin ) {
-		res.send( JSON.stringify( {
-			code: 'EAUTH',
-			err: 'You are not ADMIN.',
-		} ) );
-		return true;
-	}
-}
-
 router.post( '/adminUser', ( req, res ) => {
-	if ( checkAuthAdmin( req, res ) ) {
+	if ( checkAuth( req, res, 'admin' ) ) {
 		return;
 	}
 
-	const { uid } = req.body;
+	const uid = Number( req.body.uid );
 	const user = users.allUsers[uid];
 	const oldDisplayName = users.getDisplayName( user );
 
@@ -110,22 +97,21 @@ router.post( '/adminUser', ( req, res ) => {
 			orders.changeDisplayName( uid, newDisplayName );
 		}
 
-		sendMsg.allUsers = users.getUserList();
+		sendMsg.allUsers = users.getUserList( true );
 		res.send( JSON.stringify( sendMsg ) );
 	} );
 } );
 
 router.post( '/delUser', ( req, res ) => {
-	if ( checkAuthAdmin( req, res ) ) {
+	if ( checkAuth( req, res, 'admin' ) ) {
 		return;
 	}
 
-	const { uid } = req.body;
+	const uid = Number( req.body.uid );
 
-	users.deleteUser( uid, req.body, ( sendMsg ) => {
-
-		if( sendMsg.code !== 'OK' || uid != req.user.uid ) {
-			sendMsg.allUsers = users.getUserList();
+	users.deleteUser( uid, ( sendMsg ) => {
+		if ( sendMsg.code !== 'OK' || uid !== req.user.uid ) {
+			sendMsg.allUsers = users.getUserList( req.user.admin );
 			res.send( JSON.stringify( sendMsg ) );
 			return;
 		}
@@ -136,7 +122,7 @@ router.post( '/delUser', ( req, res ) => {
 				sendMsg.code = 'ESS';
 				sendMsg.err = convertError( err );
 			} else {
-				//sendMsg.code = 'OK'; // 이미 OK
+				// sendMsg.code = 'OK'; // 이미 OK
 			}
 			res.send( JSON.stringify( sendMsg ) );
 		} );
@@ -144,7 +130,7 @@ router.post( '/delUser', ( req, res ) => {
 } );
 
 router.post( '/enableUser', ( req, res ) => {
-	if ( checkAuthAdmin( req, res ) ) {
+	if ( checkAuth( req, res, 'admin' ) ) {
 		return;
 	}
 
@@ -154,7 +140,7 @@ router.post( '/enableUser', ( req, res ) => {
 } );
 
 router.post( '/disableUser', ( req, res ) => {
-	if ( checkAuthAdmin( req, res ) ) {
+	if ( checkAuth( req, res, 'admin' ) ) {
 		return;
 	}
 

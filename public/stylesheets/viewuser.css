@@ -18,6 +18,14 @@ input.userYellow {
 	background-color: yellow;
 }
 
+input.providerView {
+	width:100px;
+}
+
+input.providerDel {
+	width:50px;
+}
+
 div.cUserMenu > span {
 	display: inline-block;
 	width: 33%

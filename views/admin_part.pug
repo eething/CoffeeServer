@@ -1,7 +1,11 @@
 ﻿div.cOuter#outerAdmin
 
-	form(onsubmit="return false;")
-		div
+	div.cAdminMenu
+		span#menuAdminApp(onclick="onChangeAdminMenu('AdminApp')") 앱설정
+		span#menuAdminUser(onclick="onChangeAdminMenu('AdminUser')") 유저관리
+
+	div#AdminApp
+		form(onsubmit="return false;")
 			table
 				colgroup
 					col(width="90")
@@ -20,19 +24,41 @@
 					td clientID
 					td
 						input.adminWhite#clientID(type="text" autocomplete="off"
-							onchange="checkAdminForm(this);")
+							onchange="onCheckAdminConfig(this);")
 				tr
 					td clientSecret
 					td
 						input.adminWhite#clientSecret(type="text" autocomplete="off"
-							onchange="checkAdminForm(this);")
+							onchange="onCheckAdminConfig(this);")
 				tr
 					td callbackURL
 					td
 						input.adminWhite#callbackURL(type="text" autocomplete="off"
-							onchange="checkAdminForm(this);")
+							onchange="onCheckAdminConfig(this);")
 				tr
 					td(colspan="2" align="center")
 						input(type="button" value="변경/저장"
 						style="width:200px;"
-						onclick="changeAdminConfig(this);")
+						onclick="onSubmitAdminConfig(this);")
+
+	div#AdminUser
+		form(onsubmit="return false;")
+			div(style="text-align:center")
+				select#auth_admin(onchange="onSelectAuth(this);")
+					option Local
+					option Facebook
+					option Google
+					option Kakao
+					option Twitter
+					input(type="button" value="리셋"
+						onclick="onResetAdminAuth();")
+					input(type="button" value="일괄변경"
+						onclick="onSubmitAdminAuth();")
+			table#auth_Local
+				tr
+					td 1 
+					td 2
+			table#auth_Facebook
+			table#auth_Google
+			table#auth_Kakao
+			table#auth_Twitter

@@ -46,7 +46,7 @@ div {
 			background-image: url('/images/sunshine.jpeg');
 			background-size: 1500px;
 			background-repeat: no-repeat;
-			animation: hideAnim 5s forwards;
+			animation: hideAnim 3s forwards;
 			animation-timing-function: linear;
 		}
 			@keyframes hideAnim {
@@ -91,22 +91,24 @@ div {
 	}
 		div.cUpper > div.cMenu {
 			display: inline-block;
-			border: none;
 			margin: 0 0 -4px 0;
-			height: 50px;
+			height: 40px;
 			overflow: hidden;
 		}
 			div.cMenu > .ei-custom {
-				margin: 0px;
-				border: none;
+				margin: 0;
+				width: 40px;
+				height: 40px;
+				//fill: red;
 			}
 
 	div.cOuter {
 		margin: 0;
 		width: 320px;
 		height: 500px;
+		overflow: auto;
 	}
 
-input[type="button"], input[type="submit"] {
+/*input[type="button"], input[type="submit"] {
 	font-size: 13pt;
-}
+}*/

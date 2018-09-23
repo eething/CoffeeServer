@@ -6,5 +6,6 @@ module.exports = {
 		"indent": ["error", "tab"],
 		"no-tabs": "off",
 		"space-in-parens": ["error", "always"],
+		"no-param-reassign": ["error", {"props": false}],
     }
 };

@@ -34,15 +34,12 @@ const l2user = {
 		const select = document.querySelector( '#idSelect' );
 		removeChildAll( select );
 
-		for ( const uid in l2data.allUsers ) {
-			if ( uid == 0 ) {
-				continue;
-			}
-			const u = l2data.allUsers[uid];
-			const userName = u.user.name || u.auth.Local || `* ${uid}`;
-			let option = addElement( select, 'option', '', userName );
+		Object.keys( l2data.allUsers ).forEach( ( uid ) => {
+			const user = l2data.allUsers[uid];
+			const userName = user.name || user.localID || `* ${uid}`;
+			const option = addElement( select, 'option', '', userName );
 			option.value = uid;
-		}
+		} );
 
 		if ( select.length === 0 ) {
 			const option = addElement( select, 'option', '', 'NNUULL' );
@@ -410,21 +407,20 @@ function adminUser( self ) {
 // delUser 는 무조건 admin 기능으로 바꾸려고 함
 function delUser( self ) {
 	const f = self.form;
-//	if( admin ) {
-		const uid = f.idSelect.value;
-		if ( uid < 0 ) {
-			alert( '유저를 선택해 주세요.' );
-			return;
-		}
-//		const uid = f.uid.value;
-		const u = l2data.allUsers[ uid ];
-		const userName = u.user.name || u.auth.Local || `* ${uid}`;
-		var msg = `${userName} 를 삭제하시겠습니까?`;
-//	} else {
-//		var msg = '탈퇴하시겠습니까?';
-//	}
+	// if( admin ) {
+	//	var msg = '탈퇴하시겠습니까?';
+	// } else {
+	const uid = f.idSelect.value;
+	if ( uid < 0 ) {
+		alert( '유저를 선택해 주세요.' );
+		return;
+	}
+	const user = l2data.allUsers[uid];
+	const userName = user.name || user.localID || `* ${uid}`;
+	const msg = `${userName} 를 삭제하시겠습니까?`;
+	// }
 
-	if( confirm( msg ) ) {
+	if ( confirm( msg ) ) {
 		const input = { uid };
 		submitUser( 'delUser', input, () => {} );
 	}
@@ -444,20 +440,48 @@ function submitUser( mode, input, cb ) {
 function onSelectUser( self ) {
 	const f = self.form;
 	const uid = self.value;
-	const u = l2data.allUsers[uid];
-	if ( !u ) {
+	const user = l2data.allUsers[uid];
+	if ( !user ) {
 		disableAdminForm( f, true );
 		return;
 	}
 
-	const { user, auth } = u;
-
 	disableAdminForm( f, false );
 	document.querySelector( '#uid_admin' ).innerHTML = uid;
-	document.querySelector( '#id_admin' ).innerHTML = auth ? auth.Local : '';
+	document.querySelector( '#id_admin' ).innerHTML = user.localID;
 	document.querySelector( '#name_admin' ).value = user.name;
-	document.querySelector( '#del_admin' ).checked = user.deleted ? true : false;
-	document.querySelector( '#enable_admin' ).checked = user.enabled ? true : false;
+	document.querySelector( '#del_admin' ).checked = user.deleted; // ? true : false;
+	document.querySelector( '#enable_admin' ).checked = user.enabled; // ? true : false;
+
+	const Providers = ['Facebook', 'Google', 'Kakao', 'Twitter'];
+	Providers.forEach( ( Provider ) => {
+		const providerView = document.querySelector( `#${Provider}_view` );
+		const providerDel = document.querySelector( `#${Provider}_del` );
+		if ( user.auth && user.auth[Provider] ) {
+			providerView.value = user.auth[Provider].name;
+			providerView.disabled = false;
+			providerDel.disabled = false;
+		} else {
+			providerView.value = '';
+			providerView.disabled = true;
+			providerDel.disabled = true;
+		}
+	} );
+}
+
+function viewProvider( self, Provider ) {
+	const f = self.form;
+	const uid = f.idSelect.value;
+	const user = l2data.allUsers[uid];
+	if ( !user.auth ) {
+		return;
+	}
+	const prov = user.auth[Provider];
+	let msg = `UID: ${prov.uid}\nNAME: ${prov.name}\nID: ${prov.id}`;
+	if ( prov.id !== prov.providerID ) {
+		msg += `\nproviderID: ${prov.providerID} (${typeof prov.providerID})`;
+	}
+	alert( msg );
 }
 
 function changeUserPage( page ) {
@@ -468,10 +492,6 @@ function changeUserPage( page ) {
 			o.style.display = 'none';
 		}
 	} );
-}
-
-if ( typeof showAdminMenu === 'undefined' ) {
-	var showAdminMenu = ( function empty() { } );
 }
 
 function changeLoginData( loginType, loginName, loginID, loginUID ) {
@@ -485,7 +505,9 @@ function changeLoginData( loginType, loginName, loginID, loginUID ) {
 		elem.spanAdmin.style.display	= 'none';
 		elem.spanLogout.style.display	= 'none';
 		changeUserPage( 'Login' );
-		showAdminMenu( false );
+		if ( typeof showAdminMenu === 'function' ) {
+			showAdminMenu( false );
+		}
 	} else {
 		elem.spanLogin.style.display	= 'none';
 		elem.spanRegister.style.display	= 'none';
@@ -493,13 +515,17 @@ function changeLoginData( loginType, loginName, loginID, loginUID ) {
 		elem.spanLogout.style.display	= 'inline-block';
 
 		if ( loginType === 'admin' ) {
-			elem.spanAdmin.style.display= 'inline-block';
+			elem.spanAdmin.style.display = 'inline-block';
 			changeUserPage( 'Admin' );
-			showAdminMenu( true );
+			if ( typeof showAdminMenu === 'function' ) {
+				showAdminMenu( true );
+			}
 		} else {
-			elem.spanAdmin.style.display= 'none';
+			elem.spanAdmin.style.display = 'none';
 			changeUserPage( 'MyInfo' );
-			showAdminMenu( false );
+			if ( typeof showAdminMenu === 'function' ) {
+				showAdminMenu( false );
+			}
 		}
 	}
 	// Name

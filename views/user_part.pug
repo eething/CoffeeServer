@@ -183,16 +183,28 @@
 						 	onclick="adminUser(this);")
 				tr
 					td FACEBOOK
-					td 연동끊기
+					td
+						input.providerView#Facebook_view(type="button" value="상세보기"
+							onclick="viewProvider(this,'Facebook');")
+						input.providerDel#Facebook_del(type="button" value="끊기")
 				tr
 					td GOOGLE
-					td 연동끊기
+					td
+						input.providerView#Google_view(type="button" value="상세보기"
+							onclick="viewProvider(this,'Google');")
+						input.providerDel#Google_del(type="button" value="끊기")
 				tr
 					td KAKAO
-					td 연동끊기
+					td
+						input.providerView#Kakao_view(type="button" value="상세보기"
+							onclick="viewProvider(this,'Kakao');")
+						input.providerDel#Kakao_del(type="button" value="끊기")
 				tr
 					td TWITTER
-					td 연동끊기
+					td
+						input.providerView#Twitter_view(type="button" value="상세보기"
+							onclick="viewProvider(this,'Twitter');")
+						input.providerDel#Twitter_del(type="button" value="끊기")
 
 				tr
 					td(colspan="2" align="center")

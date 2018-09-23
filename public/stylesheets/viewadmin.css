@@ -17,3 +17,50 @@ input.adminYellow {
 	width: 150px;
 	background-color: yellow;
 }
+
+div.cAdminMenu > span {
+	display: inline-block;
+	width: 33%
+}
+
+td.cProviderID {
+	width: 180px;
+	font-size: 15px;
+}
+
+.cError1 {
+	background-color: red;
+}
+.cError2 {
+	background-color: orange;
+}
+.cError3 {
+	background-color: yellow;
+}
+.cError4 {
+	background-color: pink;
+}
+.cError5 {
+	background-color: green;
+}
+.cError6 {
+	background-color: aqua;
+}
+.cError7 {
+	background-color: deepskyblue;
+}
+.cError8 {
+	background-color: magenta;
+}
+.cError9 {
+	background-color: purple;
+}
+
+input.cUID {
+	width: 60px;
+}
+
+input.cUIDChanged {
+	background-color: red;
+}
+	

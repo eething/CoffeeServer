@@ -1,21 +1,29 @@
-﻿'use strict';
-
+﻿
 const fs = require( 'fs' );
+
 const convertError = require( '../lib/convert-error' );
+const checkLoaded = require( '../lib/check-loaded' );
 
 module.exports = {
 
-	//isLoaded: false,
+	// isLoaded: false,
 
 	allBeverages: {},
 
-	loadBeverages() {
-		fs.readdir( 'data/beverages', ( err, files ) => {
+	loadBeverages( callback ) {
+		fs.readdir( 'data/beverages', ( error, files ) => {
+			const len = files.length;
+			const checker = checkLoaded( len + 1, () => {
+				console.log( 'Beverage Loaded...' );
+				callback();
+			} );
+			checker();
 			files.forEach( ( file ) => {
 				const filePath = `data/beverages/${file}`;
 				fs.readFile( filePath, ( err, data ) => {
-					if( err ) {
-						if( err.code === 'EISDIR' ) {
+					if ( err ) {
+						if ( err.code === 'EISDIR' ) {
+							checker();
 							return;
 						}
 						throw err;
@@ -23,92 +31,79 @@ module.exports = {
 					const value = JSON.parse( data );
 					const key = value.name;
 					this.allBeverages[key] = value;
+
+					checker();
 				} );
 			} );
 		} );
 	},
 
 	addBeverage( body, callback ) {
-		let beverage = {};
-		for( let key in body ) {
-			let value = body[ key ];
-			if( key.substr( -4 ) == "able" && value == "on" ) {
+		const beverage = {};
+		Object.keys( body ).forEach( ( key ) => {
+			let value = body[key];
+			if ( key.substr( -4 ) === 'able' && value === 'on' ) {
 				value = true;
 			}
-			beverage[ key ] = value;
-		}
-		this.allBeverages[ beverage.name ] = beverage;
+			beverage[key] = value;
+		} );
+		this.allBeverages[beverage.name] = beverage;
 
-		let beverageString = JSON.stringify( beverage );
-		let filePath = `data/beverages/${beverage.name}`;
-		fs.writeFile( filePath, beverageString, err => {
-			if( err ) {
-				callback( {
-					code: 'EWRITE',
-					err: convertError( err )
-				} );
+		const beverageString = JSON.stringify( beverage );
+		const filePath = `data/beverages/${beverage.name}`;
+		fs.writeFile( filePath, beverageString, ( err ) => {
+			if ( err ) {
+				callback( { code: 'EWRITE', err: convertError( err ) } );
 			} else {
-				callback( {
-					code: 'OK',
-					beverage: beverage
-				} );
+				callback( { code: 'OK' /* beverage */ } );
 			}
 		} );
 	},
 
 	delBeverage( body, callback ) {
-
-		let len = Object.keys( body ).length;
-		if( len === 0 ) {
-			callback( {
-				code: "EINPUT",
-				err: 'Input NOT Exist'
-			} );
+		const len = Object.keys( body ).length;
+		if ( len === 0 ) {
+			callback( { code: 'EINPUT', err: 'Input NOT Exist' } );
 			return;
 		}
+		const checker = checkLoaded( len, callback );
 
-		let sendMsg = {
+		const sendMsg = {
 			code: 'OK',
 			errList: [],
-			delList: []
+			delList: [],
 		};
 
-		for( let key in body ) {
-			//console.log( key + ' : ' + this.allBeverages[key] );
-			delete this.allBeverages[ key ];
+		Object.keys( body ).forEach( ( key ) => {
+			// console.log( key + ' : ' + this.allBeverages[key] );
+			delete this.allBeverages[key];
 
 			const filePath = `data/beverages/${key}`;
-			fs.unlink( filePath, err => {
-				--len;
-				if( err ) {
+			fs.unlink( filePath, ( err ) => {
+				if ( err ) {
 					sendMsg.code = 'EUNLINK';
-					sendMsg.errList.push( errorConvert( err ) ); //key: key,
+					sendMsg.errList.push( convertError( err ) ); // key: key,
 				} else {
 					sendMsg.delList.push( key );
 				}
 
-				if( len === 0 ) {
-					callback( sendMsg );
-				}
+				checker( null, sendMsg );
 			} );
-		}
+		} );
 	},
 
-	getIceHotType: function ( name ) {
-		const beverage = this.allBeverages[ name ];
+	getIceHotType( name ) {
+		const beverage = this.allBeverages[name];
 
-		if( beverage.icoable ) {
-			if( beverage.hotable ) {
-				return "select";
-			} else {
-				return "iceOnly";
+		if ( beverage.icoable ) {
+			if ( beverage.hotable ) {
+				return 'select';
 			}
-		} else {
-			if( beverage.hotable ) {
-				return "hotOnly";
-			} else {
-				return "none"; // 쿠키류
-			}
+			return 'iceOnly';
 		}
-	}
+		if ( beverage.hotable ) {
+			return 'hotOnly';
+		}
+		return 'none'; // 쿠키류
+	},
 };
