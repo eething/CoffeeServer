@@ -78,7 +78,7 @@ const l2admin = {
 			input.type = 'number';
 			input.value = uid;
 			input.addEventListener( 'change', function onChangeUID() {
-				if ( this.value != uid ) {
+				if ( this.value !== uid.toString() ) {
 					prov.uidChanged = this.value;
 					this.classList.add( 'cUIDChanged' );
 					l2admin.setChanged( Provider, providerID, this.value );

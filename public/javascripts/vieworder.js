@@ -1,6 +1,7 @@
 ﻿// vieworder.js
-/* global MyError fetchHelper removeChildAll addElement l2data elem */
 /* eslint-env browser */
+/* global MyError fetchHelper removeChildAll addElement l2data elem */
+/* eslint no-unused-vars: ["error", { "varsIgnorePattern": "^(?:on|init|l2)" }] */
 
 l2data.view.order = true;
 
@@ -21,158 +22,7 @@ function initOrderElem() {
 	elem.tableOrderO.style.display = 'none';
 }
 
-const l2order = {
-	cbBeverageList() {
-		const select = document.querySelector( '#beverageList select' );
-		removeChildAll( select );
-
-		const option = addElement( select, 'option', '', '음료선택' );
-		option.value = '';
-
-		Object.keys( l2data.allBeverages ).forEach( ( bKey ) => {
-			const beverage = l2data.allBeverages[bKey];
-			/* const option = */addElement( select, 'option', '', beverage.name );
-			// option.text = beverage.name;
-			// option.value = beverage.name;
-		} );
-	},
-
-	cbUserList() {
-		const select = document.querySelector( '#orderBy' );
-		removeChildAll( select );
-
-		Object.keys( l2data.allUsers ).forEach( ( uid ) => {
-			const user = l2data.allUsers[uid];
-			if ( !user.deleted && user.enabled ) {
-				const option = addElement( select, 'option', '',
-					user.name || user.localID || `* ${uid}` );
-				option.value = uid;
-			}
-		} );
-
-		if ( select.length === 0 ) {
-			const option = addElement( select, 'option', '', 'NNUULL' );
-			option.value = -1;
-		}
-	},
-
-	_makeOptionStr( option ) {
-		let optionStr = '';
-		Object.keys( option ).forEach( ( k ) => {
-			if ( k === 'icehot' ) {
-				let icehot = '';
-				if ( option[k] === 'ice' ) {
-					icehot = '아이스';
-				} else if ( option[k] === 'hot' ) {
-					icehot = '따뜻';
-				}
-				optionStr = icehot
-					+ ( ( icehot && optionStr ) ? '/' : '' )
-					+ optionStr;
-			} else if ( k === 'syrup' ) {
-				optionStr += ( optionStr ? '/' : '' )
-					+ ( option[k] === 'minus' ? '시럽빼고' : '' );
-			}
-		} );
-		return optionStr;
-	},
-	_addTableOrderO( co ) {
-		const optionStr = this._makeOptionStr( co );
-
-		const userName = co.orderByDN;
-		/*
-		const user = l2data.allUsers[co.orderBy];
-		let username = '';
-		if( user ) {
-			username = user.name ? user.name : user.id;
-		} else {
-			username = `* ${co.orderBy}`
-		}
-		*/
-
-		const tr = addElement( elem.tableOrderO, 'tr', 'cOrderItem' );
-
-		const beverageStr = `${co.beverage}(${optionStr})`;
-		const size = Math.min( Math.max( 30 - beverageStr.length, 11 ), 15 );
-
-		addElement( tr, 'td', 'cOrderBy', userName );
-		const td = addElement( tr, 'td', 'cBeverageOption', beverageStr );
-		td.style.fontSize = `${size}px`;
-	},
-	_makeTableOrderO() {
-		removeChildAll( elem.tableOrderO );
-		l2data.currentOrder.forEach( ( co ) => {
-			this._addTableOrderO( co );
-		} );
-	},
-	_totalCount: 0,
-	_addTableOrderB( k, v ) {
-		const tr = addElement( elem.tableOrderB, 'tr', 'cOrderItem' );
-
-		const tdBeverage = addElement( tr, 'td', 'cBeverage', k );
-		let size = Math.min( Math.max( 23 - k.length * 2, 11 ), 15 );
-		tdBeverage.style.fontSize = `${size}px`;
-
-		const option = JSON.parse( v.options );
-		const optionStr = this._makeOptionStr( option );
-		const tdOption = addElement( tr, 'td', 'cOption', optionStr );
-		size = Math.min( Math.max( 25 - optionStr.length, 10 ), 15 );
-		tdOption.style.fontSize = `${size}px`;
-
-		const tdNum = addElement( tr, 'td' );
-
-		const aPopup = addElement( tdNum, 'a', '', v.orderBys.length );
-		this._totalCount += v.orderBys.length;
-		function popupViewOrderBys() {
-			removeChildAll( elem.divPopup );
-			addElement( elem.divPopup, 'p', '', k );
-			addElement( elem.divPopup, 'p', '', optionStr );
-			v.orderByDNs.forEach( ( oDN ) => {
-				addElement( elem.divPopup, 'p', '', oDN );
-			} );
-
-			const input = addElement( elem.divPopup, 'input', 'cNadoNado', '' );
-			input.type = 'button';
-			input.value = '나도나도';
-			input.addEventListener( 'click', () => {
-				selectBeverage( k );
-				checkOptions( option );
-			} );
-
-			showPopup( true );
-		}
-		aPopup.addEventListener( 'click', () => {
-			popupViewOrderBys();
-		} );
-	},
-	_setTotalForOrderB() {
-		document.querySelector( 'span.cTotal' ).innerHTML = `총 ${this._totalCount} 잔`;
-	},
-	_makeTableOrderB() {
-		removeChildAll( elem.tableOrderB );
-		this._totalCount = 0;
-		l2data.buyKeysSorted.forEach( ( k ) => {
-			l2data.currentBuy[k].forEach( ( v ) => {
-				this._addTableOrderB( k, v );
-			} );
-		} );
-	},
-
-	cbOrderList() {
-		l2order._makeTableOrderO();
-		l2order._makeTableOrderB();
-		l2order._setTotalForOrderB();
-	},
-	/*
-	cbOrderOne( order ) {
-		l2order._addTableOrderO( order );
-		l2order._addTableOrderB( '엄훠', order );
-		l2order._setTotalForOrderB();
-	}
-	*/
-};
-
-function swapOrderList( self ) {
+function onSwapOrderList( self ) {
 	if ( elem.tableOrderB.style.display === 'none' ) {
 		elem.tableOrderB.style.display = 'table';
 		elem.tableOrderO.style.display = 'none';
@@ -182,58 +32,6 @@ function swapOrderList( self ) {
 		elem.tableOrderO.style.display = 'table';
 		self.innerHTML = '음료별';
 	}
-}
-
-function addOrder( self ) {
-	const f = self.form;
-
-	if ( f.orderBy.value < 0 ) {
-		alert( '마실 사람을 선택해 주세요.' );
-		return;
-	}
-	if ( f.beverage.value === '' ) {
-		if ( f.beverageSelect.value ) {
-			f.beverage.value = f.beverageSelect.value;
-		} else {
-			alert( '음료명을 입력해주세요.' );
-			return;
-		}
-	}
-	if ( !l2data.allBeverages[f.beverage.value] ) {
-		alert( '없는 음료입니다.' );
-		return;
-	}
-
-	if ( ( elem.divIce.style.display === 'block' || elem.divHot.style.display === 'block' )
-		&& !elem.radioIce.checked && !elem.radioHot.checked ) {
-		alert( '아이스 / 따뜻 골라주세요.' );
-		return;
-	}
-
-	const input = {
-		orderBy: f.orderBy.value,
-		beverage: f.beverage.value
-	};
-	f.beverage.value = '';
-	if ( f.icehot.value ) {
-		input.icehot = f.icehot.value;
-		elem.radioIce.checked = false;
-		elem.radioHot.checked = false;
-	}
-	if ( f.syrup.checked ) {
-		input.syrup = f.syrup.value;
-		elem.chkSyrup.checked = false;
-	}
-
-	changeBeverage( f, '' );
-
-	fetchHelper( '/order', null, input, 'addOrder', ( data ) => {
-		if ( data.code === 'OK' ) {
-			l2data.setData( data );
-		} else {
-			throw new MyError( 500, data );
-		}
-	} );
 }
 
 function checkOptions( option ) {
@@ -279,6 +77,73 @@ function showPopup( start ) {
 	elem.divPopupOuter.style.visibility = visMode;
 }
 
+function showBeverage( f, beverage ) {
+	elem.divOrderList.style.display = 'none';
+	showBeverageOptions( beverage );
+	f.beverage.style.backgroundColor = 'lightgreen';
+}
+
+function clearBeverage( f ) {
+	f.beverage.style.backgroundColor = '';
+	elem.divOrderList.style.display = 'block';
+	elem.divIce.style.display = 'none';
+	elem.divHot.style.display = 'none';
+	elem.divSyrup.style.display = 'none';
+}
+
+
+function selectBeverage( name ) {
+	document.querySelector( '#beverageSelect' ).value = name;
+	document.querySelector( '#beverage' ).value = name;
+	const orderForm = document.querySelector( '#order_form' );
+	const beverage = l2data.allBeverages[name];
+	showBeverage( orderForm, beverage );
+	showPopup( false );
+}
+
+function changeBeverage( f, value ) {
+	if ( value === '' ) {
+		clearBeverage();
+		return;
+		// f.beverage.style.backgroundColor = '';
+	}
+	const beverage = l2data.allBeverages[value];
+	if ( beverage ) {
+		showBeverage( f, beverage );
+		return;
+	}
+	removeChildAll( elem.divPopup );
+	let bFound = false;
+	Object.keys( l2data.allBeverages ).forEach( ( k ) => {
+		const b = l2data.allBeverages[k];
+		if ( b.name.indexOf( value ) !== -1 ) {
+			bFound = true;
+			const p = document.createElement( 'p' );
+			p.className = 'stxt';
+			p.addEventListener( 'click', () => {
+				selectBeverage( b.name );
+			} );
+			p.innerHTML = b.name;
+			elem.divPopup.appendChild( p );
+		}
+	} );
+	if ( bFound ) {
+		const p = document.createElement( 'p' );
+		p.className = 'ctxt';
+		p.innerHTML = '음료를 선택해주세요';
+		elem.divPopup.prepend( p );
+		showPopup( true );
+	} else {
+		f.beverage.style.backgroundColor = 'red';
+	}
+	/*
+	elem.divOrderList.style.display = 'block';
+	elem.divIce.style.display = 'none';
+	elem.divHot.style.display = 'none';
+	elem.divSyrup.style.display = 'none';
+	*/
+}
+
 function onChangeBeverage( self ) {
 	const f = self.form;
 	if ( self.type === 'text' ) {
@@ -286,57 +151,215 @@ function onChangeBeverage( self ) {
 	}
 	changeBeverage( f, self.value );
 }
-function changeBeverage( f, value ) {
 
-	let bShow = false;
-	const beverage = l2data.allBeverages[value];
-	if ( beverage ) {
-		bShow = true;
-	} else if ( value === '' ) {
-		f.beverage.style.backgroundColor = '';
-	} else {
-		removeChildAll( elem.divPopup );
-		let bFound = false;
-		Object.keys( l2data.allBeverages ).forEach( ( k ) => {
-			const b = l2data.allBeverages[k];
-			if ( b.name.indexOf( value ) !== -1 ) {
-				bFound = true;
-				let p = document.createElement( 'p' );
-				p.className = 'stxt';
-				p.addEventListener( 'click', () => {
-					selectBeverage( b.name );
-				} );
-				p.innerHTML = b.name;
-				elem.divPopup.appendChild( p );
-			}
-		} );
-		if ( bFound ) {
-			const p = document.createElement( 'p' );
-			p.className = 'ctxt';
-			p.innerHTML = '음료를 선택해주세요';
-			elem.divPopup.prepend( p );
-			showPopup( true );
-		} else {
-			f.beverage.style.backgroundColor = 'red';
-		}
-	}
-
-	if ( bShow ) {
-		elem.divOrderList.style.display = 'none';
-		showBeverageOptions( beverage );
-		f.beverage.style.backgroundColor = 'lightgreen';
-	} else {
-		elem.divOrderList.style.display = 'block';
-		elem.divIce.style.display = 'none';
-		elem.divHot.style.display = 'none';
-		elem.divSyrup.style.display = 'none';
-	}
-}
-
-function selectBeverage( name ) {
-	document.querySelector( '#beverageSelect' ).value = name;
-	document.querySelector( '#beverage' ).value = name;
-	const orderForm = document.querySelector( '#order_form' );
-	changeBeverage( orderForm, name );
+function onResetBeverage( self ) {
+	const f = self.form;
+	f.beverage.value = '';
+	f.beverageSelect.value = '';
+	clearBeverage( f );
 	showPopup( false );
 }
+
+function onAddOrder( self ) {
+	const f = self.form;
+
+	if ( f.orderBy.value < 0 ) {
+		alert( '마실 사람을 선택해 주세요.' );
+		return;
+	}
+	if ( f.beverage.value === '' ) {
+		if ( f.beverageSelect.value ) {
+			f.beverage.value = f.beverageSelect.value;
+		} else {
+			alert( '음료명을 입력해주세요.' );
+			return;
+		}
+	}
+	if ( !l2data.allBeverages[f.beverage.value] ) {
+		alert( '없는 음료입니다.' );
+		return;
+	}
+
+	if ( ( elem.divIce.style.display === 'block' || elem.divHot.style.display === 'block' )
+		&& !elem.radioIce.checked && !elem.radioHot.checked ) {
+		alert( '아이스 / 따뜻 골라주세요.' );
+		return;
+	}
+
+	const input = {
+		orderBy: f.orderBy.value,
+		beverage: f.beverage.value,
+	};
+	f.beverage.value = '';
+	if ( f.icehot.value ) {
+		input.icehot = f.icehot.value;
+		elem.radioIce.checked = false;
+		elem.radioHot.checked = false;
+	}
+	if ( f.syrup.checked ) {
+		input.syrup = f.syrup.value;
+		elem.chkSyrup.checked = false;
+	}
+
+	changeBeverage( f, '' );
+
+	fetchHelper( '/order', null, input, 'addOrder', ( data ) => {
+		if ( data.code === 'OK' ) {
+			l2data.setData( data );
+		} else {
+			throw new MyError( 500, data );
+		}
+	} );
+}
+
+// MAKE TABLE
+function makeOptionStr( option ) {
+	let optionStr = '';
+	Object.keys( option ).forEach( ( k ) => {
+		if ( k === 'icehot' ) {
+			let icehot = '';
+			if ( option[k] === 'ice' ) {
+				icehot = '아이스';
+			} else if ( option[k] === 'hot' ) {
+				icehot = '따뜻';
+			}
+			optionStr = icehot
+				+ ( ( icehot && optionStr ) ? '/' : '' )
+				+ optionStr;
+		} else if ( k === 'syrup' ) {
+			optionStr += ( optionStr ? '/' : '' )
+				+ ( option[k] === 'minus' ? '시럽빼고' : '' );
+		}
+	} );
+	return optionStr;
+}
+function addTableOrderO( co ) {
+	const optionStr = makeOptionStr( co );
+
+	const userName = co.orderByDN;
+	/*
+	const user = l2data.allUsers[co.orderBy];
+	let username = '';
+	if( user ) {
+		username = user.name ? user.name : user.id;
+	} else {
+		username = `* ${co.orderBy}`
+	}
+	*/
+
+	const tr = addElement( elem.tableOrderO, 'tr', 'cOrderItem' );
+
+	const beverageStr = `${co.beverage}(${optionStr})`;
+	const size = Math.min( Math.max( 30 - beverageStr.length, 11 ), 15 );
+
+	addElement( tr, 'td', 'cOrderBy', userName );
+	const td = addElement( tr, 'td', 'cBeverageOption', beverageStr );
+	td.style.fontSize = `${size}px`;
+}
+function makeTableOrderO() {
+	removeChildAll( elem.tableOrderO );
+	l2data.currentOrder.forEach( ( co ) => {
+		addTableOrderO( co );
+	} );
+}
+let totalCount = 0;
+function addTableOrderB( k, v ) {
+	const tr = addElement( elem.tableOrderB, 'tr', 'cOrderItem' );
+
+	const tdBeverage = addElement( tr, 'td', 'cBeverage', k );
+	let size = Math.min( Math.max( 23 - k.length * 2, 11 ), 15 );
+	tdBeverage.style.fontSize = `${size}px`;
+
+	const option = JSON.parse( v.options );
+	const optionStr = makeOptionStr( option );
+	const tdOption = addElement( tr, 'td', 'cOption', optionStr );
+	size = Math.min( Math.max( 25 - optionStr.length, 10 ), 15 );
+	tdOption.style.fontSize = `${size}px`;
+
+	const tdNum = addElement( tr, 'td' );
+
+	const aPopup = addElement( tdNum, 'a', '', v.orderBys.length );
+	totalCount += v.orderBys.length;
+	function popupViewOrderBys() {
+		removeChildAll( elem.divPopup );
+		addElement( elem.divPopup, 'p', '', k );
+		addElement( elem.divPopup, 'p', '', optionStr );
+		v.orderByDNs.forEach( ( oDN ) => {
+			addElement( elem.divPopup, 'p', '', oDN );
+		} );
+
+		const input = addElement( elem.divPopup, 'input', 'cNadoNado', '' );
+		input.type = 'button';
+		input.value = '나도나도';
+		input.addEventListener( 'click', () => {
+			selectBeverage( k );
+			checkOptions( option );
+		} );
+
+		showPopup( true );
+	}
+	aPopup.addEventListener( 'click', () => {
+		popupViewOrderBys();
+	} );
+}
+function setTotalForOrderB() {
+	document.querySelector( 'span.cTotal' ).innerHTML = `총 ${totalCount} 잔`;
+}
+function makeTableOrderB() {
+	removeChildAll( elem.tableOrderB );
+	totalCount = 0;
+	l2data.buyKeysSorted.forEach( ( k ) => {
+		l2data.currentBuy[k].forEach( ( v ) => {
+			addTableOrderB( k, v );
+		} );
+	} );
+}
+
+const l2order = {
+	cbBeverageList() {
+		const select = document.querySelector( '#beverageList select' );
+		removeChildAll( select );
+
+		const option = addElement( select, 'option', '', '음료선택' );
+		option.value = '';
+
+		Object.keys( l2data.allBeverages ).forEach( ( bKey ) => {
+			const beverage = l2data.allBeverages[bKey];
+			/* const option = */addElement( select, 'option', '', beverage.name );
+			// option.text = beverage.name;
+			// option.value = beverage.name;
+		} );
+	},
+
+	cbUserList() {
+		const select = document.querySelector( '#orderBy' );
+		removeChildAll( select );
+
+		Object.keys( l2data.allUsers ).forEach( ( uid ) => {
+			const user = l2data.allUsers[uid];
+			if ( !user.deleted && user.enabled ) {
+				const option = addElement( select, 'option', '',
+					user.name || user.localID || `* ${uid}` );
+				option.value = uid;
+			}
+		} );
+
+		if ( select.length === 0 ) {
+			const option = addElement( select, 'option', '', 'NNUULL' );
+			option.value = -1;
+		}
+	},
+
+	cbOrderList() {
+		makeTableOrderO();
+		makeTableOrderB();
+		setTotalForOrderB();
+	},
+	/*
+	cbOrderOne( order ) {
+		l2order._addTableOrderO( order );
+		l2order._addTableOrderB( '엄훠', order );
+		l2order._setTotalForOrderB();
+	}
+	*/
+};

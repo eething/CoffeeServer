@@ -442,7 +442,7 @@ module.exports = {
 			unlink( `data/users/local/${oldLocalID}`, ()= > { ... } );
 
 			local = this.allLocals[ newLocalID ] = { uid: newUID }
-			this._writeLocal( newLocalID, () => { ... } );
+			this.writeLocal( newLocalID, () => { ... } );
 		}
 		*/
 

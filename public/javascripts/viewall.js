@@ -1,7 +1,7 @@
 ﻿// viewall.js
 /* eslint-env browser */
 /* global l2data l2user l2beverage l2order elem */
-/* eslint no-unused-vars: ["error", { "varsIgnorePattern": "^(?:on|init)" }] */
+/* eslint no-unused-vars: ["error", { "varsIgnorePattern": "^(?:on|init|l2)" }] */
 
 l2data.view.all = true;
 
@@ -9,7 +9,7 @@ const l2all = {
 
 	cbAllList( data ) {
 		if ( data.code === 'EAUTH' ) {
-			changePage( 'User' );
+			this.changePage( 'User' );
 		}
 	},
 
@@ -26,24 +26,26 @@ const l2all = {
 	cbOrderList() {
 		l2order.cbOrderList();
 	},
+
+	changePage( page ) {
+		elem.outerList.forEach( ( o ) => {
+			if ( o.id.substr( 5 ) === page ) {
+				o.style.display = 'block';
+			} else {
+				o.style.display = 'none';
+			}
+		} );
+	},
+
+	showAdminMenu( bShow ) {
+		if ( !elem.divMenuAdmin ) {
+			elem.divMenuAdmin = document.querySelector( '#menu_admin' );
+		}
+		elem.divMenuAdmin.style.display = bShow ? 'inline-block' : 'none';
+	},
 };
 
-function showAdminMenu( bShow ) {
-	if ( !elem.divMenuAdmin ) {
-		elem.divMenuAdmin = document.querySelector( '#menu_admin' );
-	}
-	elem.divMenuAdmin.style.display = bShow ? 'inline-block' : 'none';
-}
 
-function changePage( page ) {
-	elem.outerList.forEach( ( o )=> {
-		if ( o.id.substr( 5 ) === page ) {
-			o.style.display = 'block';
-		} else {
-			o.style.display = 'none';
-		}
-	} );
-}
 
 function initAllElem( loginType ) {
 	elem.divOuterOrder = document.querySelector( 'div#outerOrder' );
@@ -59,7 +61,7 @@ function initAllElem( loginType ) {
 	];
 
 	if ( loginType !== 'admin' ) {
-		showAdminMenu( false );
+		l2all.showAdminMenu( false );
 	}
-	changePage( 'Order' );
+	l2all.changePage( 'Order' );
 }

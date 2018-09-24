@@ -169,7 +169,7 @@ module.exports = {
 	makeStrategy( Provider ) {
 		return ( accessToken, refreshToken, profile, done ) => {
 			const providerID = profile.id.toString();
-			const allProviders = users._getProvider( Provider );
+			const allProviders = users.getAllProvider( Provider );
 			const prov = allProviders[providerID];
 			if ( prov ) {
 				prov.accessToken	= accessToken;

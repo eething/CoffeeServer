@@ -35,10 +35,10 @@ html
 	body(onLoad="initAll();")
 		div.cApp
 			div.cUpper
-				div.cMenu(onclick="changePage('Order')") !{icons.cart}
-				div.cMenu(onclick="changePage('User')") !{icons.user}
-				div.cMenu(onclick="changePage('Beverage')") !{icons.pencil}
-				div.cMenu#menu_admin(onclick="changePage('Admin')") !{icons.gear}
+				div.cMenu(onclick="l2all.changePage('Order')") !{icons.cart}
+				div.cMenu(onclick="l2all.changePage('User')") !{icons.user}
+				div.cMenu(onclick="l2all.changePage('Beverage')") !{icons.pencil}
+				div.cMenu#menu_admin(onclick="l2all.changePage('Admin')") !{icons.gear}
 				div.cMenu(onclick="l2data.getAllList();") !{icons.refresh}
 
 			include order_part

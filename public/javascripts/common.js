@@ -1,6 +1,7 @@
 ﻿// common.js
-/* global */
 /* eslint-env browser */
+/* global l2all l2user l2beverage l2order */
+/* eslint no-unused-vars: ["error", { "varsIgnorePattern": "^(?:elem|l2|add|remove)" }] */
 
 function MyError( status, errMsg ) {
 	this.name = 'L2Error';
@@ -16,15 +17,15 @@ const elem = {};
 
 function fetchHelper( address, options, input, description, callback ) {
 	//
+	const opt = options || {};
 	if ( input ) {
-		options = options || {};
-		options.headers = options.headers || {};
-		options.headers['Content-Type'] = 'application/json';
-		options.method = 'post';
-		options.body = JSON.stringify( input );
+		opt.headers = options.headers || {};
+		opt.headers['Content-Type'] = 'application/json';
+		opt.method = 'post';
+		opt.body = JSON.stringify( input );
 	}
 
-	fetch( address, options )
+	fetch( address, opt )
 		.then( ( res ) => {
 			if ( res.ok ) {
 				return res.json();

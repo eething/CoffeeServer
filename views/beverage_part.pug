@@ -4,7 +4,7 @@
 			div
 				input#name(type="text" name="name"
 					autocomplete="off" placeholder="호로록")
-				input(type="button" value="추가" onclick="addBeverage(this);")
+				input(type="button" value="추가" onclick="onAddBeverage(this);")
 			div.cOption
 				input(type="checkbox" name="iceable" checked)
 				span 아이스
@@ -23,9 +23,9 @@
 				onkeydown="if( event.keyCode == 13 ){ return false; }" )
 			datalist#beverageList2
 				select#beverageSelect2(style="width:180px;margin-left:-186px;height:22px;")
-			input(type="button" value="삭제리스트" onclick="addDelete( this );")
+			input(type="button" value="삭제리스트" onclick="onAddDelete( this );")
 
 		form(action="/beverage/del" method="post" onsubmit="return false;")
 			div.cDeleteList
 			div.cExecDelete
-				input(type="button" value="삭제실행" onclick="delBeverage(this);")
+				input(type="button" value="삭제실행" onclick="onDelBeverage(this);")

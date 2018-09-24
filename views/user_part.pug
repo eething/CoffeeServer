@@ -5,7 +5,7 @@
 		span#menuRegister(onclick="changeUserPage('NewUser')") 회원가입
 		span#menuMyInfo(onclick="changeUserPage('MyInfo')") 정보수정
 		span#menuAdmin(onclick="changeUserPage('Admin')") 관리자
-		span#menuLogout(onclick="logout();") 로그아웃
+		span#menuLogout(onclick="onLogout();") 로그아웃
 
 	form(onsubmit="return false;")
 		div.cLogin
@@ -25,19 +25,19 @@
 					td(colspan="2" align="center")
 						input(type="button" value="로그인"
 							style="width:200px;"
-							onclick="login(this);")
+							onclick="onLogin(this);")
 				tr
 					td(colspan="2" align="center")
-						div.cLoginButton.cFacebook(onclick="loginProvider('Facebook')") 빼북
+						div.cLoginButton.cFacebook(onclick="onLoginProvider('Facebook')") 빼북
 				tr
 					td(colspan="2" align="center")
-						div.cGoogleImage(onclick="loginProvider('Google')") 
+						div.cGoogleImage(onclick="onLoginProvider('Google')") 
 				tr
 					td(colspan="2" align="center")
-						div.cKakaoImage(onclick="loginProvider('Kakao')") 
+						div.cKakaoImage(onclick="onLoginProvider('Kakao')") 
 				tr
 					td(colspan="2" align="center")
-						div.cLoginButton.cTwitter(onclick="loginProvider('Twitter')") 트잉여
+						div.cLoginButton.cTwitter(onclick="onLoginProvider('Twitter')") 트잉여
 
 	form(onsubmit="return false;")
 		//input(type="hidden" name="uid")
@@ -57,36 +57,36 @@
 					td
 						input.userYellow#id_add(type="text" name="id"
 						 	autocomplete="off" style="width:110px"
-							onchange="checkIDChanged(this);")
+							onchange="onCheckIDChanged(this);")
 						input#duplicatedID(type="button" value="중복"
-						 	onclick="checkDuplicatedID(this);")
+						 	onclick="onCheckDuplicatedID(this);")
 				tr
 					td 비밀번호
 					td
 						input.userRed#password1_add(type="password"
-							onchange="checkAddForm(this);")
+							onchange="onCheckAddForm(this);")
 				tr
 					td 비번확인
 					td
 						input.userWhite#password2_add(type="password"
-						 	onchange="checkAddForm(this);")
+						 	onchange="onCheckAddForm(this);")
 				tr
 					td(colspan="2" align="center")
 						input(type="button" value="회원가입"
 						style="width:200px;"
-						onclick="addUser(this);")
+						onclick="onAddUser(this);")
 				tr
 					td(colspan="2" align="center")
-						div.cLoginButton.cFacebook(onclick="loginProvider('Facebook')") 빼북
+						div.cLoginButton.cFacebook(onclick="onLoginProvider('Facebook')") 빼북
 				tr
 					td(colspan="2" align="center")
-						div.cGoogleImage(onclick="loginProvider('Google')") 
+						div.cGoogleImage(onclick="onLoginProvider('Google')") 
 				tr
 					td(colspan="2" align="center")
-						div.cKakaoImage(onclick="loginProvider('Kakao')") 
+						div.cKakaoImage(onclick="onLoginProvider('Kakao')") 
 				tr
 					td(colspan="2" align="center")
-						div.cLoginButton.cTwitter(onclick="loginProvider('Twitter')") 트잉여
+						div.cLoginButton.cTwitter(onclick="onLoginProvider('Twitter')") 트잉여
 
 		div.cMyInfo
 			table
@@ -103,37 +103,37 @@
 					td
 						input.userWhite#name_edit(type="text" value=loginName
 							autocomplete="off"
-						 	onchange="checkEditForm(this)" )
+						 	onchange="onCheckEditForm(this)" )
 				tr
 					td 비밀번호
 					td
 						input.userWhite#password1_edit(type="password"
-						 	onchange="checkEditForm(this);")
+						 	onchange="onCheckEditForm(this);")
 				tr
 					td 비번확인
 					td
 						input.userWhite#password2_edit(type="password"
-						 	onchange="checkEditForm(this);")
+						 	onchange="onCheckEditForm(this);")
 				tr
 					td(colspan="2" align="center")
 						input(type="button" value="수정"
 							style="width:200px;"
-						 	onclick="editUser(this);")
+						 	onclick="onEditUser(this);")
 				//tr
 					td(colspan="2" align="center")
 						input(type="button" value="탈퇴" onclick="delUser(this);" style="width:200px;")
 				tr
 					td(colspan="2" align="center")
-						div.cLoginButton.cFacebook(onclick="loginProvider('Facebook')") 빼북
+						div.cLoginButton.cFacebook(onclick="onLoginProvider('Facebook')") 빼북
 				tr
 					td(colspan="2" align="center")
-						div.cGoogleImage(onclick="loginProvider('Google')") 
+						div.cGoogleImage(onclick="onLoginProvider('Google')") 
 				tr
 					td(colspan="2" align="center")
-						div.cKakaoImage(onclick="loginProvider('Kakao')") 
+						div.cKakaoImage(onclick="onLoginProvider('Kakao')") 
 				tr
 					td(colspan="2" align="center")
-						div.cLoginButton.cTwitter(onclick="loginProvider('Twitter')") 트잉여
+						div.cLoginButton.cTwitter(onclick="onLoginProvider('Twitter')") 트잉여
 
 		div.cAdmin
 			table
@@ -157,17 +157,17 @@
 					td 이름
 					td
 						input.userWhite#name_admin(type="text"
-						 	onchange="checkAdminForm(this);")
+						 	onchange="onCheckAdminForm(this);")
 				tr
 					td 비밀번호
 					td
 						input.userWhite#password1_admin(type="password"
-						 	onchange="checkAdminForm(this);")
+						 	onchange="onCheckAdminForm(this);")
 				tr
 					td 비번확인
 					td
 						input.userWhite#password2_admin(type="password"
-						 	onchange="checkAdminForm(this);")
+						 	onchange="onCheckAdminForm(this);")
 				tr
 					td deleted
 					td
@@ -180,12 +180,12 @@
 					td(colspan="2" align="center")
 						input#button_admin(type="button" value="수정"
 							style="width:200px;"
-						 	onclick="adminUser(this);")
+						 	onclick="onAdminUser(this);")
 				tr
 					td FACEBOOK
 					td
 						input.providerView#Facebook_view(type="button" value="상세보기"
-							onclick="viewProvider(this,'Facebook');")
+							onclick="onViewProvider(this,'Facebook');")
 						input.providerDel#Facebook_del(type="button" value="끊기")
 				tr
 					td GOOGLE
@@ -211,4 +211,4 @@
 						form(action="/user/del")
 							input#button_del(type="button" value="삭제"
 								style="width:200px;"
-								onclick="delUser(this);")
+								onclick="onDelUser(this);")

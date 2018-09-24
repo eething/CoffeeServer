@@ -13,7 +13,7 @@
 					select#beverageSelect(onchange="onChangeBeverage(this);"
 						style="width:180px;margin-left:-186px;height:22px;")
 
-				input(type="button" value="리셋" onclick="selectBeverage('');")
+				input(type="button" value="리셋" onclick="onResetBeverage(this);")
 
 		div.cMain
 			div.cDimmer
@@ -25,7 +25,7 @@
 			div.cOrderList#orderList
 				div.cTotal
 					span.cTotal
-					span.cSwap(onclick="swapOrderList(this);") 유저별
+					span.cSwap(onclick="onSwapOrderList(this);") 유저별
 				table.cOrderB
 				table.cOrderO
 
@@ -40,4 +40,4 @@
 				label(for="syrup") 시럽빼고
 
 		div.cNyam
-			input.cNyam(type="button" value="냠냠" onclick="addOrder(this);")
+			input.cNyam(type="button" value="냠냠" onclick="onAddOrder(this);")

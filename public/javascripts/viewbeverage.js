@@ -1,7 +1,7 @@
 ﻿// viewbeverage.js
 /* eslint-env browser */
 /* global MyError fetchHelper addElement removeChildAll l2data */
-/* eslint no-unused-vars: ["error", { "varsIgnorePattern": "^(?:on|init)" }] */
+/* eslint no-unused-vars: ["error", { "varsIgnorePattern": "^(?:on|init|l2)" }] */
 
 l2data.view.beverage = true;
 
@@ -20,7 +20,7 @@ const l2beverage = {
 	},
 };
 
-function addBeverage( self ) {
+function onAddBeverage( self ) {
 	const f = self.form;
 	if ( f.name.value === '' ) {
 		alert( '음료명을 입력해주세요' );
@@ -49,7 +49,7 @@ function addBeverage( self ) {
 	} );
 }
 
-function delBeverage( /* self */ ) {
+function onDelBeverage( /* self */ ) {
 	const input = {};
 	let chkon = false;
 	const delchks = document.querySelectorAll( 'input.delchk' );
@@ -73,7 +73,7 @@ function delBeverage( /* self */ ) {
 	} );
 }
 
-function addDelete( /* self */ ) {
+function onAddDelete( /* self */ ) {
 	const divDeleteList = document.querySelector( 'div.cDeleteList' );
 	let { value } = document.querySelector( '#delBeverage ' );
 	if ( !value ) {
