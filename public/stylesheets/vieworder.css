@@ -2,7 +2,6 @@
 
 	div.cInput {
 		border:1px solid;
-		padding-top: 10px;
 		height:100px;
 	}
 	div.cMain {
@@ -26,7 +25,7 @@
 					right: 20px;
 				}
 
-			table.cOrderB, table.cOrderO {
+			table.cOrderB, table.cOrderO, table.cInputT {
 				width: 100%;
 				margin: auto;
 			}

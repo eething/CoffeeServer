@@ -42,6 +42,9 @@
     <Compile Include="codes\auth.js" />
     <Compile Include="codes\beverage.js" />
     <Compile Include="codes\order.js" />
+    <Compile Include="codes\shuttle.js">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="codes\user.js" />
     <Compile Include="lib\check-auth.js" />
     <Compile Include="lib\check-loaded.js" />

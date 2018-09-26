@@ -1,7 +1,7 @@
 ﻿// common.js
 /* eslint-env browser */
 /* global l2all l2user l2beverage l2order */
-/* eslint no-unused-vars: ["error", { "varsIgnorePattern": "^(?:elem|l2|add|remove)" }] */
+/* eslint no-unused-vars: ["error", { "varsIgnorePattern": "^(?:l2|add|remove)" }] */
 
 function MyError( status, errMsg ) {
 	this.name = 'L2Error';
@@ -13,13 +13,11 @@ function MyError( status, errMsg ) {
 MyError.prototype = new Error();
 MyError.prototype.constructor = MyError;
 
-const elem = {};
-
 function fetchHelper( address, options, input, description, callback ) {
 	//
 	const opt = options || {};
 	if ( input ) {
-		opt.headers = options.headers || {};
+		opt.headers = opt.headers || {};
 		opt.headers['Content-Type'] = 'application/json';
 		opt.method = 'post';
 		opt.body = JSON.stringify( input );
@@ -94,6 +92,12 @@ const l2data = {
 				l2all.cbOrderList();
 			} else if ( this.view.order ) {
 				l2order.cbOrderList();
+			}
+		}
+
+		if ( data.shuttleList ) {
+			if ( this.view.order ) {
+				l2order.cbShuttleList( data.shuttleList );
 			}
 		}
 	},

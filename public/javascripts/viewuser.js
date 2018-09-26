@@ -1,12 +1,14 @@
 // vieworder.js
 /* eslint-env browser */
-/* global MyError fetchHelper addElement removeChildAll l2data l2all elem */
+/* global MyError fetchHelper addElement removeChildAll l2data l2all */
 /* eslint no-unused-vars: ["error", { "varsIgnorePattern": "^(?:on|init)" }] */
 
 l2data.view.user = true;
 
+const elemUser = {};
+
 function changeUserMenu( menu ) {
-	elem.userList.forEach( ( o ) => {
+	elemUser.menuList.forEach( ( o ) => {
 		if ( o.className.substr( 1 ) === menu ) {
 			o.style.display = 'block';
 		} else {
@@ -18,36 +20,23 @@ function changeUserMenu( menu ) {
 function changeLoginData( loginType, loginName, loginID, loginUID ) {
 	// Type
 	l2data.login.type = loginType;
-	if ( !loginType ) {
-		elem.spanLogin.style.display = 'inline-block';
-		elem.spanRegister.style.display = 'inline-block';
-		elem.spanMyInfo.style.display = 'none';
-		elem.spanAdmin.style.display = 'none';
-		elem.spanLogout.style.display = 'none';
-		changeUserMenu( 'Login' );
-		if ( l2data.view.all ) {
-			l2all.showAdminMenu( false );
-		}
-	} else {
-		elem.spanLogin.style.display = 'none';
-		elem.spanRegister.style.display = 'none';
-		elem.spanMyInfo.style.display = 'inline-block';
-		elem.spanLogout.style.display = 'inline-block';
-
-		if ( loginType === 'admin' ) {
-			elem.spanAdmin.style.display = 'inline-block';
-			changeUserMenu( 'Admin' );
-			if ( l2data.view.all ) {
-				l2all.showAdminMenu( true );
-			}
-		} else {
-			elem.spanAdmin.style.display = 'none';
-			changeUserMenu( 'MyInfo' );
-			if ( l2data.view.all ) {
-				l2all.showAdminMenu( false );
-			}
-		}
+	elemUser.spanLogin.style.display	= loginType ? 'none' : 'inline-block';
+	elemUser.spanRegister.style.display	= loginType ? 'none' : 'inline-block';
+	elemUser.spanMyInfo.style.display	= loginType ? 'inline-block' : 'none';
+	elemUser.spanLogout.style.display	= loginType ? 'inline-block' : 'none';
+	elemUser.spanAdmin.style.display	= loginType === 'admin' ? 'inline-block' : 'none';
+	if ( l2data.view.all ) {
+		l2all.showAdminMenu( loginType === 'admin' );
 	}
+	let menu;
+	if ( !loginType ) {
+		menu = 'Login';
+	} else if ( loginType === 'admin' ) {
+		menu = 'Admin';
+	} else {
+		menu = 'MyInfo';
+	}
+	changeUserMenu( menu );
 	// Name
 	l2data.login.name = loginName;
 	document.querySelector( '#name_edit' ).value = loginName;
@@ -242,16 +231,22 @@ function onCheckAdminForm( self, getMsg ) {
 	}
 
 	const uid = f.idSelect.value;
+	/*
 	let orgName = '';
 	let changeDel = false;
 	let changeEnable = false;
+	let changeShuttle = false;
 	if ( uid > 0 ) {
-		const { user } = l2data.allUsers[uid];
-		orgName = user.name;
-		changeDel = f.del_admin.checked !== ( user.deleted === true );
-		changeEnable = f.enable_admin.checked !== ( user.enabled === true );
-		// TODO - deleted, enabled 도 배경색 바꿔주자
-	}
+	*/
+	const user = l2data.allUsers[uid];
+	const orgName = user.name;
+	const changeDel = f.del_admin.checked !== ( user.deleted === true );
+	const changeEnable = f.enable_admin.checked !== ( user.enabled === true );
+	const changeShuttle = f.shuttle_admin.checked !== ( user.shuttle === true );
+	f.del_admin.className = `c${f.del_admin.checked ? 'True' : 'False'} ${changeDel ? 'cChanged' : 'cNoChange'}`;
+	f.enable_admin.className = `c${f.enable_admin.checked ? 'True' : 'False'} ${changeEnable ? 'cChanged' : 'cNoChange'}`;
+	f.shuttle_admin.className = `c${f.shuttle_admin.checked ? 'True' : 'False'} ${changeShuttle ? 'cChanged' : 'cNoChange'}`;
+	// }
 
 	fName.value = fName.value.trim();
 	const changeName = ( fName.value === orgName ) ? 0 : 1;
@@ -268,7 +263,7 @@ function onCheckAdminForm( self, getMsg ) {
 	if ( errP2 ) {
 		return '비밀번호가 다릅니다.';
 	}
-	if ( changeName || changeDel || changeEnable ) {
+	if ( changeName || changeDel || changeEnable || changeShuttle ) {
 		hasChange = true;
 	}
 	if ( !hasChange ) {
@@ -295,6 +290,7 @@ function onAdminUser( self ) {
 		password: f.password1_admin.value,
 		deleted: f.del_admin.checked,
 		enabled: f.enable_admin.checked,
+		shuttle: f.shuttle_admin.checked,
 	};
 	submitUser( 'adminUser', input, () => {
 		if ( editMe ) {
@@ -348,9 +344,10 @@ function onSelectUser( self ) {
 	disableAdminForm( f, false );
 	document.querySelector( '#uid_admin' ).innerHTML = uid;
 	document.querySelector( '#id_admin' ).innerHTML = user.localID;
-	document.querySelector( '#name_admin' ).value = user.name;
-	document.querySelector( '#del_admin' ).checked = user.deleted; // ? true : false;
-	document.querySelector( '#enable_admin' ).checked = user.enabled; // ? true : false;
+	f.name_admin.value = user.name;
+	f.del_admin.checked = user.deleted; // ? true : false;
+	f.enable_admin.checked = user.enabled; // ? true : false;
+	f.shuttle_admin.checked = user.shuttle; // ? true : false;
 
 	const Providers = ['Facebook', 'Google', 'Kakao', 'Twitter'];
 	Providers.forEach( ( Provider ) => {
@@ -366,6 +363,8 @@ function onSelectUser( self ) {
 			providerDel.disabled = true;
 		}
 	} );
+
+	onCheckAdminForm( self );
 }
 
 function onViewProvider( self, Provider ) {
@@ -384,22 +383,22 @@ function onViewProvider( self, Provider ) {
 }
 
 function initUserElem( loginType, loginName, loginID, loginUID ) {
-	elem.spanLogin = document.querySelector( '#menuLogin' );
-	elem.spanRegister = document.querySelector( '#menuRegister' );
-	elem.spanMyInfo = document.querySelector( '#menuMyInfo' );
-	elem.spanAdmin = document.querySelector( '#menuAdmin' );
-	elem.spanLogout = document.querySelector( '#menuLogout' );
+	elemUser.spanLogin		= document.querySelector( '#menuLogin' );
+	elemUser.spanRegister	= document.querySelector( '#menuRegister' );
+	elemUser.spanMyInfo		= document.querySelector( '#menuMyInfo' );
+	elemUser.spanAdmin		= document.querySelector( '#menuAdmin' );
+	elemUser.spanLogout		= document.querySelector( '#menuLogout' );
 
-	elem.divLogin = document.querySelector( 'div.cLogin' );
-	elem.divNewUser = document.querySelector( 'div.cNewUser' );
-	elem.divMyInfo = document.querySelector( 'div.cMyInfo' );
-	elem.divAdmin = document.querySelector( 'div.cAdmin' );
+	elemUser.divLogin		= document.querySelector( 'div.cLogin' );
+	elemUser.divNewUser		= document.querySelector( 'div.cNewUser' );
+	elemUser.divMyInfo		= document.querySelector( 'div.cMyInfo' );
+	elemUser.divAdmin		= document.querySelector( 'div.cAdmin' );
 
-	elem.userList = [
-		elem.divLogin,
-		elem.divNewUser,
-		elem.divMyInfo,
-		elem.divAdmin,
+	elemUser.menuList = [
+		elemUser.divLogin,
+		elemUser.divNewUser,
+		elemUser.divMyInfo,
+		elemUser.divAdmin,
 	];
 
 	changeLoginData( loginType, loginName, loginID, loginUID );

@@ -1,9 +1,11 @@
 ﻿// viewall.js
 /* eslint-env browser */
-/* global l2data l2user l2beverage l2order elem */
+/* global l2data l2user l2beverage l2order */
 /* eslint no-unused-vars: ["error", { "varsIgnorePattern": "^(?:on|init|l2)" }] */
 
 l2data.view.all = true;
+
+const elemAll = {};
 
 const l2all = {
 
@@ -28,7 +30,7 @@ const l2all = {
 	},
 
 	changePage( page ) {
-		elem.outerList.forEach( ( o ) => {
+		elemAll.outerList.forEach( ( o ) => {
 			if ( o.id.substr( 5 ) === page ) {
 				o.style.display = 'block';
 			} else {
@@ -38,26 +40,26 @@ const l2all = {
 	},
 
 	showAdminMenu( bShow ) {
-		if ( !elem.divMenuAdmin ) {
-			elem.divMenuAdmin = document.querySelector( '#menu_admin' );
+		if ( !elemAll.divMenuAdmin ) {
+			elemAll.divMenuAdmin = document.querySelector( '#menu_admin' );
 		}
-		elem.divMenuAdmin.style.display = bShow ? 'inline-block' : 'none';
+		elemAll.divMenuAdmin.style.display = bShow ? 'inline-block' : 'none';
 	},
 };
 
 
 
 function initAllElem( loginType ) {
-	elem.divOuterOrder = document.querySelector( 'div#outerOrder' );
-	elem.divOuterUser = document.querySelector( 'div#outerUser' );
-	elem.divOuterBeverage = document.querySelector( 'div#outerBeverage' );
-	elem.divOuterAdmin = document.querySelector( 'div#outerAdmin' );
+	elemAll.divOuterOrder		= document.querySelector( 'div#outerOrder' );
+	elemAll.divOuterUser		= document.querySelector( 'div#outerUser' );
+	elemAll.divOuterBeverage	= document.querySelector( 'div#outerBeverage' );
+	elemAll.divOuterAdmin		= document.querySelector( 'div#outerAdmin' );
 
-	elem.outerList = [
-		elem.divOuterOrder,
-		elem.divOuterUser,
-		elem.divOuterBeverage,
-		elem.divOuterAdmin,
+	elemAll.outerList = [
+		elemAll.divOuterOrder,
+		elemAll.divOuterUser,
+		elemAll.divOuterBeverage,
+		elemAll.divOuterAdmin,
 	];
 
 	if ( loginType !== 'admin' ) {

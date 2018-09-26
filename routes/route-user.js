@@ -4,6 +4,7 @@ const express = require( 'express' );
 const users			= require( '../codes/user' );
 const beverages		= require( '../codes/beverage' );
 const orders		= require( '../codes/order' );
+const shuttles		= require( '../codes/shuttle' );
 const checkAuth		= require( '../lib/check-auth' );
 const convertError	= require( '../lib/convert-error' );
 
@@ -146,6 +147,69 @@ router.post( '/disableUser', ( req, res ) => {
 
 	users.disableUser( req.body, ( sendMsg ) => {
 		res.send( JSON.stringify( sendMsg ) );
+	} );
+} );
+
+router.get( '/shuttle', ( req, res ) => {
+	if ( checkAuth( req, res ) ) {
+		return;
+	}
+
+	shuttles.getTodayShuttle( false, ( err, data ) => {
+		if ( err ) {
+			res.send( JSON.stringify( convertError( err ) ) );
+		} else {
+			res.send( JSON.stringify( {
+				code: 'OK',
+				shuttleList: data,
+			} ) );
+		}
+	} );
+} );
+
+router.get( '/newShuttle', ( req, res ) => {
+	if ( checkAuth( req, res ) ) {
+		return;
+	}
+
+	shuttles.getTodayShuttle( true, ( err, data ) => {
+		if ( err ) {
+			res.send( JSON.stringify( convertError( err ) ) );
+		} else {
+			res.send( JSON.stringify( {
+				code: 'OK',
+				shuttleList: data,
+			} ) );
+		}
+	} );
+} );
+
+router.post( '/shuttle', ( req, res ) => {
+	if ( checkAuth( req, res ) ) {
+		return;
+	}
+
+	const confirmList = [];
+	const deletedList = [];
+	req.body.forEach( ( list ) => {
+		if ( req.user.admin || req.user.uid === list.uid ) {
+			if ( list.confirm ) {
+				confirmList.push( list.uid );
+			} else if ( list.deleted ) {
+				deletedList.push( list.uid );
+			}
+		}
+	} );
+
+	shuttles.confirmShuttles( confirmList, deletedList, ( err, data ) => {
+		if ( err ) {
+			res.send( JSON.stringify( convertError( err ) ) );
+		} else {
+			res.send( JSON.stringify( {
+				code: 'OK',
+				shuttleList: data,
+			} ) );
+		}
 	} );
 } );
 

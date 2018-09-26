@@ -15,6 +15,7 @@ const admins		= require( './codes/admin' );
 const users			= require( './codes/user' );
 const beverages		= require( './codes/beverage' );
 const orders		= require( './codes/order' );
+const shuttles		= require( './codes/shuttle' );
 
 // Routers
 const authFunc		= require( './codes/auth' );
@@ -119,7 +120,7 @@ function initMain() {
 
 // Initialize Directory and Load...
 // 인증쪽 clientID, clientSecret 등이 필요해서 Admin 만 Sync 로
-const checker = require( './lib/check-loaded' )( 4, initMain );
+const checker = require( './lib/check-loaded' )( 5, initMain );
 
 fs.mkdir( 'data', () => {
 	admins.loadAdmins( checker );
@@ -132,5 +133,9 @@ fs.mkdir( 'data', () => {
 
 	fs.mkdir( 'data/orders', () => {
 		orders.loadOrders( false, checker );
+	} );
+
+	fs.mkdir( 'data/shuttles', () => {
+		shuttles.loadShuttlePoint( checker );
 	} );
 } );

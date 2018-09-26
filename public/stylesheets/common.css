@@ -5,6 +5,7 @@
 }
 
 body {
+	margin: 0;
 	background-image: linear-gradient(to bottom right, gray, white);
 	background-attachment: fixed;
 }
@@ -23,13 +24,14 @@ td {
 }
 
 div {
-	margin: 10px;
+	margin: 5px;
 	padding: 0px;
-	//border: 1px solid;
+	/* border: 1px solid; */
 }
 	div.cApp {
 		position: relative;
-		width: 320px;
+		width: 100%;
+		max-width: 350px;
 		margin: auto;
 		background-image: linear-gradient(to bottom right, lightblue, #123);
 	}
@@ -87,7 +89,7 @@ div {
 
 	div.cUpper {
 		margin: 0;
-		width: 320px;
+		width: 350px;
 	}
 		div.cUpper > div.cMenu {
 			display: inline-block;
@@ -99,16 +101,35 @@ div {
 				margin: 0;
 				width: 40px;
 				height: 40px;
-				//fill: red;
+				/* fill: red; */
 			}
 
 	div.cOuter {
 		margin: 0;
-		width: 320px;
-		height: 500px;
+		width: 100%;
+		min-width: 320px;
+		max-width: 350px;
+		height: 450px;
 		overflow: auto;
 	}
 
-/*input[type="button"], input[type="submit"] {
+	div.cMessage {
+		background-color: rgba(100,100,255,0.2);
+		width: 350px;
+		height: 200px;
+		margin: 0 auto;
+		padding: 10px;
+	}
+@media screen and (max-height:690px) {
+	div.cMessage {
+		background-color: rgba(255,100,100,0.2);
+		position: fixed;
+		bottom: 0;
+		left: 0;
+		right: 0;
+	}
+}
+
+	/*input[type="button"], input[type="submit"] {
 	font-size: 13pt;
 }*/

@@ -323,7 +323,6 @@ function onSubmitAdminAuth() {
 	} );
 }
 
-
 function onChangeAdminMenu( menu ) {
 	elemAdmin.menuList.forEach( ( o ) => {
 		if ( o.id === menu ) {
@@ -338,10 +337,10 @@ function initAdminElem() {
 	elemAdmin.selectConfig	= document.querySelector( '#config_admin' );
 
 	elemAdmin.selectAuth	= document.querySelector( '#auth_admin' );
-	elemAdmin.tableLocal		= document.querySelector( '#auth_Local' );
+	elemAdmin.tableLocal	= document.querySelector( '#auth_Local' );
 	elemAdmin.tableFacebook	= document.querySelector( '#auth_Facebook' );
 	elemAdmin.tableGoogle	= document.querySelector( '#auth_Google' );
-	elemAdmin.tableKakao		= document.querySelector( '#auth_Kakao' );
+	elemAdmin.tableKakao	= document.querySelector( '#auth_Kakao' );
 	elemAdmin.tableTwitter	= document.querySelector( '#auth_Twitter' );
 	elemAdmin.authList = [
 		elemAdmin.tableLocal,

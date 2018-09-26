@@ -1,71 +1,73 @@
 ﻿// vieworder.js
 /* eslint-env browser */
-/* global MyError fetchHelper removeChildAll addElement l2data elem */
+/* global MyError fetchHelper removeChildAll addElement l2data */
 /* eslint no-unused-vars: ["error", { "varsIgnorePattern": "^(?:on|init|l2)" }] */
 
 l2data.view.order = true;
 
-function initOrderElem() {
-	elem.divIce = document.querySelector( 'div.cIce' );
-	elem.divHot = document.querySelector( 'div.cHot' );
-	elem.divSyrup = document.querySelector( 'div.cSyrup' );
-	elem.radioIce = document.querySelector( 'input#ice' );
-	elem.radioHot = document.querySelector( 'input#hot' );
-	elem.chkSyrup = document.querySelector( 'input#syrup' );
-	elem.divOrderList = document.querySelector( 'div.cOrderList' );
-	elem.divPopupOuter = document.querySelector( 'div.cPopupOuter' );
-	elem.divPopup = document.querySelector( 'div.cPopup' );
+const elemOrder = {};
 
-	elem.tableOrderB = document.querySelector( 'table.cOrderB' );
-	elem.tableOrderO = document.querySelector( 'table.cOrderO' );
-	elem.tableOrderB.style.display = 'table';
-	elem.tableOrderO.style.display = 'none';
+function initOrderElem() {
+	elemOrder.divIce		= document.querySelector( 'div.cIce' );
+	elemOrder.divHot		= document.querySelector( 'div.cHot' );
+	elemOrder.divSyrup		= document.querySelector( 'div.cSyrup' );
+	elemOrder.divOrderList	= document.querySelector( 'div.cOrderList' );
+	elemOrder.divPopupOuter	= document.querySelector( 'div.cPopupOuter' );
+	elemOrder.divPopup		= document.querySelector( 'div.cPopup' );
+	elemOrder.tableOrderB	= document.querySelector( 'table.cOrderB' );
+	elemOrder.tableOrderO	= document.querySelector( 'table.cOrderO' );
+	elemOrder.tableOrderB.style.display = 'table';
+	elemOrder.tableOrderO.style.display = 'none';
+
+
+	elemOrder.shuttle1		= document.querySelector( '#shuttle1' );
+	elemOrder.shuttle2		= document.querySelector( '#shuttle2' );
+	elemOrder.shuttle3		= document.querySelector( '#shuttle3' );
+	elemOrder.shuttleList = [
+		elemOrder.shuttle1,
+		elemOrder.shuttle2,
+		elemOrder.shuttle3,
+	];
 }
 
 function onSwapOrderList( self ) {
-	if ( elem.tableOrderB.style.display === 'none' ) {
-		elem.tableOrderB.style.display = 'table';
-		elem.tableOrderO.style.display = 'none';
+	if ( elemOrder.tableOrderB.style.display === 'none' ) {
+		elemOrder.tableOrderB.style.display = 'table';
+		elemOrder.tableOrderO.style.display = 'none';
 		self.innerHTML = '유저별';
 	} else {
-		elem.tableOrderB.style.display = 'none';
-		elem.tableOrderO.style.display = 'table';
+		elemOrder.tableOrderB.style.display = 'none';
+		elemOrder.tableOrderO.style.display = 'table';
 		self.innerHTML = '음료별';
 	}
 }
 
-function checkOptions( option ) {
-	elem.radioIce.checked = option.icehot === 'ice';
-	elem.radioHot.checked = option.icehot === 'hot';
-	elem.chkSyrup.checked = option.syrup === 'minus';
-}
-
-function showBeverageOptions( beverage ) {
-	elem.radioIce.checked = false;
-	elem.radioHot.checked = false;
-	elem.chkSyrup.checked = false;
+function showBeverageOptions( f, beverage ) {
+	f.ice.checked = false;
+	f.hot.checked = false;
+	f.syrup.checked = false;
 
 	if ( beverage.iceable ) {
-		elem.divIce.style.display = 'block';
+		elemOrder.divIce.style.display = 'block';
 		if ( !beverage.hotable ) {
-			elem.radioIce.checked = true;
+			f.ice.checked = true;
 		}
 	} else {
-		elem.divIce.style.display = 'none';
+		elemOrder.divIce.style.display = 'none';
 	}
 	if ( beverage.hotable ) {
-		elem.divHot.style.display = 'block';
+		elemOrder.divHot.style.display = 'block';
 		if ( !beverage.iceable ) {
-			elem.radioHot.checked = true;
+			f.hot.checked = true;
 		}
 	} else {
-		elem.divHot.style.display = 'none';
+		elemOrder.divHot.style.display = 'none';
 	}
 
 	if ( beverage.syrupable ) {
-		elem.divSyrup.style.display = 'block';
+		elemOrder.divSyrup.style.display = 'block';
 	} else {
-		elem.divSyrup.style.display = 'none';
+		elemOrder.divSyrup.style.display = 'none';
 	}
 }
 function showPopup( start ) {
@@ -74,45 +76,44 @@ function showPopup( start ) {
 		visMode = 'visible';
 	}
 	document.querySelector( 'div.cDimmer' ).style.visibility = visMode;
-	elem.divPopupOuter.style.visibility = visMode;
+	elemOrder.divPopupOuter.style.visibility = visMode;
 }
 
 function showBeverage( f, beverage ) {
-	elem.divOrderList.style.display = 'none';
-	showBeverageOptions( beverage );
+	elemOrder.divOrderList.style.display = 'none';
+	showBeverageOptions( f, beverage );
 	f.beverage.style.backgroundColor = 'lightgreen';
 }
 
 function clearBeverage( f ) {
 	f.beverage.style.backgroundColor = '';
-	elem.divOrderList.style.display = 'block';
-	elem.divIce.style.display = 'none';
-	elem.divHot.style.display = 'none';
-	elem.divSyrup.style.display = 'none';
+	elemOrder.divOrderList.style.display = 'block';
+	elemOrder.divIce.style.display = 'none';
+	elemOrder.divHot.style.display = 'none';
+	elemOrder.divSyrup.style.display = 'none';
 }
 
 
 function selectBeverage( name ) {
 	document.querySelector( '#beverageSelect' ).value = name;
 	document.querySelector( '#beverage' ).value = name;
-	const orderForm = document.querySelector( '#order_form' );
+	const f = document.querySelector( '#order_form' );
 	const beverage = l2data.allBeverages[name];
-	showBeverage( orderForm, beverage );
+	showBeverage( f, beverage );
 	showPopup( false );
 }
 
 function changeBeverage( f, value ) {
 	if ( value === '' ) {
-		clearBeverage();
+		clearBeverage( f );
 		return;
-		// f.beverage.style.backgroundColor = '';
 	}
 	const beverage = l2data.allBeverages[value];
 	if ( beverage ) {
 		showBeverage( f, beverage );
 		return;
 	}
-	removeChildAll( elem.divPopup );
+	removeChildAll( elemOrder.divPopup );
 	let bFound = false;
 	Object.keys( l2data.allBeverages ).forEach( ( k ) => {
 		const b = l2data.allBeverages[k];
@@ -124,24 +125,18 @@ function changeBeverage( f, value ) {
 				selectBeverage( b.name );
 			} );
 			p.innerHTML = b.name;
-			elem.divPopup.appendChild( p );
+			elemOrder.divPopup.appendChild( p );
 		}
 	} );
 	if ( bFound ) {
 		const p = document.createElement( 'p' );
 		p.className = 'ctxt';
 		p.innerHTML = '음료를 선택해주세요';
-		elem.divPopup.prepend( p );
+		elemOrder.divPopup.prepend( p );
 		showPopup( true );
 	} else {
 		f.beverage.style.backgroundColor = 'red';
 	}
-	/*
-	elem.divOrderList.style.display = 'block';
-	elem.divIce.style.display = 'none';
-	elem.divHot.style.display = 'none';
-	elem.divSyrup.style.display = 'none';
-	*/
 }
 
 function onChangeBeverage( self ) {
@@ -180,8 +175,8 @@ function onAddOrder( self ) {
 		return;
 	}
 
-	if ( ( elem.divIce.style.display === 'block' || elem.divHot.style.display === 'block' )
-		&& !elem.radioIce.checked && !elem.radioHot.checked ) {
+	if ( ( elemOrder.divIce.style.display === 'block' || elemOrder.divHot.style.display === 'block' )
+		&& !f.ice.checked && !f.hot.checked ) {
 		alert( '아이스 / 따뜻 골라주세요.' );
 		return;
 	}
@@ -193,12 +188,12 @@ function onAddOrder( self ) {
 	f.beverage.value = '';
 	if ( f.icehot.value ) {
 		input.icehot = f.icehot.value;
-		elem.radioIce.checked = false;
-		elem.radioHot.checked = false;
+		f.ice.checked = false;
+		f.hot.checked = false;
 	}
 	if ( f.syrup.checked ) {
 		input.syrup = f.syrup.value;
-		elem.chkSyrup.checked = false;
+		f.syrup.checked = false;
 	}
 
 	changeBeverage( f, '' );
@@ -213,6 +208,12 @@ function onAddOrder( self ) {
 }
 
 // MAKE TABLE
+function checkOptions( option ) {
+	const f = document.querySelector( '#order_form' );
+	f.ice.checked = option.icehot === 'ice';
+	f.hot.checked = option.icehot === 'hot';
+	f.syrup.checked = option.syrup === 'minus';
+}
 function makeOptionStr( option ) {
 	let optionStr = '';
 	Object.keys( option ).forEach( ( k ) => {
@@ -247,7 +248,7 @@ function addTableOrderO( co ) {
 	}
 	*/
 
-	const tr = addElement( elem.tableOrderO, 'tr', 'cOrderItem' );
+	const tr = addElement( elemOrder.tableOrderO, 'tr', 'cOrderItem' );
 
 	const beverageStr = `${co.beverage}(${optionStr})`;
 	const size = Math.min( Math.max( 30 - beverageStr.length, 11 ), 15 );
@@ -257,14 +258,14 @@ function addTableOrderO( co ) {
 	td.style.fontSize = `${size}px`;
 }
 function makeTableOrderO() {
-	removeChildAll( elem.tableOrderO );
+	removeChildAll( elemOrder.tableOrderO );
 	l2data.currentOrder.forEach( ( co ) => {
 		addTableOrderO( co );
 	} );
 }
 let totalCount = 0;
 function addTableOrderB( k, v ) {
-	const tr = addElement( elem.tableOrderB, 'tr', 'cOrderItem' );
+	const tr = addElement( elemOrder.tableOrderB, 'tr', 'cOrderItem' );
 
 	const tdBeverage = addElement( tr, 'td', 'cBeverage', k );
 	let size = Math.min( Math.max( 23 - k.length * 2, 11 ), 15 );
@@ -281,14 +282,14 @@ function addTableOrderB( k, v ) {
 	const aPopup = addElement( tdNum, 'a', '', v.orderBys.length );
 	totalCount += v.orderBys.length;
 	function popupViewOrderBys() {
-		removeChildAll( elem.divPopup );
-		addElement( elem.divPopup, 'p', '', k );
-		addElement( elem.divPopup, 'p', '', optionStr );
+		removeChildAll( elemOrder.divPopup );
+		addElement( elemOrder.divPopup, 'p', '', k );
+		addElement( elemOrder.divPopup, 'p', '', optionStr );
 		v.orderByDNs.forEach( ( oDN ) => {
-			addElement( elem.divPopup, 'p', '', oDN );
+			addElement( elemOrder.divPopup, 'p', '', oDN );
 		} );
 
-		const input = addElement( elem.divPopup, 'input', 'cNadoNado', '' );
+		const input = addElement( elemOrder.divPopup, 'input', 'cNadoNado', '' );
 		input.type = 'button';
 		input.value = '나도나도';
 		input.addEventListener( 'click', () => {
@@ -306,7 +307,7 @@ function setTotalForOrderB() {
 	document.querySelector( 'span.cTotal' ).innerHTML = `총 ${totalCount} 잔`;
 }
 function makeTableOrderB() {
-	removeChildAll( elem.tableOrderB );
+	removeChildAll( elemOrder.tableOrderB );
 	totalCount = 0;
 	l2data.buyKeysSorted.forEach( ( k ) => {
 		l2data.currentBuy[k].forEach( ( v ) => {
@@ -355,6 +356,75 @@ const l2order = {
 		makeTableOrderB();
 		setTotalForOrderB();
 	},
+
+
+	cbShuttleList( shuttleList ) {
+		const makeListener = ( uid, mode ) => ( () => {
+			if ( !confirm( mode ? '셔틀 하시겠습니까?' : '휴가입니까?' ) ) {
+				return;
+			}
+			const input = [];
+			input.push( {
+				uid,
+				confirm: mode,
+				deleted: !mode,
+			} );
+			fetchHelper( '/user/shuttle', null, input, 'confirmShuttle', ( data ) => {
+				if ( data.code === 'OK' ) {
+					if ( data.shuttleList ) {
+						l2order.cbShuttleList( data.shuttleList );
+					}
+				} else {
+					throw new MyError( 500, data );
+				}
+			} );
+		} );
+
+		elemOrder.shuttleList.forEach( ( el ) => {
+			removeChildAll( el );
+		} );
+
+		let index = 0;
+		shuttleList.forEach( ( sl ) => {
+			const el = elemOrder.shuttleList[index];
+			if ( sl.status >= 0 ) {
+				if ( sl.uid === l2data.login.uid || l2data.login.type === 'admin' ) {
+					const input1 = addElement( el, 'input' );
+					input1.type = 'button';
+					input1.value = sl.name;
+					input1.style.padding = '1px';
+					if ( sl.status === 1 ) {
+						input1.disabled = true;
+					}
+					input1.addEventListener( 'click', makeListener( sl.uid, true ) );
+
+					if ( l2data.login.type === 'admin' ) {
+						const input2 = addElement( el, 'input' );
+						input2.type = 'button';
+						input2.value = '삭제';
+						input2.style.padding = '1px';
+						input2.addEventListener( 'click', makeListener( sl.uid, false ) );
+					}
+				} else {
+					el.innerHTML = sl.name;
+				}
+				index += 1;
+			}
+		} );
+	},
+	getShuttleList() {
+		fetchHelper( '/user/shuttle', null, null, 'getShuttle', ( data ) => {
+			if ( data.code === 'OK' ) {
+				if ( data.shuttleList ) {
+					l2order.cbShuttleList( data.shuttleList );
+				}
+			} else {
+				throw new MyError( 500, data );
+			}
+		} );
+	},
+
+
 	/*
 	cbOrderOne( order ) {
 		l2order._addTableOrderO( order );
@@ -363,3 +433,15 @@ const l2order = {
 	}
 	*/
 };
+
+function onNewShuttle() {
+	fetchHelper( '/user/newShuttle', null, null, 'newShuttle', ( data ) => {
+		if ( data.code === 'OK' ) {
+			if ( data.shuttleList ) {
+				l2order.cbShuttleList( data.shuttleList );
+			}
+		} else {
+			throw new MyError( 500, data );
+		}
+	} );
+}

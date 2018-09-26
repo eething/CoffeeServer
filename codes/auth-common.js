@@ -2,6 +2,7 @@
 const users			= require( './user' );
 const beverages		= require( './beverage' );
 const orders		= require( './order' );
+const shuttles		= require( './shuttle' );
 const convertError	= require( '../lib/convert-error' );
 const checkAuth		= require( '../lib/check-auth' );
 
@@ -61,7 +62,14 @@ module.exports = {
 		sendMsg.allBeverages = beverages.allBeverages;
 		orders.getCurrentOrder( ( co ) => {
 			sendMsg.currentOrder = co;
-			callback( sendMsg );
+
+			shuttles.getTodayShuttle( false, ( err, data ) => {
+				if ( err ) {
+					sendMsg.err = convertError( err );
+				}
+				sendMsg.shuttleList = data;
+				callback( sendMsg );
+			} );
 		} );
 	},
 

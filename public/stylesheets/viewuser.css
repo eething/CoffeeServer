@@ -85,3 +85,35 @@ div.cGoogleImage {
 		cursor: pointer;
 		background-image: url('/images/google_dark_pressed.png');
 	}
+
+.cNoChange::after {
+	position: relative; 
+	top: -2px;
+	left: 20px;	
+}
+.cChanged::after {
+	position: relative;
+	top: -2px;
+	left: 20px;
+	background-color: lightgreen;
+}
+#del_admin.cTrue::after {
+	content: 'Deleted';
+}
+#del_admin.cFalse::after {
+	content: 'NoDelete';
+}
+#enable_admin.cTrue::after {
+	content: 'Enabled';
+}
+#enable_admin.cFalse::after {
+	content: 'Disabled';
+}
+#shuttle_admin.cTrue::after {
+	white-space: pre;
+	content: '셔틀';
+}
+#shuttle_admin.cFalse::after {
+	white-space: pre;
+	content: '귀족';
+}

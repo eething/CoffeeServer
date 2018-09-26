@@ -1,10 +1,10 @@
 ﻿div.cOuter#outerUser
 
 	div.cUserMenu
-		span#menuLogin(onclick="changeUserPage('Login')") 로그인
-		span#menuRegister(onclick="changeUserPage('NewUser')") 회원가입
-		span#menuMyInfo(onclick="changeUserPage('MyInfo')") 정보수정
-		span#menuAdmin(onclick="changeUserPage('Admin')") 관리자
+		span#menuLogin(onclick="changeUserMenu('Login')") 로그인
+		span#menuRegister(onclick="changeUserMenu('NewUser')") 회원가입
+		span#menuMyInfo(onclick="changeUserMenu('MyInfo')") 정보수정
+		span#menuAdmin(onclick="changeUserMenu('Admin')") 관리자
 		span#menuLogout(onclick="onLogout();") 로그아웃
 
 	form(onsubmit="return false;")
@@ -167,15 +167,25 @@
 					td 비번확인
 					td
 						input.userWhite#password2_admin(type="password"
-						 	onchange="onCheckAdminForm(this);")
+							onchange="onCheckAdminForm(this);")
 				tr
 					td deleted
 					td
-						input#del_admin(type="checkbox")
+						input#del_admin(type="checkbox"
+							onchange="onCheckAdminForm(this);")
+						label#del_label(for="del_admin")
 				tr
 					td enabled
 					td
-						input#enable_admin(type="checkbox")
+						input#enable_admin(type="checkbox"
+							onchange="onCheckAdminForm(this);")
+						label#enable_label(for="enable_admin")
+				tr
+					td shuttle
+					td
+						input#shuttle_admin(type="checkbox"
+							onchange="onCheckAdminForm(this);")
+						label#shuttle_label(for="shuttle_admin")
 				tr
 					td(colspan="2" align="center")
 						input#button_admin(type="button" value="수정"
@@ -191,19 +201,19 @@
 					td GOOGLE
 					td
 						input.providerView#Google_view(type="button" value="상세보기"
-							onclick="viewProvider(this,'Google');")
+							onclick="onViewProvider(this,'Google');")
 						input.providerDel#Google_del(type="button" value="끊기")
 				tr
 					td KAKAO
 					td
 						input.providerView#Kakao_view(type="button" value="상세보기"
-							onclick="viewProvider(this,'Kakao');")
+							onclick="onViewProvider(this,'Kakao');")
 						input.providerDel#Kakao_del(type="button" value="끊기")
 				tr
 					td TWITTER
 					td
 						input.providerView#Twitter_view(type="button" value="상세보기"
-							onclick="viewProvider(this,'Twitter');")
+							onclick="onViewProvider(this,'Twitter');")
 						input.providerDel#Twitter_del(type="button" value="끊기")
 
 				tr
