@@ -49,7 +49,7 @@ module.exports = {
 
 		Object.keys( users.allUsers ).forEach( ( uid ) => {
 			const user = users.allUsers[uid];
-			if ( !user.deleted && user.enabled /* && user.shuttle */ ) {
+			if ( !user.deleted && user.enabled && user.shuttle ) {
 				if ( !this.shuttlePoint.some( group => group.users.includes( uid ) ) ) {
 					addShuttle( uid );
 				}
@@ -139,7 +139,7 @@ module.exports = {
 				self.splice( index, 1 );
 			}
 			return 0;
-		} );
+		}, 0 );
 
 		this.shrinkShuttlePoint();
 

@@ -1,4 +1,4 @@
-﻿// vieworder.js
+// vieworder.js
 /* eslint-env browser */
 /* global MyError fetchHelper removeChildAll addElement l2data */
 /* eslint no-unused-vars: ["error", { "varsIgnorePattern": "^(?:on|init|l2)" }] */
@@ -388,7 +388,10 @@ const l2order = {
 		shuttleList.forEach( ( sl ) => {
 			const el = elemOrder.shuttleList[index];
 			if ( sl.status >= 0 ) {
-				if ( sl.uid === l2data.login.uid || l2data.login.type === 'admin' ) {
+				const bShowButton = ( sl.uid === l2data.login.uid
+									|| l2data.login.type === 'admin' )
+									&& sl.status === 0;
+				if ( bShowButton ) {
 					const input1 = addElement( el, 'input' );
 					input1.type = 'button';
 					input1.value = sl.name;
