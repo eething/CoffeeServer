@@ -333,6 +333,10 @@ function onChangeAdminMenu( menu ) {
 	} );
 }
 
+l2admin.getAdminList = () => {
+	fetchHelper( '/admin/adminList', null, null, 'adminList', cbAdminList );
+};
+
 function initAdminElem() {
 	elemAdmin.selectConfig	= document.querySelector( '#config_admin' );
 
@@ -358,5 +362,5 @@ function initAdminElem() {
 	];
 	onChangeAdminMenu( 'AdminUser' );
 
-	fetchHelper( '/admin/adminList', null, null, 'adminList', cbAdminList );
+	l2admin.getAdminList();
 }

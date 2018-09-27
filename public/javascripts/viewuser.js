@@ -1,6 +1,6 @@
 // vieworder.js
 /* eslint-env browser */
-/* global MyError fetchHelper addElement removeChildAll l2data l2all */
+/* global MyError fetchHelper addElement removeChildAll l2data l2all l2admin */
 /* eslint no-unused-vars: ["error", { "varsIgnorePattern": "^(?:on|init)" }] */
 
 l2data.view.user = true;
@@ -62,6 +62,9 @@ function processLoginOK( d ) {
 	changeLoginData( d.admin ? 'admin' : 'user', d.name, d.id, d.uid );
 	if ( l2data.view.all ) {
 		l2all.changePage( 'Order' );
+	}
+	if ( d.admin && l2data.view.admin ) {
+		l2admin.getAdminList();
 	}
 }
 
@@ -185,7 +188,7 @@ function onEditUser( self ) {
 	};
 	submitUser( 'editUser', input, () => {
 		if ( editMe ) {
-			const { user } = l2data.allUsers[l2data.login.uid];
+			const user = l2data.allUsers[l2data.login.uid];
 			l2data.login.name = newName;
 			user.name = l2data.login.name;
 			// user.id = l2data.login.ID = newID;
@@ -294,7 +297,7 @@ function onAdminUser( self ) {
 	};
 	submitUser( 'adminUser', input, () => {
 		if ( editMe ) {
-			const { user } = l2data.allUsers[l2data.login.uid];
+			const user = l2data.allUsers[l2data.login.uid];
 			user.name = newName;
 			l2data.login.name = newName;
 			// user.id = l2data.login.ID = newID;
