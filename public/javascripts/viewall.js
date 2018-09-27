@@ -11,7 +11,7 @@ const l2all = {
 
 	cbAllList( data ) {
 		if ( data.code === 'EAUTH' ) {
-			this.changePage( 'User' );
+			l2all.changePage( 'User' );
 		}
 	},
 
