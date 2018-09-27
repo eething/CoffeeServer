@@ -354,8 +354,6 @@ const l2order = {
 			option.value = -1;
 		} else {
 			select.value = l2data.login.uid;
-			console.log( 'fuck' );
-			console.log( select.value, l2data.login.uid );
 		}
 	},
 
