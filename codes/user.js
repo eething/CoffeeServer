@@ -514,19 +514,21 @@ module.exports = {
 		this.writeUser( body.uid, callback );
 	},
 
-	getUserList( admin ) {
+	getUserList( admin, myUID ) {
 		const tempAll = {};
 		Object.keys( this.allUsers ).forEach( ( uid ) => {
 			//	if( uid == 0 ) {
 			//		continue;
 			//	}
-			let include = true;
+			let include = false;
 			const user = this.allUsers[uid];
 			const auth = this.authTable[uid];
-			if ( !admin ) {
-				if ( !auth || user.deleted || !user.enabled ) {
-					include = false;
-				}
+			if ( admin ) {
+				include = true;
+			} else if ( auth && !user.deleted && user.enabled ) {
+				include = true;
+			} else if ( user.uid === myUID ) {
+				include = true;
 			}
 
 			if ( include ) {

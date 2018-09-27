@@ -194,6 +194,14 @@ const l2data = {
 			return count2 - count1;
 		} );
 	},
+
+	initLoginData( loginType, loginName, loginID, loginUID ) {
+		this.login.type	= loginType;
+		this.login.name	= loginName;
+		this.login.ID	= loginID;
+		this.login.uid	= loginUID;
+		// TODO - callbacks...
+	},
 };
 
 function removeChildAll( node ) {

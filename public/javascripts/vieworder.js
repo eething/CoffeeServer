@@ -157,8 +157,7 @@ function onResetBeverage( self ) {
 
 function onAddOrder( self ) {
 	const f = self.form;
-
-	if ( f.orderBy.value < 0 ) {
+	if ( !f.orderBy.value || f.orderBy.value < 0 ) {
 		alert( '마실 사람을 선택해 주세요.' );
 		return;
 	}
@@ -332,6 +331,11 @@ const l2order = {
 		} );
 	},
 
+	selectOrderBy() {
+		const select = document.querySelector( '#orderBy' );
+		select.value = l2data.login.uid;
+	},
+
 	cbUserList() {
 		const select = document.querySelector( '#orderBy' );
 		removeChildAll( select );
@@ -348,6 +352,10 @@ const l2order = {
 		if ( select.length === 0 ) {
 			const option = addElement( select, 'option', '', 'NNUULL' );
 			option.value = -1;
+		} else {
+			select.value = l2data.login.uid;
+			console.log( 'fuck' );
+			console.log( select.value, l2data.login.uid );
 		}
 	},
 

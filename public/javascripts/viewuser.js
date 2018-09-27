@@ -1,6 +1,6 @@
 // vieworder.js
 /* eslint-env browser */
-/* global MyError fetchHelper addElement removeChildAll l2data l2all l2admin */
+/* global MyError fetchHelper addElement removeChildAll l2data l2all l2order l2admin */
 /* eslint no-unused-vars: ["error", { "varsIgnorePattern": "^(?:on|init)" }] */
 
 l2data.view.user = true;
@@ -62,9 +62,10 @@ function processLoginOK( d ) {
 	changeLoginData( d.admin ? 'admin' : 'user', d.name, d.id, d.uid );
 	if ( l2data.view.all ) {
 		l2all.changePage( 'Order' );
-	}
-	if ( d.admin && l2data.view.admin ) {
-		l2admin.getAdminList();
+		l2order.selectOrderBy();
+		if ( d.admin ) {
+			l2admin.getAdminList();
+		}
 	}
 }
 

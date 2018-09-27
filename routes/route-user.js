@@ -33,7 +33,9 @@ router.get( '/list', ( req, res ) => {
 	if ( checkAuth( req, res ) ) {
 		return;
 	}
-	res.send( JSON.stringify( { allUsers: users.getUserList( req.user.admin ) } ) );
+	res.send( JSON.stringify( {
+		allUsers: users.getUserList( req.user.admin, req.user.uid ),
+	} ) );
 } );
 
 router.post( '/addUser', ( req, res ) => {

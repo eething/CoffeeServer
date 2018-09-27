@@ -10,7 +10,19 @@ const router = express.Router();
 
 
 router.get( '/', ( req, res ) => {
-	res.render( 'order' ); // , { title: 'Express' } );
+	// TODO - 코드중복 리팩토링
+	const params = {};
+	if ( req.user ) {
+		params.loginName = req.user.name;
+		params.loginUID = req.user.uid;
+		params.loginID = users.getAuthID( 'Local', req.user.uid );
+		if ( req.user.admin ) {
+			params.loginType = 'admin';
+		} else {
+			params.loginType = 'user';
+		}
+	}
+	res.render( 'order', params );
 } );
 
 router.post( '/', ( req, res ) => {

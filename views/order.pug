@@ -14,7 +14,8 @@ html
 		script(src="/javascripts/vieworder.js")
 		script.
 			function initOrder() {
-				initOrderElem();
+				l2data.initLoginData( '#{loginType}', '#{loginName}', '#{loginID}', '#{loginUID}' );
+				initOrderElem();				
 				l2data.getBeverageList();
 				l2data.getUserList();
 				l2data.getCurrentOrderList();
