@@ -87,7 +87,7 @@ function changeProvider( Provider, providerID, uidChanged, callback ) {
 		if ( userChanged ) {
 			userChanged.uid = Number( uidChanged );
 		} else {
-			this.allUsers[uidChanged] = {
+			users.allUsers[uidChanged] = {
 				uid: Number( uidChanged ),
 			};
 			if ( uidChanged > users.maxUID ) {
