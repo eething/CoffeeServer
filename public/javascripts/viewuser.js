@@ -39,10 +39,10 @@ function changeLoginData( loginType, loginName, loginID, loginUID ) {
 	changeUserMenu( menu );
 	// Name
 	l2data.login.name = loginName;
-	document.querySelector( '#name_edit' ).value = loginName;
+	document.querySelector( '#name_edit' ).value = loginName || '';
 	// ID
 	l2data.login.ID = loginID;
-	document.querySelector( '#id_edit' ).innerHTML = l2data.login.ID;
+	document.querySelector( '#id_edit' ).innerHTML = l2data.login.ID || '';
 	document.querySelector( '#password1_edit' ).disabled = !l2data.login.ID;
 	document.querySelector( '#password2_edit' ).disabled = !l2data.login.ID;
 	// uid
@@ -349,8 +349,8 @@ function onSelectUser( self ) {
 
 	disableAdminForm( f, false );
 	document.querySelector( '#uid_admin' ).innerHTML = uid;
-	document.querySelector( '#id_admin' ).innerHTML = user.localID;
-	f.name_admin.value = user.name;
+	document.querySelector( '#id_admin' ).innerHTML = user.localID || '';
+	f.name_admin.value = user.name || '';
 	f.del_admin.checked = user.deleted; // ? true : false;
 	f.enable_admin.checked = user.enabled; // ? true : false;
 	f.shuttle_admin.checked = user.shuttle; // ? true : false;
@@ -525,8 +525,8 @@ function onAddUser( self ) {
 		l2data.login.ID = data.id;
 		l2data.login.uid = data.uid;
 
-		document.querySelector( '#name_edit' ).value = l2data.login.name;
-		document.querySelector( '#id_edit' ).innerHTML = l2data.login.ID;
+		document.querySelector( '#name_edit' ).value = l2data.login.name || '';
+		document.querySelector( '#id_edit' ).innerHTML = l2data.login.ID || '';
 		f.password1_edit.disabled = !l2data.login.ID;
 		f.password2_edit.disabled = !l2data.login.ID;
 
