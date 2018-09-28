@@ -85,7 +85,7 @@ function changeProvider( Provider, providerID, uidChanged, callback ) {
 
 		const userChanged = users.allUsers[uidChanged];
 		if ( userChanged ) {
-			userChanged.uid = uidChanged;
+			userChanged.uid = Number( uidChanged );
 		} else {
 			this.allUsers[uidChanged] = {
 				uid: Number( uidChanged ),
