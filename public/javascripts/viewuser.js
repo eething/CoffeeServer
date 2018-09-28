@@ -43,6 +43,8 @@ function changeLoginData( loginType, loginName, loginID, loginUID ) {
 	// ID
 	l2data.login.ID = loginID;
 	document.querySelector( '#id_edit' ).innerHTML = l2data.login.ID;
+	document.querySelector( '#password1_edit' ).disabled = !l2data.login.ID;
+	document.querySelector( '#password2_edit' ).disabled = !l2data.login.ID;
 	// uid
 	l2data.login.uid = loginUID;
 }
@@ -189,9 +191,9 @@ function onEditUser( self ) {
 	};
 	submitUser( 'editUser', input, () => {
 		if ( editMe ) {
-			const user = l2data.allUsers[l2data.login.uid];
 			l2data.login.name = newName;
-			user.name = l2data.login.name;
+			// const user = l2data.allUsers[l2data.login.uid];			
+			// user.name = l2data.login.name;
 			// user.id = l2data.login.ID = newID;
 		}
 		// f.name_edit.value			= '';
@@ -298,9 +300,9 @@ function onAdminUser( self ) {
 	};
 	submitUser( 'adminUser', input, () => {
 		if ( editMe ) {
-			const user = l2data.allUsers[l2data.login.uid];
-			user.name = newName;
 			l2data.login.name = newName;
+			// const user = l2data.allUsers[l2data.login.uid];
+			// user.name = newName;			
 			// user.id = l2data.login.ID = newID;
 		}
 
@@ -522,8 +524,11 @@ function onAddUser( self ) {
 		l2data.login.name = data.name;
 		l2data.login.ID = data.id;
 		l2data.login.uid = data.uid;
-		document.querySelector( '#id_edit' ).innerHTML = l2data.login.ID;
+
 		document.querySelector( '#name_edit' ).value = l2data.login.name;
+		document.querySelector( '#id_edit' ).innerHTML = l2data.login.ID;
+		f.password1_edit.disabled = !l2data.login.ID;
+		f.password2_edit.disabled = !l2data.login.ID;
 
 		f.id_add.value = '';
 		f.name_add.value = '';

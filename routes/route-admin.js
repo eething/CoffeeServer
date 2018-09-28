@@ -66,14 +66,14 @@ router.get( '/adminList', ( req, res ) => {
 
 function changeProvider( Provider, providerID, uidChanged, callback ) {
 	const prov = users.getProvider( Provider, providerID );
-	const { uid } = prov;
+	const uidOld = prov.uid;
 
-	if ( Provider === 'Local' && uid === 0 ) {
+	if ( Provider === 'Local' && uidOld === 0 ) {
 		callback();
 		return;
 	}
 
-	users.setAuthID( Provider, uid, undefined );
+	users.setAuthID( Provider, uidOld, undefined );
 	users.setAuthID( Provider, uidChanged, providerID );
 
 	prov.uid = Number( uidChanged );
@@ -83,15 +83,18 @@ function changeProvider( Provider, providerID, uidChanged, callback ) {
 			return;
 		}
 
-		if ( users.allUsers[uidChanged] ) {
-			callback();
-			return;
+		const userChanged = users.allUsers[uidChanged];
+		if ( userChanged ) {
+			userChanged.uid = uidChanged;
+		} else {
+			this.allUsers[uidChanged] = {
+				uid: Number( uidChanged ),
+			};
+			if ( uidChanged > users.maxUID ) {
+				users.maxUID = Number( uidChanged );
+			}
 		}
 
-		if ( uidChanged > users.maxUID ) {
-			users.maxUID = Number( uidChanged );
-		}
-		users.allUsers[uidChanged] = { uid: users.maxUID };
 		users.writeUser( uidChanged, ( sendMsg2 ) => {
 			if ( sendMsg.code !== 'OK' ) {
 				callback( sendMsg2 );

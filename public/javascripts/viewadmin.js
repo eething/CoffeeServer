@@ -73,12 +73,13 @@ const l2admin = {
 				inner += `<BR>${prov.name}`;
 			}
 			const td1 = addElement( tr, 'td', `cProviderID${user.error ? ` cError${user.error}` : ''}`, inner );
-			const td2 = addElement( tr, 'td', user.error ? `cError${user.error}` : '' );
+			const td2 = addElement( tr, 'td', `cUID${user.error ? ` cError${user.error}` : ''}` );
+			const td3 = addElement( tr, 'td', `cLabel${user.error ? ` cError${user.error}` : ''}` );
 			const input = addElement( td2, 'input', 'cUID' );
 			input.type = 'number';
 			input.value = uid;
 			input.addEventListener( 'change', function onChangeUID() {
-				if ( this.value !== uid.toString() ) {
+				if ( this.value !== uid.toString() || prov.checkbox.checked ) {
 					prov.uidChanged = this.value;
 					this.classList.add( 'cUIDChanged' );
 					l2admin.setChanged( Provider, providerID, this.value );
@@ -89,9 +90,14 @@ const l2admin = {
 				}
 				l2admin.checkProviders();
 			} );
+			const checkbox = addElement( td3, 'input' );
+			checkbox.type = 'checkbox';
+
 			prov.td1 = td1;
 			prov.td2 = td2;
+			prov.td3 = td3;
 			prov.input = input;
+			prov.checkbox = checkbox;
 		} );
 	},
 	setProviders( data ) {
@@ -145,7 +151,8 @@ const l2admin = {
 			const user = this.errUsers[u];
 
 			prov.td1.className = `cProviderID${user.error ? ` cError${user.error}` : ''}`;
-			prov.td2.className = user.error ? `cError${user.error}` : '';
+			prov.td2.className = `cUID${user.error ? ` cError${user.error}` : ''}`;
+			prov.td3.className = `cLabel${user.error ? ` cError${user.error}` : ''}`;
 		} );
 	},
 	checkProviders() {
@@ -258,7 +265,7 @@ function onSelectAuth( self ) {
 	const auth = self.value;
 	elemAdmin.authList.forEach( ( o ) => {
 		if ( o.id.substr( 5 ) === auth ) {
-			o.style.display = 'block';
+			o.style.display = 'table';
 		} else {
 			o.style.display = 'none';
 		}

@@ -34,7 +34,7 @@ router.get( '/list', ( req, res ) => {
 		return;
 	}
 	res.send( JSON.stringify( {
-		allUsers: users.getUserList( req.user.admin, req.user.uid ),
+		allUsers: users.getUserList( req.user ),
 	} ) );
 } );
 
@@ -54,14 +54,14 @@ router.post( '/addUser', ( req, res ) => {
 			req.session.save( ( err ) => {
 				if ( err ) {
 					res.send( JSON.stringify( { code: 'ESS', err: convertError( err ) } ) );
-				} else {
-					sendMsg.allUsers = users.getUserList( false );
-					sendMsg.allBeverages = beverages.allBeverages;
-					orders.getCurrentOrder( ( currentOrder ) => {
-						sendMsg.currentOrder = currentOrder;
-						res.send( JSON.stringify( sendMsg ) );
-					} );
+					return;
 				}
+				sendMsg.allUsers = users.getUserList( user );
+				sendMsg.allBeverages = beverages.allBeverages;
+				orders.getCurrentOrder( ( currentOrder ) => {
+					sendMsg.currentOrder = currentOrder;
+					res.send( JSON.stringify( sendMsg ) );
+				} );
 			} ); // save
 		} ); // login
 	} ); // addUser
@@ -80,7 +80,7 @@ router.post( '/editUser', ( req, res ) => {
 		if ( oldDisplayName !== newDisplayName ) {
 			orders.changeDisplayName( req.user.uid, newDisplayName );
 		}
-		sendMsg.allUsers = users.getUserList( req.user.admin );
+		sendMsg.allUsers = users.getUserList( req.user );
 		res.send( JSON.stringify( sendMsg ) );
 	} );
 } );
@@ -100,7 +100,7 @@ router.post( '/adminUser', ( req, res ) => {
 			orders.changeDisplayName( uid, newDisplayName );
 		}
 
-		sendMsg.allUsers = users.getUserList( true );
+		sendMsg.allUsers = users.getUserList( req.user );
 		res.send( JSON.stringify( sendMsg ) );
 	} );
 } );
@@ -114,7 +114,7 @@ router.post( '/delUser', ( req, res ) => {
 
 	users.deleteUser( uid, ( sendMsg ) => {
 		if ( sendMsg.code !== 'OK' || uid !== req.user.uid ) {
-			sendMsg.allUsers = users.getUserList( req.user.admin );
+			sendMsg.allUsers = users.getUserList( req.user );
 			res.send( JSON.stringify( sendMsg ) );
 			return;
 		}

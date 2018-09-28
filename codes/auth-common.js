@@ -20,7 +20,7 @@ module.exports = {
 				return;
 			}
 
-			this.collectAllData( req.user.admin, ( sendMsg ) => {
+			this.collectAllData( req.user, ( sendMsg ) => {
 				res.send( JSON.stringify( sendMsg ) );
 			} );
 		} );
@@ -56,9 +56,9 @@ module.exports = {
 		} );
 	},
 
-	collectAllData( admin, callback ) {
+	collectAllData( user, callback ) {
 		const sendMsg = { code: 'OK' };
-		sendMsg.allUsers = users.getUserList( admin );
+		sendMsg.allUsers = users.getUserList( user );
 		sendMsg.allBeverages = beverages.allBeverages;
 		orders.getCurrentOrder( ( co ) => {
 			sendMsg.currentOrder = co;
@@ -74,7 +74,7 @@ module.exports = {
 	},
 
 	onSuccessLogin( user, callback ) {
-		this.collectAllData( user.admin, ( sendMsg ) => {
+		this.collectAllData( user, ( sendMsg ) => {
 			sendMsg.uid = user.uid;
 			sendMsg.name = user.name;
 			sendMsg.admin = user.admin;

@@ -514,7 +514,8 @@ module.exports = {
 		this.writeUser( body.uid, callback );
 	},
 
-	getUserList( admin, myUID ) {
+	getUserList( currentUser ) {
+		const { admin, uid: myUID } = currentUser;
 		const tempAll = {};
 		Object.keys( this.allUsers ).forEach( ( uid ) => {
 			//	if( uid == 0 ) {
