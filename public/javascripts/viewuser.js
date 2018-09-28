@@ -302,11 +302,10 @@ function onAdminUser( self ) {
 		if ( editMe ) {
 			l2data.login.name = newName;
 			// const user = l2data.allUsers[l2data.login.uid];
-			// user.name = newName;			
+			// user.name = newName;
 			// user.id = l2data.login.ID = newID;
 		}
-
-		f.name_admin.value		= '';
+		// f.name_admin.value		= '';
 		f.password1_admin.value	= '';
 		f.password2_admin.value	= '';
 

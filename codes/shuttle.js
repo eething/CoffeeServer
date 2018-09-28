@@ -34,16 +34,16 @@ module.exports = {
 		this.sortShuttlePoint();
 
 		const addShuttle = ( uid ) => {
-			if ( this.shuttlePoint.length > 0 && this.shuttlePoint[0].point === 0 ) {
-				this.shuttlePoint[0].users.push( uid );
-				this.shuttlePoint[0].rands.push( uid );
+			const zeroGroup = this.shuttlePoint.find( g => g.point === 0 );
+			if ( zeroGroup ) {
+				zeroGroup.users.push( uid );
+				zeroGroup.rands.push( uid );
 			} else {
-				const newGroup = {
+				this.shuttlePoint.splice( 0, 0, {
 					point: 0,
 					users: [uid],
 					rands: [uid],
-				};
-				this.shuttlePoint.push( newGroup );
+				} );
 			}
 		};
 
@@ -55,7 +55,7 @@ module.exports = {
 				}
 			} else {
 				let bDelete = false;
-				this.shuttlePoint.forEach( ( group, index ) => {
+				this.shuttlePoint.forEach( ( group, groupIndex ) => {
 					if ( !bDelete ) {
 						const randIndex = group.rands.findIndex( u => u === uid );
 						if ( randIndex >= 0 ) {
@@ -66,7 +66,7 @@ module.exports = {
 							bDelete = true;
 							group.users.splice( userIndex, 1 );
 							if ( group.users.length === 0 ) {
-								this.shuttlePoint.splice( index, 1 );
+								this.shuttlePoint.splice( groupIndex, 1 );
 							}
 						}
 					}
@@ -109,7 +109,7 @@ module.exports = {
 	},
 
 	confirmShuttles( confirmList, deletedList, callback ) {
-		const promoteShuttle = ( uid, group ) => {
+		const promoteShuttle = ( uid, group, groupIndex ) => {
 			const shuttle = this.todayShuttle.find( ts => ts.uid === uid );
 			const userIndex = group.users.findIndex( u => u === uid );
 			if ( shuttle.status <= 1 && userIndex >= 0 ) {
@@ -119,7 +119,7 @@ module.exports = {
 				if ( nextGroup ) {
 					nextGroup.users.push( uid );
 				} else {
-					this.shuttlePoint.push( {
+					this.shuttlePoint.splice( groupIndex, 0, {
 						point: group.point + 1,
 						users: [uid],
 						rands: [],
@@ -128,9 +128,9 @@ module.exports = {
 			}
 		};
 
-		this.shuttlePoint.forEach( ( group ) => {
+		this.shuttlePoint.forEach( ( group, index ) => {
 			confirmList.forEach( ( uid ) => {
-				promoteShuttle( uid, group );
+				promoteShuttle( uid, group, index );
 			} );
 		} );
 
