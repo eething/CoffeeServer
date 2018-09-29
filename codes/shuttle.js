@@ -75,14 +75,18 @@ module.exports = {
 		} );
 	},
 
-	makeShuttle( callback ) {
+	getShuttleNum() {
 		let tsLen = 0;
 		this.todayShuttle.forEach( ( ts ) => {
 			if ( ts.status >= 0 ) {
 				tsLen += 1;
 			}
 		} );
-		if ( tsLen > 2 ) {
+		return tsLen;
+	},
+
+	makeShuttle( callback ) {
+		if ( this.getShuttleNum() > 2 ) {
 			callback();
 			return;
 		}
@@ -160,7 +164,7 @@ module.exports = {
 		} );
 	},
 
-	getTodayShuttle( bNew, callback ) {
+	getTodayShuttle( shuttleNum, callback ) {
 		const getShuttleList = () => {
 			const shuttleList = [];
 			this.todayShuttle.forEach( ( ts ) => {
@@ -174,7 +178,7 @@ module.exports = {
 		};
 
 		this.checkToday();
-		if ( bNew ) {
+		if ( this.getShuttleNum() < shuttleNum ) {
 			this.addShuttles();
 			this.makeShuttle( ( err ) => {
 				if ( err ) {

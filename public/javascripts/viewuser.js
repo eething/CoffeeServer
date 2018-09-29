@@ -60,8 +60,8 @@ function onLogout() {
 }
 
 function processLoginOK( d ) {
-	l2data.setData( d );
 	changeLoginData( d.admin ? 'admin' : 'user', d.name, d.id, d.uid );
+	l2data.setData( d );
 	if ( l2data.view.all ) {
 		l2all.changePage( 'Order' );
 		l2order.selectOrderBy();

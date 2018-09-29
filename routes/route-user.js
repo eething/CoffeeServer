@@ -174,15 +174,19 @@ router.get( '/newShuttle', ( req, res ) => {
 		return;
 	}
 
-	shuttles.getTodayShuttle( true, ( err, data ) => {
-		if ( err ) {
-			res.send( JSON.stringify( convertError( err ) ) );
-		} else {
-			res.send( JSON.stringify( {
-				code: 'OK',
-				shuttleList: data,
-			} ) );
-		}
+	orders.getCurrentOrder( ( co ) => {
+		const orderNum = co.length;
+		const shuttleNum = orderNum === 0 ? 0 : Math.ceil( ( orderNum + 4 ) / 8 );
+		shuttles.getTodayShuttle( shuttleNum, ( err, shuttleList ) => {
+			if ( err ) {
+				res.send( JSON.stringify( convertError( err ) ) );
+			} else {
+				res.send( JSON.stringify( {
+					code: 'OK',
+					shuttleList,
+				} ) );
+			}
+		} );
 	} );
 } );
 

@@ -7,8 +7,8 @@
 		span#menuAdmin(onclick="changeUserMenu('Admin')") 관리자
 		span#menuLogout(onclick="onLogout();") 로그아웃
 
-	form(onsubmit="return false;")
-		div.cLogin
+	div.cLogin
+		form(onsubmit="return false;")
 			table
 				colgroup
 					col(width="90")
@@ -39,9 +39,7 @@
 					td(colspan="2" align="center")
 						div.cLoginButton.cTwitter(onclick="onLoginProvider('Twitter')") 트잉여
 
-	form(onsubmit="return false;")
-		//input(type="hidden" name="uid")
-
+	form(onsubmit="return false;" style="height:100%;")
 		div.cNewUser
 			table
 				colgroup

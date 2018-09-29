@@ -24,24 +24,29 @@ td {
 }
 
 div {
-	margin: 5px;
-	padding: 0px;
-	/* border: 1px solid; */
+	margin: 0 auto;
 }
 	div.cApp {
+		padding: 10px;
 		position: relative;
-		width: 100%;
-		max-width: 350px;
-		margin: auto;
 		background-image: linear-gradient(to bottom right, lightblue, #123);
+		width: 100vw;
+		min-width: 320px;
+		max-width: 420px;
+		height: calc(100vh - 100px);
 	}
+@media screen and (max-height:700px) {
+	div.cApp {
+		height: 100vh;
+		min-height: 520px;
+	}
+}
 		div.cUpper:before {
 			content: "";
 			position: absolute;
 			top: 0;
 			left: 0;
 			right: 0;
-			margin: auto;
 			width: 100%;
 			height: 100%;
 			z-index: 1;
@@ -88,8 +93,7 @@ div {
 
 
 	div.cUpper {
-		margin: 0;
-		width: 350px;
+		width: 100%;
 	}
 		div.cUpper > div.cMenu {
 			display: inline-block;
@@ -105,30 +109,43 @@ div {
 			}
 
 	div.cOuter {
-		margin: 0;
+		margin-top: 10px;
 		width: 100%;
-		min-width: 320px;
-		max-width: 350px;
-		height: 450px;
-		overflow: auto;
+		height: calc(100vh - 170px);
 	}
+@media screen and (max-height:700px) {
+	div.cOuter {
+		height: calc(100vh - 70px);
+	}
+}
 
 	div.cMessage {
-		background-color: rgba(100,100,255,0.2);
-		width: 350px;
-		height: 200px;
-		margin: 0 auto;
-		padding: 10px;
-	}
-@media screen and (max-height:690px) {
-	div.cMessage {
-		background-color: rgba(255,100,100,0.2);
-		position: fixed;
+		display: none;
+		position: absolute;
 		bottom: 0;
 		left: 0;
 		right: 0;
+		width: 100vw;
+		min-width: 320px;
+		max-width: 420px;
+		height: 100px;
+		line-height: 100px;
+		text-align: center;
+		overflow: hidden;
+		background-color: rgba(100,100,255,0.9);
+	}
+@media screen and (max-height:700px) {
+	div.cMessage {
+		background-color: rgba(255,100,100,0.9);
 	}
 }
+	div.cMessage > div#message {
+		padding: 10px;
+	    line-height: 1.5;
+		display: inline-block;
+		vertical-align: middle;
+		word-break: break-word;
+	}
 
 	/*input[type="button"], input[type="submit"] {
 	font-size: 13pt;

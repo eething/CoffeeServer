@@ -35,14 +35,24 @@ function fetchHelper( address, options, input, description, callback ) {
 		} )
 		.then( ( data ) => {
 			callback( data );
+			if ( l2data.view.all ) {
+				l2all.printMessage( `${description}: ${data.code} ${data.err || ''}` );
+			}
 		} )
 		.catch( ( err ) => {
 			// TODO - 에러창에 띄우기
+			console.log( err );
+			let errMsg;
 			if ( err.status ) {
-				alert( `${err.status}, ${err.code}, ${err.err}` );
+				errMsg = `${err.status}, ${err.code}, ${err.err}`;
 			} else {
-				console.log( err );
-				alert( err );
+				errMsg = err;
+			}
+
+			if ( l2data.view.all ) {
+				l2all.printMessage( errMsg );
+			} else {
+				alert( errMsg );
 			}
 		} );
 }

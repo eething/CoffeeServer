@@ -45,9 +45,28 @@ const l2all = {
 		}
 		elemAll.divMenuAdmin.style.display = bShow ? 'inline-block' : 'none';
 	},
+
+	timeoutID: null,
+	printMessage( msg ) {
+		const msgOuter = document.querySelector( 'div.cMessage' );
+		const msgInner = document.querySelector( '#message' );
+		msgInner.innerHTML = msg;
+		clearTimeout( this.timeoutID );
+		msgOuter.style.transition = '';
+		msgOuter.style.opacity = 1.0;
+		msgOuter.style.display = 'block';
+
+		if ( matchMedia( '(max-height:700px)' ).matches ) {
+			this.timeoutID = setTimeout( () => {
+				msgOuter.style.transition = 'opacity 3s';
+				msgOuter.style.opacity = 0.0;
+				this.timeoutID = setTimeout( () => {
+					msgOuter.style.display = 'none';
+				}, 3000 );
+			}, 1000 );
+		}
+	},
 };
-
-
 
 function initAllElem( loginType ) {
 	elemAll.divOuterOrder		= document.querySelector( 'div#outerOrder' );

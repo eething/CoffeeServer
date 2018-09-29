@@ -185,6 +185,7 @@ function onAddOrder( self ) {
 		beverage: f.beverage.value,
 	};
 	f.beverage.value = '';
+	f.beverageSelect.value = '';
 	if ( f.icehot.value ) {
 		input.icehot = f.icehot.value;
 		f.ice.checked = false;
@@ -282,10 +283,10 @@ function addTableOrderB( k, v ) {
 	totalCount += v.orderBys.length;
 	function popupViewOrderBys() {
 		removeChildAll( elemOrder.divPopup );
-		addElement( elemOrder.divPopup, 'p', '', k );
-		addElement( elemOrder.divPopup, 'p', '', optionStr );
+		addElement( elemOrder.divPopup, 'p', 'ctxt', k );
+		addElement( elemOrder.divPopup, 'p', 'ctxt', optionStr );
 		v.orderByDNs.forEach( ( oDN ) => {
-			addElement( elemOrder.divPopup, 'p', '', oDN );
+			addElement( elemOrder.divPopup, 'span', 'stxt', oDN );
 		} );
 
 		const input = addElement( elemOrder.divPopup, 'input', 'cNadoNado', '' );
@@ -340,7 +341,22 @@ const l2order = {
 		const select = document.querySelector( '#orderBy' );
 		removeChildAll( select );
 
-		Object.keys( l2data.allUsers ).forEach( ( uid ) => {
+		const userKeys = Object.keys( l2data.allUsers );
+		userKeys.sort( ( a, b ) => {
+			const userA = l2data.allUsers[a];
+			const userB = l2data.allUsers[b];
+			const nameA = userA.name || userA.localID || `* ${a}`;
+			const nameB = userB.name || userB.localID || `* ${b}`;
+			if ( nameA > nameB ) {
+				return 1;
+			}
+			if ( nameA < nameB ) {
+				return -1;
+			}
+			return 0;
+		} );
+
+		userKeys.forEach( ( uid ) => {
 			const user = l2data.allUsers[uid];
 			if ( !user.deleted && user.enabled ) {
 				const option = addElement( select, 'option', '',

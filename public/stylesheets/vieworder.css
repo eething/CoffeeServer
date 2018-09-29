@@ -7,7 +7,8 @@
 	div.cMain {
 		border:1px solid;
 		position: relative;
-		height: 300px;
+		height: calc(100% - 160px);
+		margin-top: 10px;
 	}
 		div.cMain > div.cOrderList {
 			margin: 0px;
@@ -18,11 +19,17 @@
 
 			div.cTotal {
 				position: relative;
-				padding-left: 100px;
+				margin: 10px 0;
 			}
-				span.cSwap {
-					position: absolute;
-					right: 20px;
+				div.cTotal > span {
+					display: inline-block;
+					text-align: center;
+				}
+				div.cTotal > span.cTotal {
+					width: 70%;
+				}
+				div.cTotal > span.cSwap {
+					width: 30%;
 				}
 
 			table.cOrderB, table.cOrderO, table.cInputT {
@@ -71,7 +78,8 @@
 
 div.cPopupOuter {
 	visibility: hidden;
-	margin: 0px;
+	margin: 0;
+	padding: 10px;
 	position: absolute;
 	top: 10%;
 	left: 10%;
@@ -83,20 +91,29 @@ div.cPopupOuter {
 	border: 3px outset lightcyan;
 }
 		div.cPopupOuter > div.cPopup {
-			margin: 0;
+			border: 1px solid red;
 			width: 100%;
-			height: 100%;
+			height: calc(100% - 30px);
 		}
 			input.cNadoNado {
 				position: absolute;
 				bottom: 10px;
 				left: 10px;
 				right: 0;
-				//font-size: 13pt;
 				background-color: lightgreen;
 				border-color: green;
 				width: 120px;
-}
+			}
+			p.ctxt {
+
+			}
+			p.stxt {
+				line-height: 15px;
+			}
+			span.stxt {
+				display: inline-block;
+				margin: 5px 20px;
+			}
 		div.cPopupOuter > input.cClose {
 			position: absolute;
 			bottom: 10px;
@@ -105,13 +122,11 @@ div.cPopupOuter {
 			background-color: lightblue;
 			border-color: blue;
 		}
-//		div.cSelect p {
-//			line-height: 30px;
-//		}
 
 	div.cNyam {
 		height: 50px;
-		padding: 5px;
+		padding: 10px;
+		text-align: center;
 	}
 
 input {

@@ -31,6 +31,11 @@ div.cUserMenu > span {
 	width: 33%
 }
 
+div.cLogin, div.cNewUser, div.cMyInfo, div.cAdmin {
+	height: calc(100% - 30px);
+	overflow: auto;
+}
+
 div.cLoginButton {
 	width: 200px;
 	height: 40px;
@@ -112,8 +117,10 @@ div.cGoogleImage {
 #shuttle_admin.cTrue::after {
 	white-space: pre;
 	content: '셔틀';
+	top: -5px;
 }
 #shuttle_admin.cFalse::after {
 	white-space: pre;
 	content: '귀족';
+	top: -5px;
 }
