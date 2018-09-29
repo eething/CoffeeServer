@@ -215,8 +215,6 @@ module.exports = {
 	},
 
 	loadShuttlePoint( callback ) {
-		this.checkToday();
-
 		const filePath = 'data/shuttles/point';
 		fs.readFile( filePath, ( err, data ) => {
 			if ( err ) {
@@ -227,6 +225,7 @@ module.exports = {
 			}
 			if ( data ) {
 				const parsed = JSON.parse( data );
+				this.todayString = parsed.todayString;
 				this.todayShuttle = parsed.todayShuttle;
 				this.shuttlePoint = parsed.shuttlePoint;
 				console.log( 'Shuttle Loaded...' );
@@ -239,6 +238,7 @@ module.exports = {
 
 	writeShuttlePoint( callback ) {
 		const shuttleString = JSON.stringify( {
+			todayString: this.todayString,
 			todayShuttle: this.todayShuttle,
 			shuttlePoint: this.shuttlePoint,
 		} );
