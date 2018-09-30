@@ -7,8 +7,8 @@
 		span#menuAdmin(onclick="changeUserMenu('Admin')") 관리자
 		span#menuLogout(onclick="onLogout();") 로그아웃
 
-	div.cLogin
-		form(onsubmit="return false;")
+	form(onsubmit="return false;" style="height:calc(100% - 30px);")
+		div.cLogin
 			table
 				colgroup
 					col(width="90")
@@ -16,11 +16,11 @@
 				tr
 					td ID
 					td
-						input(type="text" name="id" autocomplete="off")
+						input#id(type="text" autocomplete="off")
 				tr
 					td 비밀번호
 					td
-						input(type="password" name="password")
+						input#password(type="password")
 				tr
 					td(colspan="2" align="center")
 						input(type="button" value="로그인"
@@ -39,7 +39,6 @@
 					td(colspan="2" align="center")
 						div.cLoginButton.cTwitter(onclick="onLoginProvider('Twitter')") 트잉여
 
-	form(onsubmit="return false;" style="height:100%;")
 		div.cNewUser
 			table
 				colgroup
@@ -53,8 +52,8 @@
 				tr
 					td ID
 					td
-						input.userYellow#id_add(type="text" name="id"
-						 	autocomplete="off" style="width:110px"
+						input.userYellow#id_add(type="text" autocomplete="off"
+						 	style="width:110px"
 							onchange="onCheckIDChanged(this);")
 						input#duplicatedID(type="button" value="중복"
 						 	onclick="onCheckDuplicatedID(this);")

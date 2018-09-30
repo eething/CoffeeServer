@@ -515,7 +515,7 @@ function onAddUser( self ) {
 	const f = self.form;
 	const input = {
 		name: f.name_add.value,
-		id: f.id.value,
+		id: f.id_add.value,
 		password: f.password1_add.value,
 	};
 	submitUser( 'addUser', input, ( data ) => {

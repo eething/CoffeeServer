@@ -91,7 +91,6 @@ div.cPopupOuter {
 	border: 3px outset lightcyan;
 }
 		div.cPopupOuter > div.cPopup {
-			border: 1px solid red;
 			width: 100%;
 			height: calc(100% - 30px);
 		}

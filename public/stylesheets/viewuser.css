@@ -26,13 +26,16 @@ input.providerDel {
 	width:50px;
 }
 
-div.cUserMenu > span {
-	display: inline-block;
-	width: 33%
+div.cUserMenu {
+	margin-bottom: 10px;
 }
+	div.cUserMenu > span {
+		display: inline-block;
+		width: 33%
+	}
 
 div.cLogin, div.cNewUser, div.cMyInfo, div.cAdmin {
-	height: calc(100% - 30px);
+	height: 100%;
 	overflow: auto;
 }
 
