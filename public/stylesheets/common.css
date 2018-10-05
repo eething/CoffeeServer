@@ -31,8 +31,8 @@ div {
 		background-image: linear-gradient(to bottom right, pink, #123);
 		padding: 10px;
 		position: absolute;
-		width: 420px;
 		min-width: 320px;
+		max-width: 420px;
 		height: calc(100% - 100px);
 	}
 @media screen and (max-height:700px) {
@@ -47,8 +47,8 @@ div.cApp {
 	position: absolute;
 	left: 0;
 	right: 0;
-	width: 420px;
 	min-width: 320px;
+	max-width: 420px;
 	height: calc(100% - 100px);
 }
 @media screen and (max-height:700px) {
