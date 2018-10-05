@@ -96,7 +96,7 @@ module.exports = {
 			// return "No More Shuttle Available";
 		}
 
-		this.shuttlePoint.forEach( ( group ) => {
+		this.shuttlePoint.some( ( group ) => {
 			if ( group.rands.length > 0 ) {
 				const randIndex = Math.floor( Math.random() * group.rands.length );
 				this.todayShuttle.push( {
@@ -104,8 +104,10 @@ module.exports = {
 					status: 0,
 				} );
 				group.rands.splice( randIndex, 1 );
+				return true;
 			}
-		} );
+			return false;
+		}, this );
 
 		this.writeShuttlePoint( ( err ) => {
 			callback( err );
