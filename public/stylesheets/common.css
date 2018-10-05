@@ -26,38 +26,38 @@ td {
 div {
 	margin: 0 auto;
 }
+
 	div.cStandAlone {
-		padding: 10px;
-		position: relative;
 		background-image: linear-gradient(to bottom right, pink, #123);
-		width: 100vw;
+		padding: 10px;
+		position: absolute;
+		width: 420px;
 		min-width: 320px;
-		max-width: 420px;
-		height: calc(100vh - 100px);
+		height: calc(100% - 100px);
 	}
-
 @media screen and (max-height:700px) {
 	div.cStandAlone {
-		height: 100vh;
+		height: 100%;
 		min-height: 520px;
 	}
 }
-
-	div.cApp {
-		padding: 10px;
-		position: relative;
-		background-image: linear-gradient(to bottom right, lightblue, #123);
-		width: 100vw;
-		min-width: 320px;
-		max-width: 420px;
-		height: calc(100vh - 100px);
-	}
+div.cApp {
+	background-image: linear-gradient(to bottom right, lightblue, #123);
+	padding: 10px;
+	position: absolute;
+	left: 0;
+	right: 0;
+	width: 420px;
+	min-width: 320px;
+	height: calc(100% - 100px);
+}
 @media screen and (max-height:700px) {
 	div.cApp {
-		height: 100vh;
+		height: 100%;
 		min-height: 520px;
 	}
 }
+/*
 		div.cUpper:before {
 			content: "";
 			position: absolute;
@@ -107,7 +107,7 @@ div {
 					visibility: hidden;
 				}
 			}
-
+*/
 
 	div.cUpper {
 		margin-bottom: 10px;
