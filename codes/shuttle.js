@@ -118,7 +118,7 @@ module.exports = {
 		const promoteShuttle = ( uid, group, groupIndex ) => {
 			const shuttle = this.todayShuttle.find( ts => ts.uid === uid );
 			const userIndex = group.users.findIndex( u => u === uid );
-			if ( shuttle.status <= 1 && userIndex >= 0 ) {
+			if ( shuttle.status < 1 && userIndex >= 0 ) {
 				shuttle.status = 1;
 				group.users.splice( userIndex, 1 );
 				const nextGroup = this.shuttlePoint.find( g => g.point === group.point + 1 );
