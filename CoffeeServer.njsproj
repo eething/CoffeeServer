@@ -82,7 +82,6 @@
     <Content Include="views\layout.pug" />
     <Content Include="views\order.pug" />
     <Content Include="views\order_part.pug" />
-    <Content Include="views\point" />
     <Content Include="views\user.pug" />
     <Content Include="views\user_part.pug" />
     <Content Include="Web.config" />
