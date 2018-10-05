@@ -1,23 +1,28 @@
 ﻿
 div.cAddBeverage {
-	border-color: #0FF
+	border: 1px solid;
+	margin-bottom: 10px;
+	height: 180px;
+	overflow: auto;
 }
-	div.cAddBeverage div.cMain {
-	}
-	div.cAddBeverage div.cOption {
-		height: 100px;
+
+
+div.cDelBeverage {
+	border: 1px solid;
+	position: relative;
+	height: calc(100% - 190px);
+}
+	div.cDeleteList {
+		height: calc(100% - 50px);
 		overflow: auto;
 	}
 
-div .cDelBeverage {
-	border-color: #F0F
-}
-	div.cDelBeverage div.cDeleteList {
-		height: 200px;
-		overflow: auto;
+	input.cExecDelete {
+		margin: 0 auto;
+		position: absolute;
+		bottom: 0;
+		left: 0;
+		right: 0;
+		width: 300px;
 	}
-	/*
-	div.cDelBeverage div.cExecDelete {
-		text-align: center;
-	}
-	*/
+

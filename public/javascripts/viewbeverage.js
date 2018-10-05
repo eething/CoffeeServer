@@ -39,6 +39,9 @@ function onAddBeverage( self ) {
 	if ( f.syrupable.checked ) {
 		input.syrupable = true;
 	}
+	if ( f.self.checked ) {
+		input.self = true;
+	}
 
 	fetchHelper( '/beverage/add', null, input, 'addBeverage', ( data ) => {
 		if ( data.code === 'OK' ) {
@@ -84,7 +87,13 @@ function onAddDelete( /* self */ ) {
 	}
 
 	const delchks = document.querySelectorAll( '.delchk' );
-	if ( delchks.some( d => d.id === value ) ) {
+	let bFound = false;
+	delchks.forEach( ( d ) => {
+		if ( d.id === value ) {
+			bFound = true;
+		}
+	} );
+	if ( bFound ) {
 		return;
 	}
 

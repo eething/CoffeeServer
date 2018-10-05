@@ -5,10 +5,10 @@
 				colgroup
 					col(width="50")
 					col
-				tr
+				tr.cShuttle
 					td
-						input(type="button" value="셔틀"
-							style="padding:0"
+						input.cShuttle(type="button" value="셔틀"
+							style="width:100%;"
 							onclick="onNewShuttle();")
 					td#shuttle1
 					td#shuttle2
@@ -52,6 +52,8 @@
 			div.cSyrup
 				input#syrup(type="checkbox" name="syrup" value="minus")
 				label(for="syrup") 시럽빼고
+			div.cSelf
+				input#self(type="radio" name="self" disabled)
+				label(for="self" style="color:red;") 직접수령
 
-		div.cNyam
-			input.cNyam(type="button" value="냠냠" onclick="onAddOrder(this);")
+		input.cNyam(type="button" value="냠냠" onclick="onAddOrder(this);")

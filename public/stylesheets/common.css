@@ -18,7 +18,7 @@ table {
 }
 
 td {
-	border-bottom: 1px solid #999;
+	border-top: 1px solid #999;
 	padding: 5px;
 	font-size: 15px;
 }
@@ -26,6 +26,23 @@ td {
 div {
 	margin: 0 auto;
 }
+	div.cStandAlone {
+		padding: 10px;
+		position: relative;
+		background-image: linear-gradient(to bottom right, pink, #123);
+		width: 100vw;
+		min-width: 320px;
+		max-width: 420px;
+		height: calc(100vh - 100px);
+	}
+
+@media screen and (max-height:700px) {
+	div.cStandAlone {
+		height: 100vh;
+		min-height: 520px;
+	}
+}
+
 	div.cApp {
 		padding: 10px;
 		position: relative;
@@ -93,6 +110,7 @@ div {
 
 
 	div.cUpper {
+		margin-bottom: 10px;
 		width: 100%;
 	}
 		div.cUpper > div.cMenu {
@@ -109,18 +127,17 @@ div {
 			}
 
 	div.cOuter {
-		margin-top: 10px;
+		position: relative;
 		width: 100%;
-		height: calc(100vh - 170px);
 	}
-@media screen and (max-height:700px) {
-	div.cOuter {
-		height: calc(100vh - 70px);
+	div.cStandAlone > div.cOuter {
+		height: 100%;
 	}
-}
+	div.cApp > div.cOuter {
+		height: calc(100% - 50px);
+	}
 
 	div.cMessage {
-		display: none;
 		position: fixed;
 		bottom: 0;
 		left: 0;
@@ -136,6 +153,7 @@ div {
 	}
 @media screen and (max-height:700px) {
 	div.cMessage {
+		display: none;
 		background-color: rgba(255,100,100,0.9);
 	}
 }

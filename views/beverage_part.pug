@@ -1,21 +1,27 @@
 ﻿div.cOuter#outerBeverage
-	div.cAddBeverage
-		form(action="/beverage/add" method="post" onsubmit="return false;")
-			div
-				input#name(type="text" name="name"
-					autocomplete="off" placeholder="호로록")
-				input(type="button" value="추가" onclick="onAddBeverage(this);")
-			div.cOption
-				input(type="checkbox" name="iceable" checked)
-				span 아이스
-				br
-
-				input(type="checkbox" name="hotable"  checked)
-				span 따뜻
-				br
-
-				input(type="checkbox" name="syrupable")
-				span 시럽
+	form(onsubmit="return false;")
+		div.cAddBeverage
+			table
+				tr
+					td(colspan="2")
+						input#name(type="text" name="name" autocomplete="off" placeholder="음료명 입력")
+						input(type="button" value="추가" onclick="onAddBeverage(this);")
+				tr
+					td
+						input(type="checkbox" name="iceable" checked)
+					td 아이스
+				tr
+					td
+						input(type="checkbox" name="hotable"  checked)
+					td 따뜻
+				tr
+					td
+						input(type="checkbox" name="syrupable")
+					td 시럽
+				tr
+					td
+						input(type="checkbox" name="self")
+					td 셀프
 
 	div.cDelBeverage
 		div.cSelectDelete
@@ -25,7 +31,5 @@
 				select#beverageSelect2(style="width:180px;margin-left:-186px;height:22px;")
 			input(type="button" value="삭제리스트" onclick="onAddDelete( this );")
 
-		form(action="/beverage/del" method="post" onsubmit="return false;")
-			div.cDeleteList
-			div.cExecDelete
-				input(type="button" value="삭제실행" onclick="onDelBeverage(this);")
+		div.cDeleteList
+		input.cExecDelete(type="button" value="삭제실행" onclick="onDelBeverage(this);")

@@ -107,7 +107,7 @@ module.exports = {
 				return true;
 			}
 			return false;
-		}, this );
+		} );
 
 		this.writeShuttlePoint( ( err ) => {
 			callback( err );

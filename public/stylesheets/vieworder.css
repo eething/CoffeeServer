@@ -1,43 +1,58 @@
 ﻿
 
-	div.cInput {
-		border:1px solid;
-		height:100px;
+div.cInput {
+	border: 1px solid;
+	height: 100px;
+	margin-bottom: 10px;
+}
+	table.cInputT {
+		width: 100%;
+		margin: auto;
 	}
-	div.cMain {
-		border:1px solid;
-		position: relative;
-		height: calc(100% - 160px);
-		margin-top: 10px;
-	}
-		div.cMain > div.cOrderList {
-			margin: 0px;
-			border-color: #F0F;
-			height: 100%;
-			overflow: auto;
+		table.cInputT td {
 		}
-
-			div.cTotal {
-				position: relative;
-				margin: 10px 0;
+		table.cInputT tr.cShuttle > td {
+			padding: 3px 0;
+			text-align: right;
+			border-top: 0;
+		}
+			input.cShuttle {
+				padding: 1px;
 			}
-				div.cTotal > span {
-					display: inline-block;
-					text-align: center;
-				}
-				div.cTotal > span.cTotal {
-					width: 70%;
-				}
-				div.cTotal > span.cSwap {
-					width: 30%;
-				}
 
-			table.cOrderB, table.cOrderO, table.cInputT {
-				width: 100%;
-				margin: auto;
+div.cMain {
+	border: 1px solid;
+	position: relative;
+	height: calc(100% - 144px);
+}
+	div.cMain > div.cOrderList {
+		margin: 0px;
+		border-color: #F0F;
+		height: 100%;
+		overflow: auto;
+	}
+
+	div.cTotal {
+		position: relative;
+		margin: 10px 0;
+	}
+		div.cTotal > span {
+			display: inline-block;
+			text-align: center;
+		}
+			div.cTotal > span.cTotal {
+				width: 75%;
 			}
-				tr.cOrderItem {
-				}
+			div.cTotal > span.cSwap {
+				width: 25%;
+			}
+
+	table.cOrderB, table.cOrderO {
+		width: 100%;
+		margin: auto;
+	}
+		tr.cOrderItem {
+		}
 					tr.cOrderItem > td {
 						white-space: nowrap;
 						overflow: hidden;
@@ -45,10 +60,10 @@
 						font-size: 15px;
 					}
 						tr.cOrderItem > td.cBeverage {
-							width: 90px;
+							width: 40%;
 						}
 						tr.cOrderItem > td.cOption {
-							width: 180px;
+							width: 50%;
 						}
 						tr.cOrderItem > td.cOrderBy {
 							width: 80px;
@@ -56,10 +71,7 @@
 						tr.cOrderItem > td.cBeverageOption {
 						}
 
-		div.cMain > div.cIce,
-		div.cMain > div.cHot,
-		div.cMain > div.cSyrup {
-			//border:1px dotted;
+		div.cIce, div.cHot, div.cSyrup, div.cSelf {
 			display: none;
 		}
 
@@ -121,16 +133,10 @@ div.cPopupOuter {
 			background-color: lightblue;
 			border-color: blue;
 		}
-
-	div.cNyam {
-		height: 50px;
-		padding: 10px;
-		text-align: center;
-	}
-
+/*
 input {
-    //background-color: #09f;
 }
+*/
     input::-webkit-calendar-picker-indicator {
         background-color: inherit;
         //color:red;
@@ -141,7 +147,12 @@ input {
 		width: 180px;
 	}
 	input.cNyam {
+		margin: 0 auto;
+		position: absolute;		
+		bottom: 0;
+		left: 0;
+		right: 0;
+		width: 300px;
 		background-color: lightgreen;
-		border-color: green;
-		width: 200px;
+		border-color: green;		
 	}

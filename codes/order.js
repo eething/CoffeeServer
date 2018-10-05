@@ -51,12 +51,14 @@ module.exports = {
 
 	addCurrentOrderList( order ) {
 		let isNewOrder = true;
-		this.currentOrderList.forEach( ( co ) => {
+		this.currentOrderList.forEach( ( co, index, arr ) => {
 			// orderBy 가 undefined 이면 true 가 되는 문제가 있지만, 일단 넘어가자
 			if ( co.orderBy === order.orderBy ) {
 				isNewOrder = false;
+				arr[index] = {};
+				const newOrder = arr[index];
 				Object.keys( order ).forEach( ( k ) => {
-					co[k] = order[k];
+					newOrder[k] = order[k];
 				} );
 			}
 		} );

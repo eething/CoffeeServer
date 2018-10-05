@@ -11,6 +11,7 @@ function initOrderElem() {
 	elemOrder.divIce		= document.querySelector( 'div.cIce' );
 	elemOrder.divHot		= document.querySelector( 'div.cHot' );
 	elemOrder.divSyrup		= document.querySelector( 'div.cSyrup' );
+	elemOrder.divSelf		= document.querySelector( 'div.cSelf' );
 	elemOrder.divOrderList	= document.querySelector( 'div.cOrderList' );
 	elemOrder.divPopupOuter	= document.querySelector( 'div.cPopupOuter' );
 	elemOrder.divPopup		= document.querySelector( 'div.cPopup' );
@@ -18,7 +19,6 @@ function initOrderElem() {
 	elemOrder.tableOrderO	= document.querySelector( 'table.cOrderO' );
 	elemOrder.tableOrderB.style.display = 'table';
 	elemOrder.tableOrderO.style.display = 'none';
-
 
 	elemOrder.shuttle1		= document.querySelector( '#shuttle1' );
 	elemOrder.shuttle2		= document.querySelector( '#shuttle2' );
@@ -69,6 +69,14 @@ function showBeverageOptions( f, beverage ) {
 	} else {
 		elemOrder.divSyrup.style.display = 'none';
 	}
+
+	if ( beverage.self ) {
+		f.self.checked = true;
+		elemOrder.divSelf.style.display = 'block';
+	} else {
+		f.self.checked = false;
+		elemOrder.divSelf.style.display = 'none'; // none
+	}
 }
 function showPopup( start ) {
 	let visMode = 'hidden';
@@ -87,10 +95,12 @@ function showBeverage( f, beverage ) {
 
 function clearBeverage( f ) {
 	f.beverage.style.backgroundColor = '';
-	elemOrder.divOrderList.style.display = 'block';
-	elemOrder.divIce.style.display = 'none';
-	elemOrder.divHot.style.display = 'none';
-	elemOrder.divSyrup.style.display = 'none';
+	elemOrder.divOrderList.style.display	= 'block';
+	elemOrder.divIce.style.display			= 'none';
+	elemOrder.divHot.style.display			= 'none';
+	elemOrder.divSyrup.style.display		= 'none';
+	elemOrder.divSelf.style.display			= 'none';
+	elemOrder.divSelf.checked				= false;
 }
 
 
@@ -195,6 +205,9 @@ function onAddOrder( self ) {
 		input.syrup = f.syrup.value;
 		f.syrup.checked = false;
 	}
+	if ( f.self.checked ) {
+		input.self = true;
+	}
 
 	changeBeverage( f, '' );
 
@@ -217,7 +230,8 @@ function checkOptions( option ) {
 function makeOptionStr( option ) {
 	let optionStr = '';
 	Object.keys( option ).forEach( ( k ) => {
-		if ( k === 'icehot' ) {
+		switch ( k ) {
+		case 'icehot': {
 			let icehot = '';
 			if ( option[k] === 'ice' ) {
 				icehot = '아이스';
@@ -227,9 +241,18 @@ function makeOptionStr( option ) {
 			optionStr = icehot
 				+ ( ( icehot && optionStr ) ? '/' : '' )
 				+ optionStr;
-		} else if ( k === 'syrup' ) {
+			break;
+		}
+		case 'syrup':
 			optionStr += ( optionStr ? '/' : '' )
 				+ ( option[k] === 'minus' ? '시럽빼고' : '' );
+			break;
+		case 'self':
+			optionStr += ( optionStr ? '/' : '' )
+				+ ( option[k] ? '셀프' : '' );
+			break;
+		default:
+			break;
 		}
 	} );
 	return optionStr;
@@ -250,7 +273,7 @@ function addTableOrderO( co ) {
 
 	const tr = addElement( elemOrder.tableOrderO, 'tr', 'cOrderItem' );
 
-	const beverageStr = `${co.beverage}(${optionStr})`;
+	const beverageStr = `${co.beverage}${optionStr ? `(${optionStr})` : ''}`;
 	const size = Math.min( Math.max( 30 - beverageStr.length, 11 ), 15 );
 
 	addElement( tr, 'td', 'cOrderBy', userName );
@@ -277,9 +300,8 @@ function addTableOrderB( k, v ) {
 	size = Math.min( Math.max( 25 - optionStr.length, 10 ), 15 );
 	tdOption.style.fontSize = `${size}px`;
 
-	const tdNum = addElement( tr, 'td' );
+	addElement( tr, 'td', '', v.orderBys.length );
 
-	const aPopup = addElement( tdNum, 'a', '', v.orderBys.length );
 	totalCount += v.orderBys.length;
 	function popupViewOrderBys() {
 		removeChildAll( elemOrder.divPopup );
@@ -299,7 +321,8 @@ function addTableOrderB( k, v ) {
 
 		showPopup( true );
 	}
-	aPopup.addEventListener( 'click', () => {
+
+	tr.addEventListener( 'click', () => {
 		popupViewOrderBys();
 	} );
 }
@@ -414,20 +437,18 @@ const l2order = {
 									|| l2data.login.type === 'admin' )
 									&& sl.status === 0;
 				if ( bShowButton ) {
-					const input1 = addElement( el, 'input' );
+					const input1 = addElement( el, 'input', 'cShuttle' );
 					input1.type = 'button';
 					input1.value = sl.name;
-					input1.style.padding = '1px';
 					if ( sl.status === 1 ) {
 						input1.disabled = true;
 					}
 					input1.addEventListener( 'click', makeListener( sl.uid, true ) );
 
 					if ( l2data.login.type === 'admin' ) {
-						const input2 = addElement( el, 'input' );
+						const input2 = addElement( el, 'input', 'cShuttle' );
 						input2.type = 'button';
 						input2.value = '삭제';
-						input2.style.padding = '1px';
 						input2.addEventListener( 'click', makeListener( sl.uid, false ) );
 					}
 				} else {

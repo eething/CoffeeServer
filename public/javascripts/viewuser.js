@@ -192,7 +192,7 @@ function onEditUser( self ) {
 	submitUser( 'editUser', input, () => {
 		if ( editMe ) {
 			l2data.login.name = newName;
-			// const user = l2data.allUsers[l2data.login.uid];			
+			// const user = l2data.allUsers[l2data.login.uid];
 			// user.name = l2data.login.name;
 			// user.id = l2data.login.ID = newID;
 		}

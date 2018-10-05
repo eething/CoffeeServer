@@ -175,7 +175,12 @@ router.get( '/newShuttle', ( req, res ) => {
 	}
 
 	orders.getCurrentOrder( ( co ) => {
-		const orderNum = co.length;
+		let orderNum = 0;
+		co.forEach( ( o ) => {
+			if ( !o.self ) {
+				orderNum += 1;
+			}
+		} );
 		const shuttleNum = orderNum === 0 ? 0 : Math.ceil( ( orderNum + 4 ) / 8 );
 		shuttles.getTodayShuttle( shuttleNum, ( err, shuttleList ) => {
 			if ( err ) {

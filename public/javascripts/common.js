@@ -95,7 +95,15 @@ const l2data = {
 		}
 
 		this.currentOrder = data.currentOrder || this.currentOrder;
-		this.currentOrder.sort( ( a, b ) => a.orderByDN > b.orderByDN );
+		this.currentOrder.sort( ( a, b ) => {
+			if ( a.orderByDN > b.orderByDN ) {
+				return 1;
+			}
+			if ( a.orderByDN < b.orderByDN ) {
+				return -1;
+			}
+			return 0;
+		} );
 		this.convertOrderToBuy();
 		if ( data.currentOrder ) {
 			if ( this.view.all ) {
