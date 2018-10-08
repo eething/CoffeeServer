@@ -112,13 +112,44 @@
 						input.userWhite#password2_edit(type="password"
 						 	onchange="onCheckEditForm(this);")
 				tr
+					td(rowspan="5") 테마
+					td
+						input#theme_random(type="radio" name="theme" value="random")
+						label.cThemeRandom(for="theme_random" title="random") Random
+				tr
+					td.cTheme
+						input#theme_blue(type="radio" name="theme" value="blue")
+						label.cThemeBlue(for="theme_blue" title="blue")
+							div Blue
+								input(type="button" value="버튼")
+				tr
+					td.cTheme
+						input#theme_hellokitty(type="radio" name="theme" value="hellokitty")
+						label.cThemeHelloKitty(for="theme_hellokitty" title="hellokitty")
+							div HelloKitty
+								input(type="button" value="버튼")
+				tr
+					td.cTheme
+						input#theme_ncsoft(type="radio" name="theme" value="ncsoft")
+						label.cThemeNcsoft(for="theme_ncsoft" title="ncsoft")
+							div NCSOFT
+								input(type="button" value="버튼")
+				tr
+					td.cTheme
+						input#theme_dark(type="radio" name="theme" value="dark")
+						label.cThemeDark(for="theme_dark" title="dark")
+							div Dark
+								input(type="button" value="버튼")
+				tr
 					td(colspan="2" align="center")
 						input(type="button" value="수정"
-							style="width:200px;"
+							style="width:200px;height:40px;"
 						 	onclick="onEditUser(this);")
 				//tr
 					td(colspan="2" align="center")
 						input(type="button" value="탈퇴" onclick="delUser(this);" style="width:200px;")
+				tr
+					td(colspan="2" align="center") 계정연동
 				tr
 					td(colspan="2" align="center")
 						div.cLoginButton.cFacebook(onclick="onLoginProvider('Facebook')") 빼북
@@ -170,19 +201,19 @@
 					td
 						input#del_admin(type="checkbox"
 							onchange="onCheckAdminForm(this);")
-						label#del_label(for="del_admin")
+						//label#del_label(for="del_admin")
 				tr
 					td enabled
 					td
 						input#enable_admin(type="checkbox"
 							onchange="onCheckAdminForm(this);")
-						label#enable_label(for="enable_admin")
+						//label#enable_label(for="enable_admin")
 				tr
 					td shuttle
 					td
 						input#shuttle_admin(type="checkbox"
 							onchange="onCheckAdminForm(this);")
-						label#shuttle_label(for="shuttle_admin")
+						//label#shuttle_label(for="shuttle_admin")
 				tr
 					td(colspan="2" align="center")
 						input#button_admin(type="button" value="수정"

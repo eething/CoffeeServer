@@ -28,15 +28,94 @@ input.providerDel {
 
 div.cUserMenu {
 	margin-bottom: 10px;
+	height: 40px;
+	background-color: var(--bg2);
 }
 	div.cUserMenu > span {
+		border: 1px solid var(--border);
+		margin: 1%;
 		display: inline-block;
-		width: 33%
+		padding: 3px 10px;
+		width: 31%;
 	}
 
 div.cLogin, div.cNewUser, div.cMyInfo, div.cAdmin {
 	height: 100%;
 	overflow: auto;
+	background-color: var(--bg2);
+}
+
+.cTheme > label {
+	padding: 5px 10px;
+	display: inline-block;
+	width: 200px;
+	height: 40px;
+	background-color: var(--ex-bg1);
+}
+	.cTheme > label > div {
+		position: relative;
+		padding: 2px 5px;
+		width: 100%;
+		height: 100%;
+		color: var(--ex-text);
+		border: 1px solid var(--ex-border);
+		background-color: var(--ex-bg2);
+	}
+	.cTheme > label input {
+		position: absolute;
+		top: 2px;
+		right: 2px;
+		width: 80px;
+		color: var(--ex-text-button);
+		text-shadow: 0 0 2px var(--ex-text);
+		border-radius: 5px;
+		border-color: var(--ex-border);
+		background-image: linear-gradient(to bottom, var(--ex-border-light), var(--ex-border));
+	}
+.cThemeBlue {
+	--ex-bg1: var(--blue-bg1);
+	--ex-bg2: var(--blue-bg2);
+	--ex-border: var(--blue-border);
+	--ex-border-light: var(--blue-border-light);
+	--ex-text: var(--blue-text);
+	--ex-text-button: var(--blue-text-button);
+}
+.cThemeHelloKitty {
+	--ex-bg1: var(--hellokitty-bg1);
+	--ex-bg2: var(--hellokitty-bg2);
+	--ex-border: var(--hellokitty-border);
+	--ex-border-light: var(--hellokitty-border-light);
+	--ex-text: var(--hellokitty-text);
+	--ex-text-button: var(--hellokitty-text-button);
+}
+.cThemeNcsoft {
+	--ex-bg1: var(--ncsoft-bg1);
+	--ex-bg2: var(--ncsoft-bg2);
+	--ex-border: var(--ncsoft-border);
+	--ex-border-light: var(--ncsoft-border-light);
+	--ex-text: var(--ncsoft-text);
+	--ex-text-button: var(--ncsoft-text-button);
+}
+.cThemeDark {
+	--ex-bg1: var(--dark-bg1);
+	--ex-bg2: var(--dark-bg2);
+	--ex-border: var(--dark-border);
+	--ex-border-light: var(--dark-border-light);
+	--ex-text: var(--dark-text);
+	--ex-text-button: var(--dark-text-button);
+}
+.cThemeRandom {
+	padding: 10px 10px;
+	display: inline-block;
+	width: 200px;
+	height: 40px;
+	color: #000;
+	border: 1px solid #FFF;
+	background-image: linear-gradient(to right,
+		var(--blue-bg2), var(--blue-bg2) 25%,
+		var(--hellokitty-bg2) 25%, var(--hellokitty-bg2) 50%,
+		var(--ncsoft-bg2) 50%, var(--ncsoft-bg2) 75%,
+		var(--dark-bg2) 75%, var(--dark-bg2));
 }
 
 div.cLoginButton {
@@ -95,14 +174,16 @@ div.cGoogleImage {
 	}
 
 .cNoChange::after {
-	position: relative; 
+	position: relative;
 	top: -2px;
 	left: 20px;	
+	color: var(--text);
 }
 .cChanged::after {
 	position: relative;
 	top: -2px;
 	left: 20px;
+	color: #000;
 	background-color: lightgreen;
 }
 #del_admin.cTrue::after {

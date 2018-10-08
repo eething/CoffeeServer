@@ -1,16 +1,16 @@
 ﻿
 div.cAddBeverage {
-	border: 1px solid;
 	margin-bottom: 10px;
 	height: 180px;
 	overflow: auto;
+	background-color: var(--bg2);
 }
 
 
 div.cDelBeverage {
-	border: 1px solid;
 	position: relative;
 	height: calc(100% - 190px);
+	background-color: var(--bg2);
 }
 	div.cDeleteList {
 		height: calc(100% - 50px);
@@ -20,7 +20,7 @@ div.cDelBeverage {
 	input.cExecDelete {
 		margin: 0 auto;
 		position: absolute;
-		bottom: 0;
+		bottom: 10px;
 		left: 0;
 		right: 0;
 		width: 300px;

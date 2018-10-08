@@ -7,12 +7,14 @@ html
 
 		title L2 Coffee
 
-		link(rel="stylesheet" type="text/css" href="/evil-icons/evil-icons.css")
+		//link(rel="stylesheet" type="text/css" href=`/stylesheets/theme/${loginTheme}.css`)
+		link(rel="stylesheet" type="text/css" href="/stylesheets/theme.css")
 		link(rel="stylesheet" type="text/css" href="/stylesheets/common.css")
 		link(rel="stylesheet" type="text/css" href="/stylesheets/viewbeverage.css")
 		link(rel="stylesheet" type="text/css" href="/stylesheets/viewuser.css")
 		link(rel="stylesheet" type="text/css" href="/stylesheets/vieworder.css")
 		link(rel="stylesheet" type="text/css" href="/stylesheets/viewadmin.css")
+		link(rel="stylesheet" type="text/css" href="/evil-icons/evil-icons.css")
 		//link(rel="stylesheet" type="text/css" href="/stylesheets/viewall.css")
 
 		script(src="/evil-icons/evil-icons.js")
@@ -26,7 +28,7 @@ html
 			function initAll() {
 				initOrderElem();
 				//initBeverageElem();
-				initUserElem( '#{loginType}', '#{loginName}', '#{loginID}', '#{loginUID}' );
+				initUserElem( '#{loginType}', '#{loginName}', '#{loginID}', '#{loginUID}', '#{loginTheme}' );
 				initAdminElem();
 				initAllElem( '#{loginType}' );
 				l2data.getAllList( l2all.cbAllList );

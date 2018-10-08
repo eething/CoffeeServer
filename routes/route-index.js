@@ -37,12 +37,26 @@ const getIconCache = ( () => {
 	};
 } )();
 
+/*
+function getUserTheme( user ) {
+	if ( user.theme ) {
+		return user.theme;
+	}
+	const themeList = ['blue', 'dark', 'hellokitty', 'ncsoft'];
+	const randIndex = Math.floor( Math.random() * themeList.length );
+	return themeList[randIndex];
+}
+*/
+
 router.get( '/', ( req, res ) => {
 	const params = {};
 	if ( req.user ) {
 		params.loginName = req.user.name;
 		params.loginUID = req.user.uid;
 		params.loginID = users.getAuthID( 'Local', req.user.uid );
+		params.loginTheme = req.user.theme || 'random';
+		// params.loginTheme = getUserTheme( req.user.theme );
+
 		if ( req.user.admin ) {
 			params.loginType = 'admin';
 		} else {

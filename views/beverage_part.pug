@@ -2,26 +2,33 @@
 	form(onsubmit="return false;")
 		div.cAddBeverage
 			table
+				colgroup
+					col(width="60")
+					col
 				tr
 					td(colspan="2")
 						input#name(type="text" name="name" autocomplete="off" placeholder="음료명 입력")
 						input(type="button" value="추가" onclick="onAddBeverage(this);")
 				tr
 					td
-						input(type="checkbox" name="iceable" checked)
-					td 아이스
+						input#iceable(type="checkbox" name="iceable" checked)
+					td
+						label(for="iceable") 아이스
 				tr
 					td
-						input(type="checkbox" name="hotable"  checked)
-					td 따뜻
+						input#hotable(type="checkbox" name="hotable"  checked)
+					td
+						label(for="hotable") 따뜻
 				tr
 					td
-						input(type="checkbox" name="syrupable")
-					td 시럽
+						input#syrupable(type="checkbox" name="syrupable")
+					td
+						label(for="syrupable") 시럽
 				tr
 					td
-						input(type="checkbox" name="self")
-					td 셀프
+						input#selfable(type="checkbox" name="self")
+					td
+						label(for="selfable") 셀프
 
 	div.cDelBeverage
 		div.cSelectDelete

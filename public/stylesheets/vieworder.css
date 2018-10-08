@@ -1,9 +1,10 @@
 ﻿
 
 div.cInput {
-	border: 1px solid;
-	height: 100px;
+	padding: 10px;
+	height: 120px;
 	margin-bottom: 10px;
+	background-color: var(--bg2);
 }
 	table.cInputT {
 		width: 100%;
@@ -21,9 +22,10 @@ div.cInput {
 			}
 
 div.cMain {
-	border: 1px solid;
+	padding: 10px;
 	position: relative;
-	height: calc(100% - 144px);
+	height: calc(100% - 170px);
+	background-color: var(--bg2);
 }
 	div.cMain > div.cOrderList {
 		margin: 0px;
@@ -99,21 +101,26 @@ div.cPopupOuter {
 	height: 80%;
 	z-index: 20;
 	text-align: center;
+	
+	background-color: var(--bg2);
+	border: 3px outset var(--border);
+	/*
 	background-image: linear-gradient(to bottom right, lightblue, #123);
 	border: 3px outset lightcyan;
+	*/
 }
 		div.cPopupOuter > div.cPopup {
 			width: 100%;
-			height: calc(100% - 30px);
+			height: calc(100% - 40px);
+			color: var(--text);
 		}
 			input.cNadoNado {
 				position: absolute;
 				bottom: 10px;
 				left: 10px;
 				right: 0;
-				background-color: lightgreen;
-				border-color: green;
 				width: 120px;
+				height: 30px;
 			}
 			p.ctxt {
 
@@ -130,29 +137,31 @@ div.cPopupOuter {
 			bottom: 10px;
 			right: 10px;
 			width: 80px;
-			background-color: lightblue;
-			border-color: blue;
+			height: 30px;
 		}
-/*
-input {
-}
-*/
+
     input::-webkit-calendar-picker-indicator {
         background-color: inherit;
-        //color:red;
-        //display: none;
+        /*
+		color:red;
+        display: none;
+		*/
     }
 	input.cBeverage {
-		//background-color: #FFF;
-		width: 180px;
+		width: 170px;
 	}
+	select.cBeverage {
+		width: 170px;
+		margin-left: -186px;
+		height: 22px;
+	}
+
 	input.cNyam {
 		margin: 0 auto;
-		position: absolute;		
+		position: absolute;
 		bottom: 0;
 		left: 0;
 		right: 0;
-		width: 300px;
-		background-color: lightgreen;
-		border-color: green;		
+		width: 200px;
+		height: 30px;
 	}

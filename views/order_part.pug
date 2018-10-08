@@ -25,8 +25,7 @@
 							onchange="onChangeBeverage(this);"
 							onkeydown="if(event.keyCode==13){return false;}" )
 						datalist#beverageList
-							select#beverageSelect(onchange="onChangeBeverage(this);"
-								style="width:180px;margin-left:-186px;height:22px;")
+							select.cBeverage#beverageSelect(onchange="onChangeBeverage(this);")
 						input(type="button" value="리셋" onclick="onResetBeverage(this);")
 
 		div.cMain

@@ -65,6 +65,9 @@
     <Content Include="package.json" />
     <Content Include="public\stylesheets\common.css" />
     <Content Include="public\stylesheets\main.css" />
+    <Content Include="public\stylesheets\theme.css">
+      <SubType>Code</SubType>
+    </Content>
     <Content Include="public\stylesheets\viewadmin.css" />
     <Content Include="public\stylesheets\viewbeverage.css" />
     <Content Include="public\stylesheets\vieworder.css" />

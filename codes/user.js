@@ -424,8 +424,8 @@ module.exports = {
 					tempPassword = value;
 					bContinue = true;
 				}
-			} else if ( key !== 'name' ) {
-				if ( uid === 0 ) {
+			} else if ( uid === 0 ) {
+				if ( key === 'deleted' || key === 'enagled' || key === 'shuttle' ) {
 					bContinue = true;
 				}
 			}

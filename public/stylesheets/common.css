@@ -10,30 +10,17 @@ body {
 	background-attachment: fixed;
 }
 
-table {
-	table-layout: fixed;
-	width:90%;
-	margin: auto;
-	border-spacing: 0px;
-}
-
-td {
-	border-top: 1px solid #999;
-	padding: 5px;
-	font-size: 15px;
-}
-
 div {
 	margin: 0 auto;
 }
 
 	div.cStandAlone {
-		background-image: linear-gradient(to bottom right, pink, #123);
 		padding: 10px;
-		position: absolute;
+		position: fixed;
 		min-width: 320px;
 		max-width: 420px;
 		height: calc(100% - 100px);
+		background-image: linear-gradient(to bottom right, pink, #123);
 	}
 @media screen and (max-height:700px) {
 	div.cStandAlone {
@@ -42,14 +29,14 @@ div {
 	}
 }
 div.cApp {
-	background-image: linear-gradient(to bottom right, lightblue, #123);
 	padding: 10px;
-	position: absolute;
+	position: fixed;
 	left: 0;
 	right: 0;
 	min-width: 320px;
 	max-width: 420px;
 	height: calc(100% - 100px);
+	background-color: var(--bg1);
 }
 @media screen and (max-height:700px) {
 	div.cApp {
@@ -123,7 +110,7 @@ div.cApp {
 				margin: 0;
 				width: 40px;
 				height: 40px;
-				/* fill: red; */
+				fill: var(--border);
 			}
 
 	div.cOuter {
@@ -168,3 +155,29 @@ div.cApp {
 	/*input[type="button"], input[type="submit"] {
 	font-size: 13pt;
 }*/
+
+span {
+	color: var(--text);
+}
+
+table {
+	table-layout: fixed;
+	width: 90%;
+	margin: auto;
+	border-spacing: 0px;
+}
+
+th, td {
+	padding: 5px;
+	font-size: 15px;
+	border-bottom: 1px solid var(--separator);
+	color: var(--text);
+}
+
+input[type="button"] {
+	color: var(--text-button);
+	text-shadow: 0 0 2px var(--text);
+	border-radius: 5px;
+	border-color: var(--border);
+	background-image: -webkit-linear-gradient(top, var(--border-light), var(--border));
+}

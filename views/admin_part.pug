@@ -4,7 +4,7 @@
 		span#menuAdminApp(onclick="onChangeAdminMenu('AdminApp')") 앱설정
 		span#menuAdminUser(onclick="onChangeAdminMenu('AdminUser')") 유저관리
 
-	div#AdminApp
+	div.cAdminMain#AdminApp
 		form(onsubmit="return false;")
 			table
 				colgroup
@@ -41,7 +41,7 @@
 						style="width:200px;"
 						onclick="onSubmitAdminConfig(this);")
 
-	div#AdminUser
+	div.cAdminMain#AdminUser
 		form(onsubmit="return false;")
 			div(style="text-align:center")
 				select#auth_admin(onchange="onSelectAuth(this);")

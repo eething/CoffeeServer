@@ -77,8 +77,9 @@ module.exports = {
 		this.collectAllData( user, ( sendMsg ) => {
 			sendMsg.uid = user.uid;
 			sendMsg.name = user.name;
-			sendMsg.admin = user.admin;
 			sendMsg.id = users.getAuthID( 'Local', user );
+			sendMsg.admin = user.admin;
+			sendMsg.theme = user.theme;
 
 			callback( sendMsg );
 		} );
@@ -119,6 +120,7 @@ module.exports = {
 					loginUID: user.uid,
 					loginID: users.getAuthID( 'Local', user.uid ),
 					loginType: user.admin ? 'admin' : 'user',
+					loginTheme: user.theme,
 				};
 				res.render( 'auth-ok', params );
 			} ); // save

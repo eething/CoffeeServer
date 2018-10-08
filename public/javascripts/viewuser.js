@@ -17,7 +17,25 @@ function changeUserMenu( menu ) {
 	} );
 }
 
-function changeLoginData( loginType, loginName, loginID, loginUID ) {
+function setTheme( theme ) {
+	let t = theme;
+	if ( t === 'random' ) {
+		const themeList = ['blue', 'dark', 'hellokitty', 'ncsoft'];
+		const randIndex = Math.floor( Math.random() * themeList.length );
+		t = themeList[randIndex];
+	}
+	console.log( t );
+	const styleList = ['bg1', 'bg2', 'separator', 'border', 'border-light', 'text', 'text-button'];
+	styleList.forEach( ( s ) => {
+		const themeName = `--${t}-${s}`;
+		const styleName = `--${s}`;
+
+		const { style } = document.styleSheets[0].rules[0];
+		style.setProperty( styleName, style.getPropertyValue( themeName ) );
+	} );
+}
+
+function changeLoginData( loginType, loginName, loginID, loginUID, loginTheme ) {
 	// Type
 	l2data.login.type = loginType;
 	elemUser.spanLogin.style.display	= loginType ? 'none' : 'inline-block';
@@ -47,6 +65,12 @@ function changeLoginData( loginType, loginName, loginID, loginUID ) {
 	document.querySelector( '#password2_edit' ).disabled = !l2data.login.ID;
 	// uid
 	l2data.login.uid = loginUID;
+	// theme
+	console.log( 'loginTheme', loginTheme );
+	l2data.login.theme = loginTheme || 'random';
+	const radioTheme = `#theme_${l2data.login.theme}`;
+	document.querySelector( radioTheme ).checked = true;
+	setTheme( l2data.login.theme );
 }
 
 function onLogout() {
@@ -60,7 +84,7 @@ function onLogout() {
 }
 
 function processLoginOK( d ) {
-	changeLoginData( d.admin ? 'admin' : 'user', d.name, d.id, d.uid );
+	changeLoginData( d.admin ? 'admin' : 'user', d.name, d.id, d.uid, d.theme );
 	l2data.setData( d );
 	if ( l2data.view.all ) {
 		l2all.changePage( 'Order' );
@@ -93,8 +117,8 @@ function onLoginProvider( Provider ) {
 	window.open( `/auth/${Provider}` );
 }
 
-window.providerCallbackOK = ( loginType, loginName, loginID, loginUID ) => {
-	changeLoginData( loginType, loginName, loginID, loginUID );
+window.providerCallbackOK = ( loginType, loginName, loginID, loginUID, loginTheme ) => {
+	changeLoginData( loginType, loginName, loginID, loginUID, loginTheme );
 	if ( l2data.view.all ) {
 		l2all.changePage( 'Order' );
 	}
@@ -148,12 +172,8 @@ function onCheckEditForm( self, getMsg ) {
 		fPassword2.className = 'userWhite';
 	}
 
-	const changeDel = false;
-	const changeEnable = false;
-	const orgName = l2data.login.name;
-
 	fName.value = fName.value.trim();
-	const changeName = ( fName.value === orgName ) ? 0 : 1;
+	const changeName = ( fName.value === l2data.login.name ) ? 0 : 1;
 	fName.className = ( changeName === 1 ) ? 'userGreen' : 'userWhite';
 
 	if ( !getMsg ) {
@@ -164,7 +184,8 @@ function onCheckEditForm( self, getMsg ) {
 	if ( errP2 ) {
 		return '비밀번호가 다릅니다.';
 	}
-	if ( changeName || changeDel || changeEnable ) {
+	const changeTheme = f.theme.value !== l2data.login.theme;
+	if ( changeName || changeTheme ) {
 		hasChange = true;
 	}
 	if ( !hasChange ) {
@@ -182,27 +203,23 @@ function onEditUser( self ) {
 		return;
 	}
 
-	const newName = f.name_edit.value;
-	const editMe = true;
-
 	const input = {
 		name: f.name_edit.value,
 		password: f.password1_edit.value,
+		theme: f.theme.value,
 	};
 	submitUser( 'editUser', input, () => {
-		if ( editMe ) {
-			l2data.login.name = newName;
-			// const user = l2data.allUsers[l2data.login.uid];
-			// user.name = l2data.login.name;
-			// user.id = l2data.login.ID = newID;
-		}
-		// f.name_edit.value			= '';
+		l2data.login.name = f.name_edit.value;
+		l2data.login.theme = f.theme.value;
+
 		f.password1_edit.value		= '';
 		f.password2_edit.value		= '';
 
 		f.name_edit.className		= 'userWhite';
 		f.password1_edit.className	= 'userWhite';
-		f.password2_edit.className	= 'userWhite';
+		f.password2_edit.className = 'userWhite';
+
+		setTheme( f.theme.value );
 	} );
 }
 
@@ -387,7 +404,7 @@ function onViewProvider( self, Provider ) {
 	alert( msg );
 }
 
-function initUserElem( loginType, loginName, loginID, loginUID ) {
+function initUserElem( loginType, loginName, loginID, loginUID, loginTheme ) {
 	elemUser.spanLogin		= document.querySelector( '#menuLogin' );
 	elemUser.spanRegister	= document.querySelector( '#menuRegister' );
 	elemUser.spanMyInfo		= document.querySelector( '#menuMyInfo' );
@@ -406,7 +423,7 @@ function initUserElem( loginType, loginName, loginID, loginUID ) {
 		elemUser.divAdmin,
 	];
 
-	changeLoginData( loginType, loginName, loginID, loginUID );
+	changeLoginData( loginType, loginName, loginID, loginUID, loginTheme );
 }
 
 const l2user = {

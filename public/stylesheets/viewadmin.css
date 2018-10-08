@@ -18,12 +18,26 @@ input.adminYellow {
 	background-color: yellow;
 }
 
-div.cAdminMenu > span {
-	display: inline-block;
-	width: 33%
+div.cAdminMenu {
+	margin-bottom: 10px;
+	height: 40px;
+	background-color: var(--bg2);
 }
 
-td.cProviderID {
+	div.cAdminMenu > span {
+		border: 1px solid var(--border);
+		margin: 1%;
+		display: inline-block;
+		padding: 3px 10px;
+		width: 31%;
+	}
+
+div.cAdminMain {
+	height: calc(100% - 50px);
+	background-color: var(--bg2);
+}
+
+td .cProviderID {
 	font-size: 15px;
 }
 
