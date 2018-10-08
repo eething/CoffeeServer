@@ -48,7 +48,7 @@ div.cLogin, div.cNewUser, div.cMyInfo, div.cAdmin {
 .cTheme > label {
 	padding: 5px 10px;
 	display: inline-block;
-	width: 200px;
+	width: calc(100% - 30px);
 	height: 40px;
 	background-color: var(--ex-bg1);
 }
@@ -65,7 +65,7 @@ div.cLogin, div.cNewUser, div.cMyInfo, div.cAdmin {
 		position: absolute;
 		top: 2px;
 		right: 2px;
-		width: 80px;
+		width: 40%;
 		color: var(--ex-text-button);
 		text-shadow: 0 0 2px var(--ex-text);
 		border-radius: 5px;
@@ -107,7 +107,7 @@ div.cLogin, div.cNewUser, div.cMyInfo, div.cAdmin {
 .cThemeRandom {
 	padding: 10px 10px;
 	display: inline-block;
-	width: 200px;
+	width: calc(100% - 30px);
 	height: 40px;
 	color: #000;
 	border: 1px solid #FFF;

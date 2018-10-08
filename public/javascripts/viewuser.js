@@ -24,7 +24,7 @@ function setTheme( theme ) {
 		const randIndex = Math.floor( Math.random() * themeList.length );
 		t = themeList[randIndex];
 	}
-	console.log( t );
+
 	const styleList = ['bg1', 'bg2', 'separator', 'border', 'border-light', 'text', 'text-button'];
 	styleList.forEach( ( s ) => {
 		const themeName = `--${t}-${s}`;
@@ -66,7 +66,6 @@ function changeLoginData( loginType, loginName, loginID, loginUID, loginTheme ) 
 	// uid
 	l2data.login.uid = loginUID;
 	// theme
-	console.log( 'loginTheme', loginTheme );
 	l2data.login.theme = loginTheme || 'random';
 	const radioTheme = `#theme_${l2data.login.theme}`;
 	document.querySelector( radioTheme ).checked = true;
