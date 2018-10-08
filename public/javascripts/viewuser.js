@@ -66,16 +66,18 @@ function changeLoginData( loginType, loginName, loginID, loginUID, loginTheme ) 
 	// uid
 	l2data.login.uid = loginUID;
 	// theme
-	l2data.login.theme = loginTheme || 'random';
-	const radioTheme = `#theme_${l2data.login.theme}`;
-	document.querySelector( radioTheme ).checked = true;
-	setTheme( l2data.login.theme );
+	if ( loginTheme !== 'logout' ) {
+		l2data.login.theme = loginTheme || 'random';
+		const radioTheme = `#theme_${l2data.login.theme}`;
+		document.querySelector( radioTheme ).checked = true;
+		setTheme( l2data.login.theme );
+	}
 }
 
 function onLogout() {
 	fetchHelper( '/auth/logout', null, null, 'Logout', ( data ) => {
 		if ( data.code === 'OK' ) {
-			changeLoginData();
+			changeLoginData( '', '', '', '', 'logout' );
 		} else {
 			throw new MyError( 500, data );
 		}
