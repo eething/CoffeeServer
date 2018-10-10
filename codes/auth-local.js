@@ -1,4 +1,4 @@
-﻿
+
 const LocalStrategy = require( 'passport-local' ).Strategy;
 const bcrypt = require( 'bcrypt' );
 
@@ -49,6 +49,26 @@ module.exports = {
 					return;
 				}
 				authCommon.processLogin( req, res, user );
+			} )( req, res, next );
+		} );
+
+		router.post( '/local', ( req, res, next ) => {
+			passport.authenticate( 'local', ( err, user, info ) => {
+				if ( err ) {
+					res.send( JSON.stringify( {
+						code: 'EAUTH',
+						err: convertError( err ),
+					} ) );
+					return;
+				}
+				if ( !user ) {
+					const params = {
+						errCode: info.code,
+					};
+					res.render( 'auth-error', params );
+					return;
+				}
+				authCommon.processLoginProvider( req, res, user );
 			} )( req, res, next );
 		} );
 

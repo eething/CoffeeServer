@@ -1,4 +1,4 @@
-﻿
+
 const TwitterStrategy = require( 'passport-twitter' ).Strategy;
 
 const admins = require( './admin' );

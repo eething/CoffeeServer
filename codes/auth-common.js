@@ -1,4 +1,4 @@
-﻿
+
 const users			= require( './user' );
 const beverages		= require( './beverage' );
 const orders		= require( './order' );

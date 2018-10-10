@@ -1,4 +1,4 @@
-﻿
+
 const FacebookStrategy = require( 'passport-facebook' ).Strategy;
 
 const admins = require( './admin' );
