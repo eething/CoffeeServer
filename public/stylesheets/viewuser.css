@@ -120,7 +120,7 @@ div.cLogin, div.cNewUser, div.cMyInfo, div.cAdmin {
 }
 
 div.cLoginButton {
-	width: 200px;
+	width: 220px;
 	height: 40px;
 	line-height: 40px;
 	margin: 0;
@@ -130,9 +130,27 @@ div.cLoginButton {
 }
 
 div.cFacebook {
-	color: #FFF;
+	position: relative;
 	background-color: #4267B2;
 }
+	div.cFacebook > span.fb1 {
+		display: inline-block;
+		position: absolute;
+		top: 5px;
+		left: 15px;
+		width: 30px;
+		height: 30px;
+		font-size: 35px;
+		padding-left: 10px;
+		border-radius: 2px;
+		color: #4267B2;
+		background-color: #FFF;
+	}
+	div.cFacebook > span.fb2 {
+		display: inline-block;
+		color: #FFF;
+		background-color: #4267B2;
+	}
 
 div.cGoogle {
 	color: #FFF;
