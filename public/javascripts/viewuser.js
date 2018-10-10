@@ -98,6 +98,10 @@ function processLoginOK( d ) {
 
 function onLogin( self ) {
 	const f = self.form;
+	if ( !f.id.value || !f.password.value ) {
+		return;
+	}
+
 	const input = {
 		id: f.id.value,
 		password: f.password.value,
@@ -112,6 +116,25 @@ function onLogin( self ) {
 			throw new MyError( 500, data );
 		}
 	} );
+}
+
+function onLoginSubmit( self ) {
+	const f = self.form;
+	if ( !f.id.value || !f.password.value ) {
+		return;
+	}
+	f.submit();
+}
+function initFlashError( loginErrorStr ) {
+	if ( !loginErrorStr ) {
+		return;
+	}
+	const loginError = JSON.parse( loginErrorStr );
+	if ( !loginError ) {
+		return;
+	}
+	console.log( loginError );
+	document.querySelector( '#show_flash' ).innerHTML = loginError.message;
 }
 
 function onLoginProvider( Provider ) {
@@ -544,8 +567,8 @@ function onAddUser( self ) {
 
 		document.querySelector( '#name_edit' ).value = l2data.login.name || '';
 		document.querySelector( '#id_edit' ).innerHTML = l2data.login.ID || '';
-		f.password1_edit.disabled = !l2data.login.ID;
-		f.password2_edit.disabled = !l2data.login.ID;
+		document.querySelector( '#password1_edit' ).disabled = !l2data.login.ID;
+		document.querySelector( '#password2_edit' ).disabled = !l2data.login.ID;
 
 		f.id_add.value = '';
 		f.name_add.value = '';

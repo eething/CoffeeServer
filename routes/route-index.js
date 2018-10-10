@@ -55,14 +55,21 @@ router.get( '/', ( req, res ) => {
 		params.loginUID = req.user.uid;
 		params.loginID = users.getAuthID( 'Local', req.user.uid );
 		params.loginTheme = req.user.theme || 'random';
-		// params.loginTheme = getUserTheme( req.user.theme );
 
 		if ( req.user.admin ) {
 			params.loginType = 'admin';
 		} else {
 			params.loginType = 'user';
 		}
+	} else {
+		params.loginTheme = 'random';
 	}
+
+	const errorList = req.flash( 'error' );
+	if ( errorList.length > 0 ) {
+		params.loginError = JSON.stringify( errorList[errorList.length - 1] );
+	}
+
 	const currentTheme = 'ei-custom';
 	params.icons = getIconCache( currentTheme );
 

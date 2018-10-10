@@ -181,3 +181,8 @@ input[type="button"] {
 	border-color: var(--border);
 	background-image: -webkit-linear-gradient(top, var(--border-light), var(--border));
 }
+
+input[type="button"].cBigBtn {
+	border-radius: 10px;
+	height: 40px;
+}

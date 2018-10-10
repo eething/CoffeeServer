@@ -1,6 +1,7 @@
 
 const LocalStrategy = require( 'passport-local' ).Strategy;
 const bcrypt = require( 'bcrypt' );
+// const flash = require( 'connect-flash' );
 
 const convertError = require( '../lib/convert-error' );
 const users = require( './user' );
@@ -55,20 +56,30 @@ module.exports = {
 		router.post( '/local', ( req, res, next ) => {
 			passport.authenticate( 'local', ( err, user, info ) => {
 				if ( err ) {
-					res.send( JSON.stringify( {
-						code: 'EAUTH',
-						err: convertError( err ),
-					} ) );
+					req.flash( 'error', { code: 'EAUTH', err: convertError( err ) } );
+					res.redirect( '/' );
 					return;
 				}
 				if ( !user ) {
-					const params = {
-						errCode: info.code,
-					};
-					res.render( 'auth-error', params );
+					info.code = info.code || 'ETC';
+					req.flash( 'error', info );
+					res.redirect( '/' );
 					return;
 				}
-				authCommon.processLoginProvider( req, res, user );
+				req.login( user, ( error ) => {
+					if ( error ) {
+						req.flash( 'error', { code: 'ELOGIN', err: convertError( error ) } );
+						res.redirect( '/' );
+						return;
+					}
+					req.session.save( ( e ) => {
+						if ( e ) {
+							req.flash( 'error', { code: 'ESS', err: convertError( e ) } );
+						} else {
+							res.redirect( '/' );
+						}
+					} );
+				} );
 			} )( req, res, next );
 		} );
 

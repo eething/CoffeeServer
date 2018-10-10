@@ -7,8 +7,8 @@
 		span#menuAdmin(onclick="changeUserMenu('Admin')") 관리자
 		span#menuLogout(onclick="onLogout();") 로그아웃
 
-	form(onsubmit="return false;" style="height:calc(100% - 30px);")
-		div.cLogin
+	div.cLogin
+		form(action="/auth/local" method="post")
 			table
 				colgroup
 					col(width="90")
@@ -16,16 +16,21 @@
 				tr
 					td ID
 					td
-						input#id(type="text" autocomplete="off")
+						input#id(type="text" name="id" autocomplete="off")
 				tr
 					td 비밀번호
 					td
-						input#password(type="password")
+						input#password(type="password" name="password")
 				tr
-					td(colspan="2" align="center")
-						input(type="button" value="로그인"
-							style="width:200px;"
+					td(colspan="2")
+						input(type="button" value="iOS 로그인"
+							style="width:30%;height:30px;margin-right:5%;"
+							onclick="onLoginSubmit(this);")
+						input.cBigBtn(type="button" value="로그인"
+							style="width:60%;"
 							onclick="onLogin(this);")
+				tr
+					td#show_flash(colspan="2" align="center" style="height:40px;")
 				tr
 					td(colspan="2" align="center")
 						div.cLoginButton.cFacebook(onclick="onLoginProvider('Facebook')") 빼북
@@ -39,7 +44,8 @@
 					td(colspan="2" align="center")
 						div.cLoginButton.cTwitter(onclick="onLoginProvider('Twitter')") 트잉여
 
-		div.cNewUser
+	div.cNewUser
+		form(onsubmit="return false;")
 			table
 				colgroup
 					col(width="90")
@@ -69,7 +75,7 @@
 						 	onchange="onCheckAddForm(this);")
 				tr
 					td(colspan="2" align="center")
-						input(type="button" value="회원가입"
+						input.cBigBtn(type="button" value="회원가입"
 						style="width:200px;"
 						onclick="onAddUser(this);")
 				tr
@@ -85,15 +91,16 @@
 					td(colspan="2" align="center")
 						div.cLoginButton.cTwitter(onclick="onLoginProvider('Twitter')") 트잉여
 
-		div.cMyInfo
+	div.cMyInfo
+		form(onsubmit="return false;")
 			table
 				colgroup
-					col(width="90")
+					col(width="80")
 					col
 				tr
 					th(colspan="2" align="center") My Info
 				tr
-					td(style="width:90px;") UserID
+					td UserID
 					td#id_edit(style="width:150px;") #{loginID}
 				tr
 					td 이름
@@ -163,7 +170,8 @@
 					td(colspan="2" align="center")
 						div.cLoginButton.cTwitter(onclick="onLoginProvider('Twitter')") 트잉여
 
-		div.cAdmin
+	div.cAdmin
+		form(onsubmit="return false;")
 			table
 				colgroup
 					col(width="90")

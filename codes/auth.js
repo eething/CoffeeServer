@@ -3,6 +3,7 @@ const express = require( 'express' );
 const session = require( 'express-session' );
 const FileStore = require( 'session-file-store' )( session );
 const passport = require( 'passport' );
+const flash = require( 'connect-flash' );
 
 const authCommon	= require( './auth-common' );
 const authLocal		= require( './auth-local' );
@@ -22,6 +23,7 @@ module.exports = function auth( app ) {
 		saveUninitialized: true,
 		store: new FileStore(),
 	} ) );
+	app.use( flash() );
 	app.use( passport.initialize() );
 	app.use( passport.session() );
 

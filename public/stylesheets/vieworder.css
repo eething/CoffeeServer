@@ -24,7 +24,7 @@ div.cInput {
 div.cMain {
 	padding: 10px;
 	position: relative;
-	height: calc(100% - 170px);
+	height: calc(100% - 180px);
 	background-color: var(--bg2);
 }
 	div.cMain > div.cOrderList {
@@ -163,5 +163,4 @@ div.cPopupOuter {
 		left: 0;
 		right: 0;
 		width: 200px;
-		height: 30px;
 	}

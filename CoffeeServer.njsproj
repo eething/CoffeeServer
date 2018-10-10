@@ -42,9 +42,7 @@
     <Compile Include="codes\auth.js" />
     <Compile Include="codes\beverage.js" />
     <Compile Include="codes\order.js" />
-    <Compile Include="codes\shuttle.js">
-      <SubType>Code</SubType>
-    </Compile>
+    <Compile Include="codes\shuttle.js" />
     <Compile Include="codes\user.js" />
     <Compile Include="lib\check-auth.js" />
     <Compile Include="lib\check-loaded.js" />
@@ -65,9 +63,7 @@
     <Content Include="package.json" />
     <Content Include="public\stylesheets\common.css" />
     <Content Include="public\stylesheets\main.css" />
-    <Content Include="public\stylesheets\theme.css">
-      <SubType>Code</SubType>
-    </Content>
+    <Content Include="public\stylesheets\theme.css" />
     <Content Include="public\stylesheets\viewadmin.css" />
     <Content Include="public\stylesheets\viewbeverage.css" />
     <Content Include="public\stylesheets\vieworder.css" />

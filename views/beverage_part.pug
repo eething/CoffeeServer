@@ -1,5 +1,5 @@
 ﻿div.cOuter#outerBeverage
-	form(onsubmit="return false;")
+	form(onsubmit="return false;" style="height:100%;")
 		div.cAddBeverage
 			table
 				colgroup
@@ -30,13 +30,13 @@
 					td
 						label(for="selfable") 셀프
 
-	div.cDelBeverage
-		div.cSelectDelete
-			input#delBeverage(type="text" list="beverageList2" autocomplete="off"
-				onkeydown="if( event.keyCode == 13 ){ return false; }" )
-			datalist#beverageList2
-				select#beverageSelect2(style="width:180px;margin-left:-186px;height:22px;")
-			input(type="button" value="삭제리스트" onclick="onAddDelete( this );")
+		div.cDelBeverage
+			div.cSelectDelete
+				input#delBeverage(type="text" list="beverageList2" autocomplete="off"
+					onkeydown="if( event.keyCode == 13 ){ return false; }" )
+				datalist#beverageList2
+					select#beverageSelect2
+				input(type="button" value="삭제리스트" onclick="onAddDelete( this );")
 
-		div.cDeleteList
-		input.cExecDelete(type="button" value="삭제실행" onclick="onDelBeverage(this);")
+			div.cDeleteList
+		input.cBigBtn.cExecDelete(type="button" value="삭제실행" onclick="onDelBeverage(this);")
