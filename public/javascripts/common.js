@@ -16,6 +16,7 @@ MyError.prototype.constructor = MyError;
 function fetchHelper( address, options, input, description, callback ) {
 	//
 	const opt = options || {};
+	opt.credentials = 'same-origin';
 	if ( input ) {
 		opt.headers = opt.headers || {};
 		opt.headers['Content-Type'] = 'application/json';
