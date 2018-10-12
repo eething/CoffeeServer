@@ -433,7 +433,7 @@ const l2order = {
 		shuttleList.forEach( ( sl ) => {
 			const el = elemOrder.shuttleList[index];
 			if ( sl.status >= 0 ) {
-				const bShowButton = ( sl.uid === l2data.login.uid
+				const bShowButton = ( Number( sl.uid ) === l2data.login.uid
 									|| l2data.login.type === 'admin' )
 									&& sl.status === 0;
 				if ( bShowButton ) {

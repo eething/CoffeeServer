@@ -64,7 +64,7 @@ function changeLoginData( loginType, loginName, loginID, loginUID, loginTheme ) 
 	document.querySelector( '#password1_edit' ).disabled = !l2data.login.ID;
 	document.querySelector( '#password2_edit' ).disabled = !l2data.login.ID;
 	// uid
-	l2data.login.uid = loginUID;
+	l2data.login.uid = Number( loginUID );
 	// theme
 	if ( loginTheme !== 'logout' ) {
 		l2data.login.theme = loginTheme || 'random';
@@ -563,7 +563,7 @@ function onAddUser( self ) {
 		changeLoginData( 'user' );
 		l2data.login.name = data.name;
 		l2data.login.ID = data.id;
-		l2data.login.uid = data.uid;
+		l2data.login.uid = Number( data.uid );
 
 		document.querySelector( '#name_edit' ).value = l2data.login.name || '';
 		document.querySelector( '#id_edit' ).innerHTML = l2data.login.ID || '';
