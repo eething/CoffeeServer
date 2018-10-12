@@ -33,7 +33,8 @@ module.exports = {
 	addShuttles() {
 		this.sortShuttlePoint();
 
-		const addShuttle = ( uid ) => {
+		const addShuttle = ( uidKey ) => {
+			const uid = Number( uidKey );
 			const zeroGroup = this.shuttlePoint.find( g => g.point === 0 );
 			if ( zeroGroup ) {
 				zeroGroup.users.push( uid );

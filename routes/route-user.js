@@ -203,11 +203,12 @@ router.post( '/shuttle', ( req, res ) => {
 	const confirmList = [];
 	const deletedList = [];
 	req.body.forEach( ( list ) => {
-		if ( req.user.admin || req.user.uid === Number( list.uid ) ) {
+		const uid = Number( list.uid );
+		if ( req.user.admin || uid === req.user.uid ) {
 			if ( list.confirm ) {
-				confirmList.push( list.uid );
+				confirmList.push( uid );
 			} else if ( list.deleted ) {
-				deletedList.push( list.uid );
+				deletedList.push( uid );
 			}
 		}
 	} );
