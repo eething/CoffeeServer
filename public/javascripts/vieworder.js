@@ -34,11 +34,11 @@ function onSwapOrderList( self ) {
 	if ( elemOrder.tableOrderB.style.display === 'none' ) {
 		elemOrder.tableOrderB.style.display = 'table';
 		elemOrder.tableOrderO.style.display = 'none';
-		self.innerHTML = '유저별';
+		self.value = '유저별';
 	} else {
 		elemOrder.tableOrderB.style.display = 'none';
 		elemOrder.tableOrderO.style.display = 'table';
-		self.innerHTML = '음료별';
+		self.value = '음료별';
 	}
 }
 

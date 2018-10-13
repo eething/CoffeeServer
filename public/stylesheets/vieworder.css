@@ -37,17 +37,19 @@ div.cMain {
 	div.cTotal {
 		position: relative;
 		margin: 10px 0;
+		text-align: right;
 	}
 		div.cTotal > span {
 			display: inline-block;
+			margin-right: 10%;
+			width: 30%;
 			text-align: center;
+			vertical-align: bottom;
+			border: 1px solid var(--border);
 		}
-			div.cTotal > span.cTotal {
-				width: 75%;
-			}
-			div.cTotal > span.cSwap {
-				width: 25%;
-			}
+		div.cTotal > .cSwap {
+			width: 25%;
+		}
 
 	table.cOrderB, table.cOrderO {
 		width: 100%;
@@ -139,7 +141,6 @@ div.cPopupOuter {
 			}
 
 			div.cProfile {
-				border: 1px solid pink;
 				height: calc(100% - 60px);
 				overflow: auto;
 				text-align: justify;
