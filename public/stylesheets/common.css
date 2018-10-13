@@ -8,6 +8,7 @@ body {
 	margin: 0;
 	background-image: linear-gradient(to bottom right, gray, white);
 	background-attachment: fixed;
+	color: var(--text);
 }
 
 div {
@@ -156,10 +157,6 @@ div.cApp {
 	font-size: 13pt;
 }*/
 
-span {
-	color: var(--text);
-}
-
 table {
 	table-layout: fixed;
 	width: 90%;
@@ -171,7 +168,6 @@ th, td {
 	padding: 5px;
 	font-size: 15px;
 	border-bottom: 1px solid var(--separator);
-	color: var(--text);
 }
 
 input[type="button"] {

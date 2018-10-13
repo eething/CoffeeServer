@@ -67,7 +67,7 @@ const l2data = {
 	allOrders: {},
 	currentOrder: [],
 	currentBuy: {},
-	buyKeySorted: [],
+	buyKeysSorted: [],
 
 	// TODO - currentOrder 의 정렬시 orderBy 로 정렬하는데
 	// 이거 uid 라서 실제 이름 정렬로 전환 해야 하나-_-
@@ -181,12 +181,23 @@ const l2data = {
 				buyList.push( buy );
 			}
 			buy.orderBys.push( co.orderBy );
-			buy.orderByDNs.push( co.orderByDN );
+			buy.orderByDNs.push( {
+				uid: co.orderBy,
+				name: co.orderByDN,
+			} );
 		} );
 
 		Object.keys( this.currentBuy ).forEach( ( k ) => {
-			this.currentBuy[k].forEach( ( b ) => {
-				b.orderByDNs.sort();
+			this.currentBuy[k].forEach( ( buy ) => {
+				buy.orderByDNs.sort( ( a, b ) => {
+					if ( a.name > b.name ) {
+						return 1;
+					}
+					if ( a.name < b.name ) {
+						return -1;
+					}
+					return 0;
+				} );
 			} );
 		} );
 

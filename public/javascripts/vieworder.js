@@ -273,12 +273,19 @@ function addTableOrderO( co ) {
 
 	const tr = addElement( elemOrder.tableOrderO, 'tr', 'cOrderItem' );
 
-	const beverageStr = `${co.beverage}${optionStr ? `(${optionStr})` : ''}`;
-	const size = Math.min( Math.max( 30 - beverageStr.length, 11 ), 15 );
 
-	addElement( tr, 'td', 'cOrderBy', userName );
-	const td = addElement( tr, 'td', 'cBeverageOption', beverageStr );
-	td.style.fontSize = `${size}px`;
+
+	const td1 = addElement( tr, 'td', 'cPic' );
+	const picture = addElement( td1, 'div', 'cPic' );
+	const p = l2data.allUsers[co.orderBy].profile;
+	picture.style.backgroundImage = p ? `url("${p}")` : '';
+
+	/* const td2 = */ addElement( tr, 'td', 'cOrderBy', userName );
+
+	const beverageStr = `${co.beverage}${optionStr ? `(${optionStr})` : ''}`;
+	const size = Math.min( Math.max( 28 - beverageStr.length, 11 ), 15 );
+	const td3 = addElement( tr, 'td', 'cBeverageOption', beverageStr );
+	td3.style.fontSize = `${size}px`;
 }
 function makeTableOrderO() {
 	removeChildAll( elemOrder.tableOrderO );
@@ -307,8 +314,14 @@ function addTableOrderB( k, v ) {
 		removeChildAll( elemOrder.divPopup );
 		addElement( elemOrder.divPopup, 'p', 'ctxt', k );
 		addElement( elemOrder.divPopup, 'p', 'ctxt', optionStr );
+
+		const profile = addElement( elemOrder.divPopup, 'div', 'cProfile' );
 		v.orderByDNs.forEach( ( oDN ) => {
-			addElement( elemOrder.divPopup, 'span', 'stxt', oDN );
+			const orderer = addElement( profile, 'div', 'cOrderer' );
+			const picture = addElement( orderer, 'div', 'cPicture' );
+			const p = l2data.allUsers[oDN.uid].profile;
+			picture.style.backgroundImage = p ? `url("${p}")` : '';
+			addElement( orderer, 'p', 'cName', oDN.name );
 		} );
 
 		const input = addElement( elemOrder.divPopup, 'input', 'cNadoNado', '' );

@@ -29,12 +29,6 @@
 						input(type="button" value="리셋" onclick="onResetBeverage(this);")
 
 		div.cMain
-			div.cDimmer
-			div.cPopupOuter
-				div.cPopup
-					p.ctxt 음료를 선택해주세요
-				input.cClose(type="button" value="닫기" onclick="showPopup(false)")
-
 			div.cOrderList#orderList
 				div.cTotal
 					span.cTotal
@@ -56,3 +50,8 @@
 				label(for="self" style="color:red;") 직접수령
 
 		input.cBigBtn.cNyam(type="button" value="냠냠" onclick="onAddOrder(this);")
+
+		div.cDimmer(onclick="showPopup(false);")
+		div.cPopupOuter
+			div.cPopup
+			input.cClose(type="button" value="닫기" onclick="showPopup(false);")

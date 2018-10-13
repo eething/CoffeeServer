@@ -514,6 +514,24 @@ module.exports = {
 		this.writeUser( body.uid, callback );
 	},
 
+	getProfile( u ) {
+		let uid;
+		if ( typeof u === 'object' ) {
+			( { uid } = u );
+		} else {
+			uid = u;
+		}
+
+		const kakaoID = this.getAuthID( 'Kakao', uid );
+		if ( kakaoID ) {
+			const kakao = this.allKakaos[kakaoID];
+			const json = '_json'; // prevent eslint error
+			return kakao.profile[json].properties.thumbnail_image;
+		}
+
+		return undefined;
+	},
+
 	getUserList( currentUser ) {
 		const { admin, uid: myUID } = currentUser;
 		const tempAll = {};
@@ -539,7 +557,7 @@ module.exports = {
 					tempUser[key] = user[key];
 				} );
 				tempUser.localID = auth ? auth.Local : null;
-				tempUser.profile = ''; // TODO - 프사
+				tempUser.profile = this.getProfile( uid );
 
 				if ( admin ) {
 					tempUser.auth = this.getAuthInfo( auth );
