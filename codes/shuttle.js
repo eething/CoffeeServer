@@ -33,8 +33,7 @@ module.exports = {
 	addShuttles() {
 		this.sortShuttlePoint();
 
-		const addShuttle = ( uidKey ) => {
-			const uid = Number( uidKey );
+		const addShuttle = ( uid ) => {
 			const zeroGroup = this.shuttlePoint.find( g => g.point === 0 );
 			if ( zeroGroup ) {
 				zeroGroup.users.push( uid );
@@ -48,27 +47,24 @@ module.exports = {
 			}
 		};
 
-		Object.keys( users.allUsers ).forEach( ( uid ) => {
+		Object.keys( users.allUsers ).forEach( ( uidKey ) => {
+			const uid = Number( uidKey );
 			const user = users.allUsers[uid];
 			if ( !user.deleted && user.enabled && user.shuttle ) {
 				if ( !this.shuttlePoint.some( group => group.users.includes( uid ) ) ) {
 					addShuttle( uid );
 				}
 			} else {
-				let bDelete = false;
 				this.shuttlePoint.forEach( ( group, groupIndex ) => {
-					if ( !bDelete ) {
-						const randIndex = group.rands.findIndex( u => u === uid );
-						if ( randIndex >= 0 ) {
-							group.rands.splice( randIndex, 1 );
-						}
-						const userIndex = group.users.findIndex( u => u === uid );
-						if ( userIndex >= 0 ) {
-							bDelete = true;
-							group.users.splice( userIndex, 1 );
-							if ( group.users.length === 0 ) {
-								this.shuttlePoint.splice( groupIndex, 1 );
-							}
+					const randIndex = group.rands.findIndex( u => Number( u ) === uid );
+					if ( randIndex >= 0 ) {
+						group.rands.splice( randIndex, 1 );
+					}
+					const userIndex = group.users.findIndex( u => Number( u ) === uid );
+					if ( userIndex >= 0 ) {
+						group.users.splice( userIndex, 1 );
+						if ( group.users.length === 0 ) {
+							this.shuttlePoint.splice( groupIndex, 1 );
 						}
 					}
 				} );
@@ -195,13 +191,6 @@ module.exports = {
 		}
 	},
 
-	initShuttle( callback ) {
-		this.loadShuttlePoint( () => {
-			this.shrinkShuttlePoint();
-			this.writeShuttle( callback );
-		} );
-	},
-
 	sortShuttlePoint() {
 		this.shuttlePoint.sort( ( a, b ) => a.point - b.point );
 	},
@@ -214,6 +203,17 @@ module.exports = {
 		const min = this.shuttlePoint[0].point;
 		this.shuttlePoint.forEach( ( group ) => {
 			group.point -= min;
+		} );
+	},
+
+	convertToNumber() {
+		this.shuttlePoint.forEach( ( group ) => {
+			group.users.forEach( ( value, index, arr ) => {
+				arr[index] = Number( value );
+			} );
+			group.rands.forEach( ( value, index, arr ) => {
+				arr[index] = Number( value );
+			} );
 		} );
 	},
 
@@ -231,6 +231,9 @@ module.exports = {
 				this.todayString = parsed.todayString;
 				this.todayShuttle = parsed.todayShuttle;
 				this.shuttlePoint = parsed.shuttlePoint;
+
+				this.shrinkShuttlePoint();
+				this.convertToNumber();
 				console.log( 'Shuttle Loaded...' );
 			} else {
 				console.log( 'No Shuttle Point...' );
